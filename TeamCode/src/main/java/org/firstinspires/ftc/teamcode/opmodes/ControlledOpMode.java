@@ -27,48 +27,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-/**
- * This file contains an example of an iterative (Non-Linear) "OpMode".
- * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When an selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all iterative OpModes contain.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
 
-@TeleOp(name="MainOpMode")
-public class MainOpMode extends OpMode {
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
+import org.firstinspires.ftc.robotcore.internal.camera.WebcamExample;
+import org.firstinspires.ftc.robotcore.internal.camera.names.WebcamNameInternal;
+import org.firstinspires.ftc.teamcode.CameraHandler;
+import org.firstinspires.ftc.teamcode.DrivingHandler;
+
+@TeleOp(name="ControlledOpMode")
+public class ControlledOpMode extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor motor;
+    private DrivingHandler drivingHandler;
+    private Servo servo1;
+    private CameraHandler cameraHandler;
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
+        drivingHandler = new DrivingHandler(this);
+        cameraHandler = new CameraHandler(this);
+        servo1 = hardwareMap.servo.get("servo1");
 
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        motor  = hardwareMap.get(DcMotor.class, "testMotor1");
-
-        // Most robots need the motor on one side to be reversed to drive forward
-        // Reverse the motor that runs backwards when connected directly to the battery
-        motor.setDirection(DcMotor.Direction.FORWARD);
-        // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
 
@@ -84,20 +72,26 @@ public class MainOpMode extends OpMode {
      */
     @Override
     public void start() {
+        cameraHandler.capture();
         runtime.reset();
     }
+
+    boolean max = false;
 
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
     @Override
     public void loop() {
-        // Send calculated power to wheels
-        motor.setPower(gamepad1.left_stick_x);
+        drivingHandler.tick();
 
-        // Show the elapsed game time and wheel power.
+        if (gamepad1.a) {
+            max = !max;
+        }
+        double pos = max ? 0.9 : 0.1;
+        servo1.setPosition(pos);
+        System.out.println(pos);
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-//        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
     }
 
     /*
