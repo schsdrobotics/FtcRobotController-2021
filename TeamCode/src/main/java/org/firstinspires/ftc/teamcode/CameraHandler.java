@@ -23,6 +23,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraFrame;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraManager;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.collections.EvictingBlockingQueue;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotcore.internal.system.ContinuationSynchronizer;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 
@@ -104,7 +105,7 @@ public class CameraHandler {
     }
 
     public void capture() {
-        File file = new File( "C:/Users/OWNER/Desktop/webcam-frame.jpg");
+        File file = new File(AppUtil.ROBOT_DATA_DIR, "webcam-frame.jpg");
         try {
             if (file.exists()) file.delete();
             file.createNewFile();
