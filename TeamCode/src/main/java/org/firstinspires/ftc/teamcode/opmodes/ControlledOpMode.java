@@ -29,24 +29,25 @@
 
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.vuforia.Vuforia;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
-import org.firstinspires.ftc.robotcore.internal.camera.WebcamExample;
-import org.firstinspires.ftc.robotcore.internal.camera.names.WebcamNameInternal;
-import org.firstinspires.ftc.teamcode.CameraHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 @TeleOp(name="ControlledOpMode")
 public class ControlledOpMode extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DrivingHandler drivingHandler;
-    private Servo servo1;
-    private CameraHandler cameraHandler;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -54,8 +55,6 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void init() {
         drivingHandler = new DrivingHandler(this);
-        cameraHandler = new CameraHandler(this);
-        servo1 = hardwareMap.servo.get("servo1");
 
         telemetry.addData("Status", "Initialized");
     }
@@ -72,7 +71,6 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void start() {
-        cameraHandler.capture();
         runtime.reset();
     }
 
@@ -84,13 +82,6 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void loop() {
         drivingHandler.tick();
-
-        if (gamepad1.a) {
-            max = !max;
-        }
-        double pos = max ? 0.9 : 0.1;
-        servo1.setPosition(pos);
-        System.out.println(pos);
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 

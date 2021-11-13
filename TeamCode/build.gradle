@@ -21,7 +21,16 @@ android {
     }
 }
 
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+}
+
+project.ext.jomlVersion = "1.9.3-SNAPSHOT"
+
 dependencies {
+    implementation "org.joml:joml-android:${jomlVersion}"
     implementation project(':FtcRobotController')
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 }
