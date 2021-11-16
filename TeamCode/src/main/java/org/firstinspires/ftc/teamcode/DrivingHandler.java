@@ -52,8 +52,14 @@ public class DrivingHandler {
     /**
      * Runs once every OpMode loop.
      */
-    public void tick() {
+    public void tick(boolean manual) {
         stop();
+        if (manual) manualTick();
+        else autonomousTick();
+        updateAll();
+    }
+
+    public void manualTick() {
         double x = controller.left_stick_x;
         double y = controller.left_stick_y;
 
@@ -74,7 +80,10 @@ public class DrivingHandler {
             frontRight.setPower(-x);
             backRight.setPower(-x);
         }
-        updateAll();
+    }
+
+    public void autonomousTick() {
+
     }
 
     /**

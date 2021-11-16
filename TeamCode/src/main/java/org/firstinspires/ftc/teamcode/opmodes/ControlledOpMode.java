@@ -82,7 +82,7 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void loop() {
-        drivingHandler.tick();
+        drivingHandler.tick(true);
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
