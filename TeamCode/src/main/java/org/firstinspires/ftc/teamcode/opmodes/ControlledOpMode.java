@@ -74,8 +74,6 @@ public class ControlledOpMode extends OpMode {
         runtime.reset();
     }
 
-    boolean max = false;
-
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
