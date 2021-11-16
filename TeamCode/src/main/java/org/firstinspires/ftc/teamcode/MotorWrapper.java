@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+/**
+ * A wrapper around a motor that allows for delaying updating until later
+ */
 public class MotorWrapper {
     public final DcMotor motor;
     private double power;
@@ -11,6 +14,7 @@ public class MotorWrapper {
     }
 
     public void setPower(double power) {
+        // software limits of 80%
         if (power > 0.8) power = 0.8;
         if (power < -0.8) power = -0.8;
         this.power = power;

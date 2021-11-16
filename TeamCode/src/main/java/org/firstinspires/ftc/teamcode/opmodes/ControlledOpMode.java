@@ -42,6 +42,9 @@ import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 
+/**
+ * The OpMode that runs when the robot is manually controlled.
+ */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @TeleOp(name="ControlledOpMode")
 public class ControlledOpMode extends OpMode {
@@ -49,7 +52,7 @@ public class ControlledOpMode extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DrivingHandler drivingHandler;
 
-    /*
+    /**
      * Code to run ONCE when the driver hits INIT
      */
     @Override
@@ -59,14 +62,14 @@ public class ControlledOpMode extends OpMode {
         telemetry.addData("Status", "Initialized");
     }
 
-    /*
+    /**
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
     @Override
     public void init_loop() {
     }
 
-    /*
+    /**
      * Code to run ONCE when the driver hits PLAY
      */
     @Override
@@ -74,7 +77,7 @@ public class ControlledOpMode extends OpMode {
         runtime.reset();
     }
 
-    /*
+    /**
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
     @Override
@@ -83,7 +86,7 @@ public class ControlledOpMode extends OpMode {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
-    /*
+    /**
      * Code to run ONCE after the driver hits STOP
      */
     @Override
