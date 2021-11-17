@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 /**
@@ -31,5 +32,9 @@ public class MotorWrapper {
 
     public void update() {
         motor.setPower(power);
+    }
+
+    public static MotorWrapper getMotor(String name, OpMode mode) {
+        return new MotorWrapper(mode.hardwareMap.get(DcMotor.class, name));
     }
 }

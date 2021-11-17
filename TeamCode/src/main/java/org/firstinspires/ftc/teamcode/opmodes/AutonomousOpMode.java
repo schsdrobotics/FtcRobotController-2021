@@ -33,22 +33,20 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 
 /**
- * The OpMode that runs when the robot is manually controlled.
+ * The OpMode that runs when the robot is automatically controlled.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@TeleOp(name="ControlledOpMode")
-public class ControlledOpMode extends OpMode {
+@Autonomous(name="AutonomousOpMode")
+public class AutonomousOpMode extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DrivingHandler drivingHandler;
@@ -77,6 +75,7 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        // Autonomous code goes here
     }
 
     /**
@@ -84,9 +83,6 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void loop() {
-        drivingHandler.tick();
-        sweeperHandler.tick();
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
     /**

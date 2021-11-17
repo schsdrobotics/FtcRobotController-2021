@@ -39,11 +39,11 @@ public class DrivingHandler {
 
     public DrivingHandler(OpMode opMode) {
         this.opMode = opMode;
-        frontLeft = new MotorWrapper(this.opMode.hardwareMap.get(DcMotor.class, "frontLeftMotor"));
-        frontRight = new MotorWrapper(this.opMode.hardwareMap.get(DcMotor.class, "frontRightMotor"));
+        frontLeft = MotorWrapper.getMotor("frontLeftMotor", this.opMode);
+        frontRight = MotorWrapper.getMotor("frontRightMotor", this.opMode);
         frontRight.motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeft = new MotorWrapper(this.opMode.hardwareMap.get(DcMotor.class, "backLeftMotor"));
-        backRight = new MotorWrapper(this.opMode.hardwareMap.get(DcMotor.class, "backRightMotor"));
+        backLeft = MotorWrapper.getMotor("backLeftMotor", this.opMode);
+        backRight = MotorWrapper.getMotor("backRightMotor", this.opMode);
         backRight.motor.setDirection(DcMotorSimple.Direction.REVERSE);
         all = new MotorWrapper[] {frontLeft, frontRight, backLeft, backRight};
         controller = this.opMode.gamepad1;
@@ -52,14 +52,8 @@ public class DrivingHandler {
     /**
      * Runs once every OpMode loop.
      */
-    public void tick(boolean manual) {
+    public void tick() {
         stop();
-        if (manual) manualTick();
-        else autonomousTick();
-        updateAll();
-    }
-
-    public void manualTick() {
         double x = controller.left_stick_x;
         double y = controller.left_stick_y;
 
@@ -73,17 +67,13 @@ public class DrivingHandler {
         }
         // --- rotation ---
         x = controller.right_stick_x;
-        y = controller.right_stick_y;
-        if (!(x == 0 && y == 0)) { // deadzone
+        if (!(x == 0)) { // deadzone
             frontLeft.setPower(x);
             backLeft.setPower(x);
             frontRight.setPower(-x);
             backRight.setPower(-x);
         }
-    }
-
-    public void autonomousTick() {
-
+        updateAll();
     }
 
     /**
