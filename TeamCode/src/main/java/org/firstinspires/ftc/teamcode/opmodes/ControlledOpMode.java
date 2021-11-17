@@ -42,6 +42,7 @@ import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
+import org.firstinspires.ftc.teamcode.LiftHandler;
 
 /**
  * The OpMode that runs when the robot is manually controlled.
@@ -53,6 +54,7 @@ public class ControlledOpMode extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DrivingHandler drivingHandler;
     private SweeperHandler sweeperHandler;
+    private LiftHandler liftHandler;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -61,6 +63,7 @@ public class ControlledOpMode extends OpMode {
     public void init() {
         drivingHandler = new DrivingHandler(this);
         sweeperHandler = new SweeperHandler(this);
+        liftHandler = new LiftHandler(this);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -86,6 +89,7 @@ public class ControlledOpMode extends OpMode {
     public void loop() {
         drivingHandler.tick();
         sweeperHandler.tick();
+        liftHandler.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
