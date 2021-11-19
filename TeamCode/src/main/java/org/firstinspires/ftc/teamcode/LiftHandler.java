@@ -1,48 +1,81 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Gamepad;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+
+import java.util.function.Predicate;
+
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class LiftHandler {
     private OpMode opMode;
     private MotorWrapper motor;
     private Gamepad controller;
+    private TouchSensor magneticSwitch;
+    private Position previousLocation = Position.LOW;
+    private Position target = Position.LOW;
 
     public LiftHandler(OpMode opMode) {
         this.opMode = opMode;
         motor = MotorWrapper.getMotor("liftMotor", this.opMode);
         controller = this.opMode.gamepad2;
+        magneticSwitch = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitch");
+        motor.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void tick() {
-        motor.setPower(0);
         boolean x = controller.x;
         boolean y = controller.y;
         boolean b = controller.b;
-        if (x ^ y ^ b) {
-            if(x) {
-                motor.setPower(.8); //SAMPLE CODE CHANGE LATER
-            }
-            else if(y) {
-                motor.setPower(.4); //SAMPLE CODE CHANGE LATER
-            }
-            else if(b) {
-                motor.setPower(.2); //SAMPLE CODE CHANGE LATER
+        if (!(x && y) && !(y && b) && !(x && b)) { // if only 1 button is pressed
+            if (x) {
+                target = Position.LOW;
+            } else if (y) {
+                target = Position.MIDDLE;
+            } else if (b) {
+                target = Position.HIGH;
             }
         }
-        // x is low, y is middle, b is high
+        pursueTarget();
+    }
+
+    public void pursueTarget() {
+        if (target == previousLocation) return;
+        int speed = Position.getSpeed(previousLocation, target);
+        motor.setPower(-speed);
+        System.out.println(motor.motor.getCurrentPosition());
+        if (target.test(motor.motor.getCurrentPosition())) {
+            previousLocation = target;
+            motor.setPower(0);
+        }
         motor.update();
     }
 
-    public void low(double power) {
-        motor.setAndUpdate(power);
-    }
 
-    public void middle(double power) {
-        motor.setAndUpdate(power);
-    }
+    public enum Position implements Predicate<Integer> { // FIXME test these positions
+        LOW(pos -> pos < 50),
+        MIDDLE(pos -> pos >= 475 && pos <= 525),
+        HIGH(pos -> pos > 1000);
 
-    public void high(double power) {
-        motor.setAndUpdate(power);
+        private final Predicate<Integer> inRange;
+
+        Position(Predicate<Integer> inRange) {
+            this.inRange = inRange;
+        }
+
+        @Override
+        public boolean test(Integer integer) {
+            return inRange.test(integer);
+        }
+
+        public static int getSpeed(Position current, Position target) {
+            return Integer.compare(current.ordinal(), target.ordinal());
+        }
     }
 }
