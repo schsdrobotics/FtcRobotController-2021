@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.hardware.camera2.params.TonemapCurve;
 import android.os.Build;
+import android.text.method.Touch;
 
 import androidx.annotation.RequiresApi;
 
@@ -16,24 +18,37 @@ public class LiftHandler {
     private OpMode opMode;
     private MotorWrapper motor;
     private Gamepad controller;
-    private TouchSensor magneticSwitch;
+    private TouchSensor magneticSwitchLow;
+    private TouchSensor magneticSwitchMiddle;
+    private TouchSensor magneticSwitchHigh;
     private Position previousLocation = Position.LOW;
     private Position target = Position.LOW;
+    private final TouchSensor[] sensors; // sensors[Position.ordinal()] gets the sensor for a given position
 
     public LiftHandler(OpMode opMode) {
         this.opMode = opMode;
         motor = MotorWrapper.getMotor("liftMotor", this.opMode);
         controller = this.opMode.gamepad2;
-        magneticSwitch = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitch");
+        magneticSwitchLow = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitchLow");
+        magneticSwitchMiddle = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitchMiddle");
+        magneticSwitchHigh = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitchHigh");
+        sensors = new TouchSensor[] {magneticSwitchLow, magneticSwitchMiddle, magneticSwitchHigh};
+        int motorPosition = motor.motor.getCurrentPosition();
+        while (!( magneticSwitchLow.isPressed() || Position.LOW.test(motorPosition))) {
+            motor.setAndUpdate(Integer.compare(25, motorPosition));
+            motorPosition = motor.motor.getCurrentPosition();
+        }
+        motor.setAndUpdate(0);
         motor.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
     }
 
     public void tick() {
         boolean x = controller.x;
         boolean y = controller.y;
         boolean b = controller.b;
-        if (!(x && y) && !(y && b) && !(x && b)) { // if only 1 button is pressed
+        if (motor.getPower() == 0 && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
             if (x) {
                 target = Position.LOW;
             } else if (y) {
@@ -47,19 +62,29 @@ public class LiftHandler {
 
     public void pursueTarget() {
         if (target == previousLocation) return;
+
+        System.out.println(target);
+
+        // Go in required direction
         int speed = Position.getSpeed(previousLocation, target);
         motor.setPower(-speed);
-        System.out.println(motor.motor.getCurrentPosition());
-        if (target.test(motor.motor.getCurrentPosition())) {
+
+        TouchSensor sensorToHit = sensors[target.ordinal()];
+
+        // If the switch or the encoder finds the correct position
+        if (sensorToHit.isPressed() || target.test(motor.motor.getCurrentPosition())) {
             previousLocation = target;
             motor.setPower(0);
+            // Should we zero out the encoder to match the magnets when the correct position is found?
         }
+
         motor.update();
     }
 
 
     public enum Position implements Predicate<Integer> { // FIXME test these positions
-        LOW(pos -> pos < 50),
+        // When we have a robot, define the low position such that when the robot starts it is always on a magnet.
+        LOW(pos -> pos >= 0 && pos < 50),
         MIDDLE(pos -> pos >= 475 && pos <= 525),
         HIGH(pos -> pos > 1000);
 

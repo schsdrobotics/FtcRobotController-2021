@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.teamcode.DrivingHandler;
+import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.ServoHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
@@ -57,6 +58,7 @@ public class ControlledOpMode extends OpMode {
     private SweeperHandler sweeperHandler;
     private LiftHandler liftHandler;
     private ServoHandler servoHandler;
+    private DuckHandler duckHandler;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -67,6 +69,7 @@ public class ControlledOpMode extends OpMode {
         sweeperHandler = new SweeperHandler(this);
         liftHandler = new LiftHandler(this);
         servoHandler = new ServoHandler(this);
+        duckHandler = new DuckHandler(this);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -94,6 +97,7 @@ public class ControlledOpMode extends OpMode {
         sweeperHandler.tick();
         liftHandler.tick();
         servoHandler.tick();
+        duckHandler.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
