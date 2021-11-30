@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class DuckHandler {
@@ -17,15 +18,14 @@ public class DuckHandler {
     }
 
     public void tick() {
-        motor.setPower(0);
         if (controller.guide) {
-            motor.setPower(reversed ? -1 : 1);
-        }
+            ((DcMotorEx) motor.motor).setVelocity(93 * (reversed ? -1 : 1));
+            //System.out.println(((DcMotorEx) motor.motor).getCurrentPosition());
+        } else motor.motor.setPower(0);
         long millis = System.currentTimeMillis();
         if (controller.left_stick_button && millis - millisAtReverse > 500) {
             reversed = !reversed;
             millisAtReverse = millis;
         }
-        motor.update();
     }
 }

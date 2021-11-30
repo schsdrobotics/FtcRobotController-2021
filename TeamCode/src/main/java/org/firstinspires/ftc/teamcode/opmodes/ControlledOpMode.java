@@ -78,6 +78,9 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void init_loop() {
+        if (!liftHandler.initialized) {
+            liftHandler.goToStart();
+        }
     }
 
     /**
@@ -85,6 +88,7 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void start() {
+        liftHandler.finishInit();
         runtime.reset();
     }
 

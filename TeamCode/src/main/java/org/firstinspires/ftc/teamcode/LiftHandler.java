@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.hardware.camera2.params.TonemapCurve;
 import android.os.Build;
-import android.text.method.Touch;
 
 import androidx.annotation.RequiresApi;
 
@@ -24,6 +22,7 @@ public class LiftHandler {
     private Position previousLocation = Position.LOW;
     private Position target = Position.LOW;
     private final TouchSensor[] sensors; // sensors[Position.ordinal()] gets the sensor for a given position
+    public boolean initialized = false;
 
     public LiftHandler(OpMode opMode) {
         this.opMode = opMode;
@@ -33,15 +32,22 @@ public class LiftHandler {
         magneticSwitchMiddle = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitchMiddle");
         magneticSwitchHigh = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitchHigh");
         sensors = new TouchSensor[] {magneticSwitchLow, magneticSwitchMiddle, magneticSwitchHigh};
+        motor.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void goToStart() {
         int motorPosition = motor.motor.getCurrentPosition();
-        while (!( magneticSwitchLow.isPressed() || Position.LOW.test(motorPosition))) {
-            motor.setAndUpdate(Integer.compare(25, motorPosition));
-            motorPosition = motor.motor.getCurrentPosition();
+        if (magneticSwitchLow.isPressed() || Position.LOW.test(motorPosition)) {
+            motor.setAndUpdate(0);
+            initialized = true;
+            return;
         }
-        motor.setAndUpdate(0);
+        motor.setAndUpdate(Integer.compare(25, motorPosition));
+    }
+
+    public void finishInit() {
         motor.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
     }
 
     public void tick() {
