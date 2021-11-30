@@ -18,14 +18,13 @@ public class DuckHandler {
     }
 
     public void tick() {
-        if (controller.guide) {
-            ((DcMotorEx) motor.motor).setVelocity(93 * (reversed ? -1 : 1));
-            //System.out.println(((DcMotorEx) motor.motor).getCurrentPosition());
-        } else motor.motor.setPower(0);
+        if (controller.guide) motor.setPower((reversed ? -1 : 1)); // TODO: Figure out the multiplier
+        else motor.setPower(0);
         long millis = System.currentTimeMillis();
         if (controller.left_stick_button && millis - millisAtReverse > 500) {
             reversed = !reversed;
             millisAtReverse = millis;
         }
+        motor.update();
     }
 }

@@ -19,9 +19,9 @@ public class LiftHandler {
     private TouchSensor magneticSwitchLow;
     private TouchSensor magneticSwitchMiddle;
     private TouchSensor magneticSwitchHigh;
+    private final TouchSensor[] sensors; // sensors[Position.ordinal()] gets the sensor for a given position
     private Position previousLocation = Position.LOW;
     private Position target = Position.LOW;
-    private final TouchSensor[] sensors; // sensors[Position.ordinal()] gets the sensor for a given position
     public boolean initialized = false;
 
     public LiftHandler(OpMode opMode) {
@@ -78,7 +78,7 @@ public class LiftHandler {
         TouchSensor sensorToHit = sensors[target.ordinal()];
 
         // If the switch or the encoder finds the correct position
-        if (sensorToHit.isPressed() || target.test(motor.motor.getCurrentPosition())) {
+        if ( sensorToHit.isPressed() || target.test(motor.motor.getCurrentPosition())) {
             previousLocation = target;
             motor.setPower(0);
             // Should we zero out the encoder to match the magnets when the correct position is found?
