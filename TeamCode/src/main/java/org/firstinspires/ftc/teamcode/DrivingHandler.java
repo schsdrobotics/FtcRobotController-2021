@@ -20,29 +20,29 @@ import java.util.function.Predicate;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class DrivingHandler {
-    /**
-     * A vector pointing straight right
-     */
-    public static final Vector2d RIGHT = new Vector2d(1, 0);
-
     /** motor 1 */
     private final MotorWrapper frontLeft;
+    // each multiplier array holds 3 values: y (left stick y / drive), z (right stick x / rotate), and x (left stick x / strafe)
+    private final int[] frontLeftMults = {+1, +1, +1};
     /** motor 2 */
     private final MotorWrapper frontRight;
+    private final int[] frontRightMults = {-1, +1, +1};
     /** motor 3 */
     private final MotorWrapper backLeft;
+    private final int[] backLeftMults = {+1, +1, -1};
     /** motor 4 */
     private final MotorWrapper backRight;
+    private final int[] backRightMults = {-1, +1, -1};
     private final MotorWrapper[] all;
     private final Gamepad controller;
 
     public DrivingHandler(HardwareMap map, Gamepad controller) {
         frontLeft = MotorWrapper.get("frontLeftMotor", map);
         frontRight = MotorWrapper.get("frontRightMotor", map);
-        frontLeft.motor.setDirection(DcMotorSimple.Direction.REVERSE);
+//        frontLeft.motor.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft = MotorWrapper.get("backLeftMotor", map);
         backRight = MotorWrapper.get("backRightMotor", map);
-        backLeft.motor.setDirection(DcMotorSimple.Direction.REVERSE);
+//        backLeft.motor.setDirection(DcMotorSimple.Direction.REVERSE);
         all = new MotorWrapper[] {frontLeft, frontRight, backLeft, backRight};
         this.controller = controller;
     }
@@ -52,26 +52,38 @@ public class DrivingHandler {
      */
     public void tick() {
         stop();
-        double x = controller.left_stick_x;
+        double x = -controller.left_stick_x;
         double y = controller.left_stick_y;
+        double z = -controller.right_stick_x;
 
-        // --- driving ---
-        if (!(x == 0 && y == 0)) { // deadzone
-            Vector2d vec = new Vector2d(x, y);
-            double angle = Math.toDegrees(vec.angle(RIGHT));
-            Direction direction = Direction.fromAngle(angle);
-            double power = vec.length();
-            direction.driveIn(power, this);
+        double total = Math.abs(x) + Math.abs(y) + Math.abs(z);
+        if (Math.abs(total) == 0) {
+            stop();
+            return;
         }
-        // --- rotation ---
-        x = controller.right_stick_x;
-        if (!(x == 0)) { // deadzone
-            frontLeft.setPower(frontLeft.getPower() + x);
-            backLeft.setPower(backLeft.getPower() + x);
-            frontRight.setPower(frontRight.getPower() - x);
-            backRight.setPower(backRight.getPower() - x);
-        }
+        double forwardWeight = y / total;
+        double strafeWeight = x / total;
+        double rotWeight = z / total;
+        double strength = Math.max(Math.sqrt(x * x + y * y), Math.abs(z));
+        forEach(motor -> {
+            int[] mults = getMultsForMotor(motor);
+            double finalPower = ((mults[0] * forwardWeight) + (mults[1] * rotWeight) + (mults[2] * strafeWeight)) * strength;
+            motor.setPower(finalPower);
+        });
         updateAll();
+    }
+
+    public int[] getMultsForMotor(MotorWrapper motor) {
+        if (frontLeft == motor) {
+            return frontLeftMults;
+        } else if (frontRight == motor) {
+            return frontRightMults;
+        } else if (backLeft == motor) {
+            return backLeftMults;
+        } else if (backRight == motor) {
+            return backRightMults;
+        }
+        throw new RuntimeException("what");
     }
 
     /**
@@ -94,85 +106,6 @@ public class DrivingHandler {
     public void forEach(Consumer<MotorWrapper> consumer) {
         for (MotorWrapper motor : all) {
             consumer.accept(motor);
-        }
-    }
-
-    /**
-     * An enum with 1 value for each of the 8 main directions.
-     * Each entry has a Predicate and a BiConsumer.
-     * The Predicate determines, based on an angle (in degrees)
-     * fed into it, whether or not the angle falls in its range.
-     * The BiConsumer is invoked to actually move the robot in the direction.
-     */
-    public enum Direction implements Predicate<Double> {
-        UP(angle -> angle == 90, (power, handler) -> {
-            handler.forEach(motor -> motor.setPower(power));
-        }),
-        UP_RIGHT(angle -> angle < 90 && angle > 0, (power, handler) -> {
-//            handler.frontRight.setPower(-power / 2);
-            handler.backRight.setPower(power);
-            handler.frontLeft.setPower(power);
-//            handler.backLeft.setPower(-power / 2);
-        }),
-        RIGHT(angle -> angle == 0, (power, handler) -> {
-            handler.frontRight.setPower(-power);
-            handler.backRight.setPower(power);
-            handler.frontLeft.setPower(power);
-            handler.backLeft.setPower(-power);
-        }),
-        DOWN_RIGHT(angle -> angle < 0 && angle > -90, (power, handler) -> {
-            handler.frontRight.setPower(-power);
-//            handler.backRight.setPower(power / 2);
-//            handler.frontLeft.setPower(power / 2);
-            handler.backLeft.setPower(-power);
-        }),
-        DOWN(angle -> angle == -90, (power, handler) -> {
-            handler.forEach(motor -> motor.setPower(-power));
-        }),
-        DOWN_LEFT(angle -> angle < -90 && angle > -180, (power, handler) -> {
-//            handler.frontRight.setPower(power / 2);
-            handler.backRight.setPower(-power);
-            handler.frontLeft.setPower(-power);
-//            handler.backLeft.setPower(power / 2);
-        }),
-        LEFT(angle -> angle == -180, (power, handler) -> {
-            handler.frontRight.setPower(power);
-            handler.backRight.setPower(-power);
-            handler.frontLeft.setPower(-power);
-            handler.backLeft.setPower(power);
-        }),
-        UP_LEFT(angle -> angle <= 180 && angle > 90, (power, handler) -> {
-            handler.frontRight.setPower(power);
-//            handler.backRight.setPower(-power / 2);
-//            handler.frontLeft.setPower(-power / 2);
-            handler.backLeft.setPower(power);
-        });
-
-        private final Predicate<Double> angleTest;
-        private final BiConsumer<Double, DrivingHandler> mover;
-
-        Direction(Predicate<Double> angleTest, BiConsumer<Double, DrivingHandler> mover) {
-            this.angleTest = angleTest;
-            this.mover = mover;
-        }
-
-        @Override
-        public boolean test(Double angle) {
-            return angleTest.test(angle);
-        }
-
-        public void driveIn(double power, DrivingHandler handler) {
-            mover.accept(power, handler);
-        }
-
-        /**
-         * Finds a Direction from the fed in angle in degrees
-         */
-        public static Direction fromAngle(double angle) {
-            for (Direction d : values()) {
-                if (d.angleTest.test(angle)) return d;
-            }
-            return RIGHT;
         }
     }
 }

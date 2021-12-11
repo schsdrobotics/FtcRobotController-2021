@@ -60,7 +60,7 @@ public class ControlledOpMode extends OpMode {
     private LiftHandler liftHandler;
     private ServoHandler servoHandler;
     private DuckHandler duckHandler;
-//    private ArmHandler armHandler;
+    private ArmHandler armHandler;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -72,7 +72,7 @@ public class ControlledOpMode extends OpMode {
         liftHandler = new LiftHandler(hardwareMap, gamepad2);
         servoHandler = new ServoHandler(hardwareMap, gamepad2);
         duckHandler = new DuckHandler(hardwareMap, gamepad2);
-//        armHandler = new ArmHandler(hardwareMap, gamepad2);
+        armHandler = new ArmHandler(hardwareMap, gamepad2);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -105,7 +105,7 @@ public class ControlledOpMode extends OpMode {
         liftHandler.tick();
         servoHandler.tick();
         duckHandler.tick();
-//        armHandler.tick();
+        armHandler.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 

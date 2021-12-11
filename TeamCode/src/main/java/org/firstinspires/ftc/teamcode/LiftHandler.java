@@ -41,6 +41,7 @@ public class LiftHandler {
             initialized = true;
             return;
         }
+        System.out.println(motorPosition);
         motor.setAndUpdate(Integer.compare(25, motorPosition));
     }
 
