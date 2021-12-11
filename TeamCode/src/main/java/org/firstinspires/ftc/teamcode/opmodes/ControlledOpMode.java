@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.Vuforia;
 
+import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.ServoHandler;
@@ -59,17 +60,19 @@ public class ControlledOpMode extends OpMode {
     private LiftHandler liftHandler;
     private ServoHandler servoHandler;
     private DuckHandler duckHandler;
+//    private ArmHandler armHandler;
 
     /**
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        drivingHandler = new DrivingHandler(this);
-        sweeperHandler = new SweeperHandler(this);
-        liftHandler = new LiftHandler(this);
-        servoHandler = new ServoHandler(this);
-        duckHandler = new DuckHandler(this);
+        drivingHandler = new DrivingHandler(hardwareMap, gamepad1);
+        sweeperHandler = new SweeperHandler(hardwareMap, gamepad1);
+        liftHandler = new LiftHandler(hardwareMap, gamepad2);
+        servoHandler = new ServoHandler(hardwareMap, gamepad2);
+        duckHandler = new DuckHandler(hardwareMap, gamepad2);
+//        armHandler = new ArmHandler(hardwareMap, gamepad2);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -102,6 +105,7 @@ public class ControlledOpMode extends OpMode {
         liftHandler.tick();
         servoHandler.tick();
         duckHandler.tick();
+//        armHandler.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 

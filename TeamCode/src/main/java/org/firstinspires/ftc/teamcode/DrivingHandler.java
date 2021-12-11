@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.joml.Vector2d;
 
@@ -24,7 +25,6 @@ public class DrivingHandler {
      */
     public static final Vector2d RIGHT = new Vector2d(1, 0);
 
-    private final OpMode opMode;
     /** motor 1 */
     private final MotorWrapper frontLeft;
     /** motor 2 */
@@ -36,16 +36,15 @@ public class DrivingHandler {
     private final MotorWrapper[] all;
     private final Gamepad controller;
 
-    public DrivingHandler(OpMode opMode) {
-        this.opMode = opMode;
-        frontLeft = MotorWrapper.getMotor("frontLeftMotor", this.opMode);
-        frontRight = MotorWrapper.getMotor("frontRightMotor", this.opMode);
-        frontRight.motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeft = MotorWrapper.getMotor("backLeftMotor", this.opMode);
-        backRight = MotorWrapper.getMotor("backRightMotor", this.opMode);
-        backRight.motor.setDirection(DcMotorSimple.Direction.REVERSE);
+    public DrivingHandler(HardwareMap map, Gamepad controller) {
+        frontLeft = MotorWrapper.get("frontLeftMotor", map);
+        frontRight = MotorWrapper.get("frontRightMotor", map);
+        frontLeft.motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft = MotorWrapper.get("backLeftMotor", map);
+        backRight = MotorWrapper.get("backRightMotor", map);
+        backLeft.motor.setDirection(DcMotorSimple.Direction.REVERSE);
         all = new MotorWrapper[] {frontLeft, frontRight, backLeft, backRight};
-        controller = this.opMode.gamepad1;
+        this.controller = controller;
     }
 
     /**
@@ -67,10 +66,10 @@ public class DrivingHandler {
         // --- rotation ---
         x = controller.right_stick_x;
         if (!(x == 0)) { // deadzone
-            frontLeft.setPower(x);
-            backLeft.setPower(x);
-            frontRight.setPower(-x);
-            backRight.setPower(-x);
+            frontLeft.setPower(frontLeft.getPower() + x);
+            backLeft.setPower(backLeft.getPower() + x);
+            frontRight.setPower(frontRight.getPower() - x);
+            backRight.setPower(backRight.getPower() - x);
         }
         updateAll();
     }
@@ -99,13 +98,6 @@ public class DrivingHandler {
     }
 
     /**
-     * The map function, taken from Arduino
-     */
-    public static double map(double x, double inMin, double inMax, double outMin, double outMax) {
-        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-    }
-
-    /**
      * An enum with 1 value for each of the 8 main directions.
      * Each entry has a Predicate and a BiConsumer.
      * The Predicate determines, based on an angle (in degrees)
@@ -117,43 +109,43 @@ public class DrivingHandler {
             handler.forEach(motor -> motor.setPower(power));
         }),
         UP_RIGHT(angle -> angle < 90 && angle > 0, (power, handler) -> {
-            handler.frontRight.setPower(power);
-            handler.backRight.setPower(-power / 2);
-            handler.frontLeft.setPower(-power / 2);
-            handler.backLeft.setPower(power);
+//            handler.frontRight.setPower(-power / 2);
+            handler.backRight.setPower(power);
+            handler.frontLeft.setPower(power);
+//            handler.backLeft.setPower(-power / 2);
         }),
         RIGHT(angle -> angle == 0, (power, handler) -> {
-            handler.frontRight.setPower(power);
-            handler.backRight.setPower(-power);
-            handler.frontLeft.setPower(-power);
-            handler.backLeft.setPower(power);
+            handler.frontRight.setPower(-power);
+            handler.backRight.setPower(power);
+            handler.frontLeft.setPower(power);
+            handler.backLeft.setPower(-power);
         }),
         DOWN_RIGHT(angle -> angle < 0 && angle > -90, (power, handler) -> {
             handler.frontRight.setPower(-power);
-            handler.backRight.setPower(power / 2);
-            handler.frontLeft.setPower(power / 2);
+//            handler.backRight.setPower(power / 2);
+//            handler.frontLeft.setPower(power / 2);
             handler.backLeft.setPower(-power);
         }),
         DOWN(angle -> angle == -90, (power, handler) -> {
             handler.forEach(motor -> motor.setPower(-power));
         }),
         DOWN_LEFT(angle -> angle < -90 && angle > -180, (power, handler) -> {
-            handler.frontRight.setPower(-power);
-            handler.backRight.setPower(power / 2);
-            handler.frontLeft.setPower(power / 2);
-            handler.backLeft.setPower(-power);
+//            handler.frontRight.setPower(power / 2);
+            handler.backRight.setPower(-power);
+            handler.frontLeft.setPower(-power);
+//            handler.backLeft.setPower(power / 2);
         }),
         LEFT(angle -> angle == -180, (power, handler) -> {
-            handler.frontRight.setPower(-power);
-            handler.backRight.setPower(power);
-            handler.frontLeft.setPower(power);
-            handler.backLeft.setPower(-power);
+            handler.frontRight.setPower(power);
+            handler.backRight.setPower(-power);
+            handler.frontLeft.setPower(-power);
+            handler.backLeft.setPower(power);
         }),
         UP_LEFT(angle -> angle <= 180 && angle > 90, (power, handler) -> {
-            handler.frontRight.setPower(-power / 2);
-            handler.backRight.setPower(power);
-            handler.frontLeft.setPower(power);
-            handler.backLeft.setPower(-power / 2);
+            handler.frontRight.setPower(power);
+//            handler.backRight.setPower(-power / 2);
+//            handler.frontLeft.setPower(-power / 2);
+            handler.backLeft.setPower(power);
         });
 
         private final Predicate<Double> angleTest;

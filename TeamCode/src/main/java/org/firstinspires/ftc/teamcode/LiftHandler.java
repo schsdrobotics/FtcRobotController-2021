@@ -7,30 +7,29 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import java.util.function.Predicate;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class LiftHandler {
-    private OpMode opMode;
-    private MotorWrapper motor;
-    private Gamepad controller;
-    private TouchSensor magneticSwitchLow;
-    private TouchSensor magneticSwitchMiddle;
-    private TouchSensor magneticSwitchHigh;
+    private final MotorWrapper motor;
+    private final Gamepad controller;
+    private final TouchSensor magneticSwitchLow;
+    private final TouchSensor magneticSwitchMiddle;
+    private final TouchSensor magneticSwitchHigh;
     private final TouchSensor[] sensors; // sensors[Position.ordinal()] gets the sensor for a given position
     private Position previousLocation = Position.LOW;
     private Position target = Position.LOW;
     public boolean initialized = false;
 
-    public LiftHandler(OpMode opMode) {
-        this.opMode = opMode;
-        motor = MotorWrapper.getMotor("liftMotor", this.opMode);
-        controller = this.opMode.gamepad2;
-        magneticSwitchLow = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitchLow");
-        magneticSwitchMiddle = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitchMiddle");
-        magneticSwitchHigh = opMode.hardwareMap.get(TouchSensor.class, "magneticSwitchHigh");
+    public LiftHandler(HardwareMap map, Gamepad controller) {
+        motor = MotorWrapper.get("liftMotor", map);
+        this.controller = controller;
+        magneticSwitchLow = map.get(TouchSensor.class, "magneticSwitchLow");
+        magneticSwitchMiddle = map.get(TouchSensor.class, "magneticSwitchMiddle");
+        magneticSwitchHigh = map.get(TouchSensor.class, "magneticSwitchHigh");
         sensors = new TouchSensor[] {magneticSwitchLow, magneticSwitchMiddle, magneticSwitchHigh};
         motor.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
@@ -68,8 +67,6 @@ public class LiftHandler {
 
     public void pursueTarget() {
         if (target == previousLocation) return;
-
-        System.out.println(target);
 
         // Go in required direction
         int speed = Position.getSpeed(previousLocation, target);

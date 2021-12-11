@@ -2,16 +2,15 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class SweeperHandler {
-    private OpMode opMode;
-    private MotorWrapper motor;
-    private Gamepad controller;
+    private final MotorWrapper motor;
+    private final Gamepad controller;
 
-    public SweeperHandler(OpMode opMode) {
-        this.opMode = opMode;
-        motor = MotorWrapper.getMotor("sweeperMotor", this.opMode);
-        controller = this.opMode.gamepad1;
+    public SweeperHandler(HardwareMap map, Gamepad controller) {
+        motor = MotorWrapper.get("sweeperMotor", map);
+        this.controller = controller;
     }
 
     public void tick() {
