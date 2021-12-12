@@ -19,11 +19,15 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineTo(pos(-60, -36))
             .build()),
     RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
-            .lineToLinearHeading(pose(-10, -40, 100))
-            .lineToLinearHeading(pose(12, -62, 180))
+            .lineToLinearHeading(pose(-5, -42, 100))
+            .setReversed(true)
+            .splineTo(pos(12, -62), rad(0))
             .forward(-30)
             .forward(30)
-            .splineTo(pos(-10, -40), rad(100))
+            .splineTo(pos(-5, -42), rad(100))
+            .setReversed(true)
+            .splineTo(pos(12, -62), rad(0))
+            .forward(-30)
             .build()),
     BLUE_DUCK(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
             .lineTo(pos(-12, 45))
@@ -32,12 +36,16 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineTo(pos(-60, 36))
             .build()),
     BLUE_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
-            .lineToLinearHeading(pose(-10, 40, -100))
-            .lineToLinearHeading(pose(12, 62, -180))
+            .lineToLinearHeading(pose(-5, 42, -100))
+            .setReversed(true)
+            .splineTo(pos(12, 62), rad(0))
             .forward(-30)
             .forward(30)
-            .splineTo(pos(-10, 40), rad(-100))
-            .build()),
+            .splineTo(pos(-5, 42), rad(-100))
+            .setReversed(true)
+            .splineTo(pos(12, 62), rad(0))
+            .forward(-30)
+            .build())
     ;
 
     private Function<DriveShim, TrajectorySequence> func;

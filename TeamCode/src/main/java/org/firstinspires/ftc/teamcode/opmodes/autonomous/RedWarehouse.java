@@ -41,11 +41,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.DrivingHandler;
+import org.firstinspires.ftc.teamcode.ServoHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.firstinspires.ftc.teamcode.LiftHandler;
 
 /**
  * The OpMode that runs when the robot is automatically controlled.
@@ -55,6 +56,9 @@ import java.util.List;
 public class RedWarehouse extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
+    private LiftHandler liftHandler;
+    private SweeperHandler sweeperHandler;
+    private ServoHandler servoHandler;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -67,28 +71,71 @@ public class RedWarehouse extends LinearOpMode {
         // Autonomous code goes here
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Pose2d startPose = pose(12, -62, 90);
-        //TODO: pick whether you want the trajectories in a list or not - Stanley
-        List<Trajectory> trajectories = new ArrayList<>();
-        trajectories.add(drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(pose(-10, -40, 100))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(0).end())
-                .lineToLinearHeading(pose(12, -62, 180))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(1).end())
+        liftHandler = new LiftHandler(hardwareMap, gamepad1);
+        sweeperHandler = new SweeperHandler(hardwareMap, gamepad1);
+        servoHandler = new ServoHandler(hardwareMap, gamepad1);
+
+        TrajectorySequence path = drive.trajectorySequenceBuilder(pose(12, -62, 90))
+                //Raise lift
+                .addDisplacementMarker(() -> {
+                    /* TODO: Fix this
+                    liftHandler.setPosition("HIGH");
+                     */
+                })
+                //Go to alliance hub
+                .lineToLinearHeading(pose(-5, -42, 100))
+                //TODO: Tune this later
+                .waitSeconds(2)
+                //Drop object
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
+                    servoHandler.forwards();
+                })
+                //Lower lift
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> {
+                    servoHandler.backwards();
+                    /* TODO: Fix this
+                    liftHandler.setPosition("LOW");
+                     */
+                })
+                //Go into warehouse
+                .setReversed(true)
+                .splineTo(pos(12, -62), rad(0))
                 .forward(-30)
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(2).end())
+                //Intake on
+                .UNSTABLE_addDisplacementMarkerOffset(-3, () -> {
+                    sweeperHandler.forwards(1);
+                })
+                //Intake off
+                .UNSTABLE_addDisplacementMarkerOffset(3, () -> {
+                    sweeperHandler.forwards(0);
+                })
+                //Go out of warehouse
                 .forward(30)
-                .splineTo(pos(-10, -40), rad(100))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(3).end())
-                .lineToLinearHeading(pose(12, -62, 180))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(4).end())
+                //Raise lift
+                .addDisplacementMarker(() -> {
+                    /*TODO: Fix this
+                    liftHandler.setPosition("HIGH");
+                     */
+                })
+                .splineTo(pos(-5, -42), rad(100))
+                //TODO: Tune this later
+                .waitSeconds(2)
+                //Drop object
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
+                    servoHandler.forwards();
+                })
+                //Lower lift
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> {
+                    servoHandler.backwards();
+                    /* TODO: Fix this
+                    liftHandler.setPosition("LOW");
+                     */
+                })
+                //Go into warehouse
+                .setReversed(true)
+                .splineTo(pos(12, -62), rad(0))
                 .forward(-30)
-                .build());
+                .build();
 
         //Other option
         /*
@@ -105,18 +152,7 @@ public class RedWarehouse extends LinearOpMode {
 
         waitForStart();
 
-        //Go to alliance hub
-        drive.followTrajectory(trajectories.get(0));
-        //Go back to starting position
-        drive.followTrajectory(trajectories.get(1));
-        //Go into warehouse
-        drive.followTrajectory(trajectories.get(2));
-        //Go to alliance hub
-        drive.followTrajectory(trajectories.get(3));
-        //Go back to starting position
-        drive.followTrajectory(trajectories.get(4));
-        //Go into warehouse
-        drive.followTrajectory(trajectories.get(5));
+        drive.followTrajectorySequence(path);
         sleep(69420);
     }
 

@@ -20,4 +20,12 @@ public class ServoHandler {
             servo.max();
         } else servo.min();
      }
+
+     public void forwards() {
+         servo.max();
+     }
+
+     public void backwards() {
+        servo.min();
+     }
 }

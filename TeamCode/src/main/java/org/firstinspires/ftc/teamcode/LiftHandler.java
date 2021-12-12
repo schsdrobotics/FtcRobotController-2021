@@ -107,4 +107,17 @@ public class LiftHandler {
             return Integer.compare(current.ordinal(), target.ordinal());
         }
     }
+
+    public void setPosition(String position) {
+        if (position.equals("LOW")) {
+            target = Position.LOW;
+        } else if (position.equals("MIDDLE")) {
+            target = Position.MIDDLE;
+        } else if (position.equals("HIGH")) {
+            target = Position.HIGH;
+        } else {
+            throw new RuntimeException("enter either LOW, MIDDLE, or HIGH");
+        }
+        pursueTarget();
+    }
 }
