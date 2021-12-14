@@ -44,6 +44,9 @@ import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +69,7 @@ public class BlueWarehouse extends LinearOpMode {
 
         // Autonomous code goes here
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        Servo intakeServo = hardwareMap.get(Servo.class, "horizontalServo");
 
         Pose2d startPose = pose(12, 62, 270);
         //TODO: pick whether you want the trajectories in a list or not - Stanley
@@ -104,7 +108,7 @@ public class BlueWarehouse extends LinearOpMode {
          */
 
         waitForStart();
-
+        intakeServo.setPosition(1);
         //Go to alliance hub
         drive.followTrajectory(trajectories.get(0));
         //Go back to starting position
@@ -117,7 +121,9 @@ public class BlueWarehouse extends LinearOpMode {
         drive.followTrajectory(trajectories.get(4));
         //Go into warehouse
         drive.followTrajectory(trajectories.get(5));
-        sleep(69420);
+        intakeServo.setPosition(0);
+        sleep(1000);
+        // TODO: add the servo bits for all of them
     }
 
     public static double rad(double deg) {

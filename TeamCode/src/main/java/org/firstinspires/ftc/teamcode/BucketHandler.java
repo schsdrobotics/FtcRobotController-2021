@@ -6,13 +6,15 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class ServoHandler {
+public class BucketHandler {
     private final ServoWrapper servo;
     private final Gamepad controller;
 
-    public ServoHandler(HardwareMap map, Gamepad controller) {
+    public BucketHandler(HardwareMap map, Gamepad controller) {
         this.controller = controller;
-        servo = ServoWrapper.get(map, "servo1");
+        servo = ServoWrapper.get(map, "bucketServo" +
+                "");
+        System.out.println("servo1 controller: " + servo.servo.getController());
     }
 
      public void tick() {

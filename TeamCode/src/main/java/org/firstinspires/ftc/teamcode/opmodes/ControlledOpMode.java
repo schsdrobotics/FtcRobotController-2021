@@ -33,17 +33,14 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
-import org.firstinspires.ftc.teamcode.ServoHandler;
+import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 
@@ -58,7 +55,7 @@ public class ControlledOpMode extends OpMode {
     private DrivingHandler drivingHandler;
     private SweeperHandler sweeperHandler;
     private LiftHandler liftHandler;
-    private ServoHandler servoHandler;
+    private BucketHandler bucketHandler;
     private DuckHandler duckHandler;
     private ArmHandler armHandler;
 
@@ -70,7 +67,7 @@ public class ControlledOpMode extends OpMode {
         drivingHandler = new DrivingHandler(hardwareMap, gamepad1);
         sweeperHandler = new SweeperHandler(hardwareMap, gamepad1);
         liftHandler = new LiftHandler(hardwareMap, gamepad2);
-        servoHandler = new ServoHandler(hardwareMap, gamepad2);
+        bucketHandler = new BucketHandler(hardwareMap, gamepad2);
         duckHandler = new DuckHandler(hardwareMap, gamepad2);
         armHandler = new ArmHandler(hardwareMap, gamepad2);
         telemetry.addData("Status", "Initialized");
@@ -103,7 +100,7 @@ public class ControlledOpMode extends OpMode {
         drivingHandler.tick();
         sweeperHandler.tick();
         liftHandler.tick();
-        servoHandler.tick();
+        bucketHandler.tick();
         duckHandler.tick();
         armHandler.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());

@@ -35,13 +35,11 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.DrivingHandler;
-import org.firstinspires.ftc.teamcode.ServoHandler;
+import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -58,7 +56,7 @@ public class RedWarehouse extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private LiftHandler liftHandler;
     private SweeperHandler sweeperHandler;
-    private ServoHandler servoHandler;
+    private BucketHandler bucketHandler;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -73,7 +71,7 @@ public class RedWarehouse extends LinearOpMode {
 
         liftHandler = new LiftHandler(hardwareMap, gamepad1);
         sweeperHandler = new SweeperHandler(hardwareMap, gamepad1);
-        servoHandler = new ServoHandler(hardwareMap, gamepad1);
+        bucketHandler = new BucketHandler(hardwareMap, gamepad1);
 
         TrajectorySequence path = drive.trajectorySequenceBuilder(pose(12, -62, 90))
                 //Raise lift
@@ -88,11 +86,11 @@ public class RedWarehouse extends LinearOpMode {
                 .waitSeconds(2)
                 //Drop object
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
-                    servoHandler.forwards();
+                    bucketHandler.forwards();
                 })
                 //Lower lift
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
-                    servoHandler.backwards();
+                    bucketHandler.backwards();
                     /* TODO: Fix this
                     liftHandler.setPosition("LOW");
                      */
@@ -122,11 +120,11 @@ public class RedWarehouse extends LinearOpMode {
                 .waitSeconds(2)
                 //Drop object
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
-                    servoHandler.forwards();
+                    bucketHandler.forwards();
                 })
                 //Lower lift
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
-                    servoHandler.backwards();
+                    bucketHandler.backwards();
                     /* TODO: Fix this
                     liftHandler.setPosition("LOW");
                      */
