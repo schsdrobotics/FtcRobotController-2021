@@ -14,15 +14,17 @@ public class SweeperHandler {
     }
 
     public void tick() {
-        motor.setPower(0);
-        float rt = controller.right_trigger;
-        float lt = controller.left_trigger;
-        if (rt > 0) { // forwards
-            forwards(rt);
-        } else if (lt > 0) { // reverse
-            backwards(lt);
+        if (controller != null) {
+            motor.setPower(0);
+            float rt = controller.right_trigger;
+            float lt = controller.left_trigger;
+            if (rt > 0) { // forwards
+                forwards(rt);
+            } else if (lt > 0) { // reverse
+                backwards(lt);
+            }
+            motor.update();
         }
-        motor.update();
     }
 
     public void forwards(double power) {
@@ -31,5 +33,9 @@ public class SweeperHandler {
 
     public void backwards(double power) {
         motor.setAndUpdate(-power);
+    }
+
+    public void stop() {
+        motor.setAndUpdate(0);
     }
 }

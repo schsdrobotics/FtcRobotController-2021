@@ -15,35 +15,69 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
     RED_DUCK(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(-12, -45))
             .lineToLinearHeading(pose(-60, -60, 180))
-            .waitSeconds(2)
+            .addTemporalMarker(() -> {
+                // add duck motor here
+            })
+            .waitSeconds(2.5)
             .lineTo(pos(-60, -36))
             .build()),
     RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
             .lineToLinearHeading(pose(-5, -42, 100))
+            .addTemporalMarker(() -> {
+                // drop initial cube
+            })
+            .waitSeconds(2)
             .setReversed(true)
             .splineTo(pos(12, -62), rad(0))
             .forward(-30)
+            .addTemporalMarker(() -> {
+                // grab
+            })
+            .waitSeconds(2)
             .forward(30)
             .splineTo(pos(-5, -42), rad(100))
+            .addTemporalMarker(() -> {
+                // drop
+            })
+            .waitSeconds(2)
             .setReversed(true)
             .splineTo(pos(12, -62), rad(0))
             .forward(-30)
             .build()),
     BLUE_DUCK(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
             .lineTo(pos(-12, 45))
-            .lineToLinearHeading(pose(-60, 60, 90))
+            .addTemporalMarker(() -> {
+                // drop initial cube
+            })
             .waitSeconds(2)
-            .lineTo(pos(-60, 36))
+            .lineToLinearHeading(pose(-60, 60, 90))
+            .addTemporalMarker(() -> {
+                // duck motor
+            })
+            .waitSeconds(2)
+            .lineTo(pos(-60, 36)) // now in hub
             .build()),
     BLUE_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
             .lineToLinearHeading(pose(-5, 42, -100))
+            .addTemporalMarker(() -> {
+                // drop initial cube
+            })
+            .waitSeconds(2)
             .setReversed(true)
             .splineTo(pos(12, 62), rad(0))
             .forward(-30)
+            .addTemporalMarker(() -> {
+                // grab
+            })
+            .waitSeconds(2)
             .forward(30)
             .splineTo(pos(-5, 42), rad(-100))
+            .addTemporalMarker(() -> {
+                // drop
+            })
+            .waitSeconds(2)
             .setReversed(true)
-            .splineTo(pos(12, 62), rad(0))
+            .splineTo(pos(12, 62), rad(0)) // now in storage
             .forward(-30)
             .build())
     ;

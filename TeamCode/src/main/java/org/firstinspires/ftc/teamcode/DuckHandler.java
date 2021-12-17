@@ -13,6 +13,7 @@ public class DuckHandler {
     private long millisAtReverse = -1;
     private long milliTimer = 0;
     private long lastMillis = System.currentTimeMillis();
+    private boolean on = false;
     private static final double MOTOR_TICKS_PER_REV = 28;
     private static final double MOTOR_GEAR_RATIO = 16;
     private static final double MILLIS_FOR_PLATE_REV = 800;
@@ -25,7 +26,10 @@ public class DuckHandler {
 
     public void tick() {
         long millis = System.currentTimeMillis();
-        if (controller.guide) {
+        if (controller != null) {
+            on = controller.guide;
+        }
+        if (on) {
             double speed = rpmToTicksPerSecond(200) * (reversed ? -1 : 1);
 
             // ramping up speed
@@ -35,10 +39,12 @@ public class DuckHandler {
                 speed = rpmToTicksPerSecond(375) * (reversed ? -1 : 1);
             }
             // reversing
-            if (controller.left_stick_button && millis - millisAtReverse > 500) {
-                reversed = !reversed;
-                milliTimer = 0;
-                millisAtReverse = millis;
+            if (controller != null) {
+                if (controller.left_stick_button && millis - millisAtReverse > 500) {
+                    reversed = !reversed;
+                    milliTimer = 0;
+                    millisAtReverse = millis;
+                }
             }
             motor.setVelocity(speed);
         } else {
@@ -46,6 +52,18 @@ public class DuckHandler {
             motor.setPower(0);
         }
         lastMillis = millis;
+    }
+
+    public void start() {
+        on = true;
+    }
+
+    public void stop() {
+        on = false;
+    }
+
+    public void reverse() {
+        reversed = !reversed;
     }
 
     public static double rpmToTicksPerSecond(double rpm) {

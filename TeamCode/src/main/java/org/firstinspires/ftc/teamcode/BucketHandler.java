@@ -12,15 +12,15 @@ public class BucketHandler {
 
     public BucketHandler(HardwareMap map, Gamepad controller) {
         this.controller = controller;
-        servo = ServoWrapper.get(map, "bucketServo" +
-                "");
-        System.out.println("servo1 controller: " + servo.servo.getController());
+        servo = ServoWrapper.get(map, "bucketServo");
     }
 
      public void tick() {
-        if (controller.right_trigger != 0) {
-            servo.max();
-        } else servo.min();
+        if (controller != null) {
+            if (controller.right_trigger != 0) {
+                servo.max();
+            } else servo.min();
+        }
      }
 
      public void forwards() {

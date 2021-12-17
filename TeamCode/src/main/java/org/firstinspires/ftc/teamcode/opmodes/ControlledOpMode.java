@@ -66,7 +66,7 @@ public class ControlledOpMode extends OpMode {
     public void init() {
         drivingHandler = new DrivingHandler(hardwareMap, gamepad1);
         sweeperHandler = new SweeperHandler(hardwareMap, gamepad1);
-        liftHandler = new LiftHandler(hardwareMap, gamepad2);
+        liftHandler = new LiftHandler(hardwareMap, gamepad2, telemetry);
         bucketHandler = new BucketHandler(hardwareMap, gamepad2);
         duckHandler = new DuckHandler(hardwareMap, gamepad2);
         armHandler = new ArmHandler(hardwareMap, gamepad2);

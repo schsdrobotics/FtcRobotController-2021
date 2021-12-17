@@ -40,9 +40,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
+import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -67,63 +70,45 @@ public class BlueWarehouse extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         runtime.reset();
 
-        // Autonomous code goes here
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Servo intakeServo = hardwareMap.get(Servo.class, "horizontalServo");
+        LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
+        BucketHandler bucket = new BucketHandler(hardwareMap, null);
+        SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
 
-        Pose2d startPose = pose(12, 62, 270);
-        //TODO: pick whether you want the trajectories in a list or not - Stanley
-        List<Trajectory> trajectories = new ArrayList<>();
-        trajectories.add(drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(pose(-10, 40, -100))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(0).end())
-                .lineToLinearHeading(pose(12, 62, -180))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(1).end())
+        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, 62, 270))
+                .lineToLinearHeading(pose(-5, 42, -100))
+                .addTemporalMarker(() -> {
+                    lift.setTarget(LiftHandler.Position.HIGH); // FIXME we need to use vuforia to find which position to target
+                })
+                .waitSeconds(2)
+                .addTemporalMarker(bucket::forwards)
+                .waitSeconds(1.5)
+                .setReversed(true)
+                .splineTo(pos(12, 62), rad(0))
+                .addTemporalMarker(() -> {
+                    bucket.backwards();
+                    lift.setTarget(LiftHandler.Position.LOW);
+                })
+                .waitSeconds(2)
+                .addTemporalMarker(() -> {
+                    sweeper.forwards(1); // FIXME forwards or backwards?
+                })
                 .forward(-30)
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(2).end())
+                .addTemporalMarker(() -> {
+                    sweeper.stop();
+                    lift.setTarget(LiftHandler.Position.HIGH);
+                })
                 .forward(30)
-                .splineTo(pos(-10, 40), rad(-100))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(3).end())
-                .lineToLinearHeading(pose(12, 62, -180))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(4).end())
+                .splineTo(pos(-5, 42), rad(-100))
+                .addTemporalMarker(bucket::forwards)
+                .waitSeconds(2)
+                .setReversed(true)
+                .splineTo(pos(12, 62), rad(0)) // now in storage
                 .forward(-30)
-                .build());
-
-        //Other option
-        /*
-        Trajectory trajectory1 = drive.trajectoryBuilder(pose(-35, -62, 90))
-                .lineTo(pos(-12, -45))
                 .build();
-        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
-                .lineToLinearHeading(pose(-60, -60, 180))
-                .build();
-        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
-                .lineTo(pos(-60, -36))
-                .build();
-         */
 
         waitForStart();
-        intakeServo.setPosition(1);
-        //Go to alliance hub
-        drive.followTrajectory(trajectories.get(0));
-        //Go back to starting position
-        drive.followTrajectory(trajectories.get(1));
-        //Go into warehouse
-        drive.followTrajectory(trajectories.get(2));
-        //Go to alliance hub
-        drive.followTrajectory(trajectories.get(3));
-        //Go back to starting position
-        drive.followTrajectory(trajectories.get(4));
-        //Go into warehouse
-        drive.followTrajectory(trajectories.get(5));
-        intakeServo.setPosition(0);
-        sleep(1000);
-        // TODO: add the servo bits for all of them
+        drive.followTrajectorySequence(seq);
     }
 
     public static double rad(double deg) {

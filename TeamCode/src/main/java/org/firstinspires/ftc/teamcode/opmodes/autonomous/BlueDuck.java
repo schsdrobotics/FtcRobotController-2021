@@ -41,8 +41,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.DrivingHandler;
+import org.firstinspires.ftc.teamcode.DuckHandler;
+import org.firstinspires.ftc.teamcode.MotorWrapper;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,43 +69,23 @@ public class BlueDuck extends LinearOpMode {
 
         // Autonomous code goes here
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        DuckHandler duck = new DuckHandler(hardwareMap, null);
 
-        Pose2d startPose = pose(-35, 62, 270);
-        //TODO: pick whether you want the trajectories in a list or not - Stanley
-        List<Trajectory> trajectories = new ArrayList<>();
-        trajectories.add(drive.trajectoryBuilder(startPose)
+        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(-35, 62, 270))
                 .lineTo(pos(-12, 45))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(0).end())
+                .addTemporalMarker(() -> {
+                    // drop initial cube
+                })
+                .waitSeconds(2)
                 .lineToLinearHeading(pose(-60, 60, 90))
-                .build());
-        trajectories.add(drive.trajectoryBuilder(trajectories.get(1).end())
-                .lineTo(pos(-60, 36))
-                .build());
-
-        //Other option
-        /*
-        Trajectory trajectory1 = drive.trajectoryBuilder(pose(-35, -62, 90))
-                .lineTo(pos(-12, -45))
+                .addTemporalMarker(duck::start) // FIXME once we have a robot, see if we need to call reverse for red or blue
+                .waitSeconds(2.5)
+                .addTemporalMarker(duck::stop)
+                .lineTo(pos(-60, 36)) // now in hub
                 .build();
-        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
-                .lineToLinearHeading(pose(-60, -60, 180))
-                .build();
-        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
-                .lineTo(pos(-60, -36))
-                .build();
-         */
 
         waitForStart();
-
-        //Go to alliance hub
-        drive.followTrajectory(trajectories.get(0));
-        //Go to duck spin
-        drive.followTrajectory(trajectories.get(1));
-        sleep(2000);
-        //park in square thing
-        drive.followTrajectory(trajectories.get(2));
-        sleep(69420);
+        drive.followTrajectorySequence(seq);
     }
 
     public static double rad(double deg) {

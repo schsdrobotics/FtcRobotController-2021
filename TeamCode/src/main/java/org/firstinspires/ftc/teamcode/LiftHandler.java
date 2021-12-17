@@ -10,10 +10,13 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.util.function.Predicate;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class LiftHandler {
+    private final Telemetry telemetry;
     private final MotorWrapper motor;
     private final Gamepad controller;
     private final TouchSensor magneticSwitchLow;
@@ -24,7 +27,8 @@ public class LiftHandler {
     private Position target = Position.LOW;
     public boolean initialized = false;
 
-    public LiftHandler(HardwareMap map, Gamepad controller) {
+    public LiftHandler(HardwareMap map, Gamepad controller, Telemetry telemetry) {
+        this.telemetry = telemetry;
         motor = MotorWrapper.get("liftMotor", map);
         this.controller = controller;
         magneticSwitchLow = map.get(TouchSensor.class, "magneticSwitchLow");
@@ -34,14 +38,14 @@ public class LiftHandler {
         motor.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void goToStart() {
+    public void goToStart() { // CANNOT PRESS START UNTIL THIS FINISHES OR ELSE IT BREAKS
         int motorPosition = motor.motor.getCurrentPosition();
         if (magneticSwitchLow.isPressed() || Position.LOW.test(motorPosition)) {
             motor.setAndUpdate(0);
             initialized = true;
             return;
         }
-        System.out.println(motorPosition);
+        telemetry.addData("lift pos: ", motorPosition);
         motor.setAndUpdate(Integer.compare(25, motorPosition));
     }
 
@@ -51,16 +55,18 @@ public class LiftHandler {
     }
 
     public void tick() {
-        boolean x = controller.x;
-        boolean y = controller.y;
-        boolean b = controller.b;
-        if (motor.getPower() == 0 && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
-            if (x) {
-                target = Position.LOW;
-            } else if (y) {
-                target = Position.MIDDLE;
-            } else if (b) {
-                target = Position.HIGH;
+        if (controller != null) {
+            boolean x = controller.x;
+            boolean y = controller.y;
+            boolean b = controller.b;
+            if (motor.getPower() == 0 && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
+                if (x) {
+                    target = Position.LOW;
+                } else if (y) {
+                    target = Position.MIDDLE;
+                } else if (b) {
+                    target = Position.HIGH;
+                }
             }
         }
         pursueTarget();
@@ -108,16 +114,7 @@ public class LiftHandler {
         }
     }
 
-    public void setPosition(String position) {
-        if (position.equals("LOW")) {
-            target = Position.LOW;
-        } else if (position.equals("MIDDLE")) {
-            target = Position.MIDDLE;
-        } else if (position.equals("HIGH")) {
-            target = Position.HIGH;
-        } else {
-            throw new RuntimeException("enter either LOW, MIDDLE, or HIGH");
-        }
-        pursueTarget();
+    public void setTarget(Position target) {
+        this.target = target;
     }
 }
