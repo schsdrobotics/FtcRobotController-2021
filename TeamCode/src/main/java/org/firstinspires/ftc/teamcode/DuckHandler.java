@@ -26,6 +26,8 @@ public class DuckHandler {
 
     public void tick() {
         long millis = System.currentTimeMillis();
+        System.out.println("Millis: " + millis);
+        System.out.println("LastMillis: " + lastMillis);
         if (controller != null) {
             on = controller.guide;
         }

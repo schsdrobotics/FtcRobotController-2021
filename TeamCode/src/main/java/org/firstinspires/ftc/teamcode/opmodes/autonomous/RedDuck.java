@@ -40,8 +40,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
+import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -69,22 +71,45 @@ public class RedDuck extends LinearOpMode {
         // Autonomous code goes here
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         DuckHandler duck = new DuckHandler(hardwareMap, null);
+        LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
+        BucketHandler bucket = new BucketHandler(hardwareMap, null);
 
-        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-                .lineTo(pos(-12, -45))
-                .addTemporalMarker(() -> {
-                    // drop initial cube
+        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
+                //Raise lift
+                .addDisplacementMarker(() -> {
+                    lift.pursueTarget2(lift.HIGH);
                 })
+                //Go to alliance hub
+                .lineTo(pos(-12, -45))
                 .waitSeconds(2)
+                //Drop object
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
+                    bucket.forwards();
+                })
+                //Lower lift
+                .addTemporalMarker(() -> {
+                    bucket.backwards();
+                    lift.pursueTarget2(lift.LOW);
+                })
                 .lineToLinearHeading(pose(-60, -60, 180))
                 .addTemporalMarker(duck::start) // FIXME once we have a robot, see if we need to call reverse for red or blue
-                .waitSeconds(2.5)
-                .addTemporalMarker(duck::stop)
+                .build();
+
+        TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
+                .addTemporalMarker(() -> {
+                    duck.stop();
+                    duck.tick();
+                })
                 .lineTo(pos(-60, -36))
                 .build();
 
         waitForStart();
-        drive.followTrajectorySequence(seq);
+        drive.followTrajectorySequence(seq1);
+        double startTime = getRuntime();
+        while (getRuntime() - startTime < 2.5) {
+            duck.tick(); //FIXME the duck motor is immediately full speed
+        }
+        drive.followTrajectorySequence(seq2);
     }
 
     public static double rad(double deg) {

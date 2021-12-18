@@ -41,4 +41,10 @@ public class MotorWrapper {
     public static MotorWrapper get(String name, HardwareMap map) {
         return new MotorWrapper(map.get(DcMotor.class, name), name);
     }
+
+    public void goToPosition(int pos, double power) {
+        motor.setTargetPosition(pos);
+        setPower(power);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
 }

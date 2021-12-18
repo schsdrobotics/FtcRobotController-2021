@@ -26,6 +26,9 @@ public class LiftHandler {
     private Position previousLocation = Position.LOW;
     private Position target = Position.LOW;
     public boolean initialized = false;
+    public final int LOW = 25;
+    public final int MIDDLE = 500;
+    public final int HIGH = 1000;
 
     public LiftHandler(HardwareMap map, Gamepad controller, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -91,6 +94,10 @@ public class LiftHandler {
         motor.update();
     }
 
+    public void pursueTarget2(int pos) {
+        motor.goToPosition(pos, 1);
+        motor.update();
+    }
 
     public enum Position implements Predicate<Integer> { // FIXME test these positions
         // When we have a robot, define the low position such that when the robot starts it is always on a magnet.

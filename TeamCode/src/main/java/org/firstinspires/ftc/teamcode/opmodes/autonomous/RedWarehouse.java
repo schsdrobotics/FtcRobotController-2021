@@ -54,9 +54,9 @@ import org.firstinspires.ftc.teamcode.LiftHandler;
 public class RedWarehouse extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private LiftHandler liftHandler;
-    private SweeperHandler sweeperHandler;
-    private BucketHandler bucketHandler;
+    private LiftHandler lift;
+    private SweeperHandler sweeper;
+    private BucketHandler bucket;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -67,99 +67,90 @@ public class RedWarehouse extends LinearOpMode {
         runtime.reset();
 
         // Autonomous code goes here
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         // FIXME this one should probably be redone to match blue
 
-        liftHandler = new LiftHandler(hardwareMap, gamepad1, telemetry);
-        sweeperHandler = new SweeperHandler(hardwareMap, gamepad1);
-        bucketHandler = new BucketHandler(hardwareMap, gamepad1);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
+        BucketHandler bucket = new BucketHandler(hardwareMap, null);
+        SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
 
-//        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
-//                //Raise lift
-//                .addDisplacementMarker(() -> {
-//                    /* TODO: Fix this
-//                    liftHandler.setPosition("HIGH");
-//                     */
-//                })
-//                //Go to alliance hub
-//                .lineToLinearHeading(pose(-5, -42, 100))
-//                //TODO: Tune this later
-//                .waitSeconds(2)
-//                //Drop object
-//                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
-//                    bucketHandler.forwards();
-//                })
-//                //Lower lift
-//                .UNSTABLE_addTemporalMarkerOffset(0, () -> {
-//                    bucketHandler.backwards();
-//                    /* TODO: Fix this
-//                    liftHandler.setPosition("LOW");
-//                     */
-//                })
-//                //Go into warehouse
-//                .setReversed(true)
-//                .splineTo(pos(12, -62), rad(0))
-//                .forward(-30)
-//                //Intake on
-//                .UNSTABLE_addDisplacementMarkerOffset(-3, () -> {
-//                    sweeperHandler.forwards(1);
-//                })
-//                //Intake off
-//                .UNSTABLE_addDisplacementMarkerOffset(3, () -> {
-//                    sweeperHandler.forwards(0);
-//                })
-//                //Go out of warehouse
-//                .forward(30)
-//                //Raise lift
-//                .addDisplacementMarker(() -> {
-//                    /*TODO: Fix this
-//                    liftHandler.setPosition("HIGH");
-//                     */
-//                })
-//                .splineTo(pos(-5, -42), rad(100))
-//                //TODO: Tune this later
-//                .waitSeconds(2)
-//                //Drop object
-//                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
-//                    bucketHandler.forwards();
-//                })
-//                //Lower lift
-//                .UNSTABLE_addTemporalMarkerOffset(0, () -> {
-//                    bucketHandler.backwards();
-//                    /* TODO: Fix this
-//                    liftHandler.setPosition("LOW");
-//                     */
-//                })
-//                //Go into warehouse
-//                .setReversed(true)
-//                .splineTo(pos(12, -62), rad(0))
-//                .forward(-30)
-//                .build();
-
+        //This is a faster autonomous than the one below
         TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
-                .lineToLinearHeading(pose(-5, -42, 100))
-                .addTemporalMarker(() -> {
-                    // drop initial cube
+                //Raise lift
+                .addDisplacementMarker(() -> {
+                    lift.pursueTarget2(lift.HIGH);
                 })
+                //Go to alliance hub
+                .lineToLinearHeading(pose(-5, -42, 100))
                 .waitSeconds(2)
+                //Drop object
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
+                    bucket.forwards();
+                })
+                //Lower lift
+                .addTemporalMarker(() -> {
+                    bucket.backwards();
+                    lift.pursueTarget2(lift.LOW);
+                })
+                //Go into warehouse
                 .setReversed(true)
                 .splineTo(pos(12, -62), rad(0))
                 .forward(-30)
-                .addTemporalMarker(() -> {
-                    // grab
+                //Intake on
+                .UNSTABLE_addDisplacementMarkerOffset(-3, () -> {
+                    sweeper.forwards(1);
                 })
-                .waitSeconds(2)
+                //Intake off
+                .UNSTABLE_addDisplacementMarkerOffset(3, () -> {
+                    sweeper.forwards(0);
+                })
+                //Go out of warehouse
                 .forward(30)
-                .splineTo(pos(-5, -42), rad(100))
-                .addTemporalMarker(() -> {
-                    // drop
+                //Raise lift
+                .addDisplacementMarker(() -> {
+                    lift.pursueTarget2(lift.HIGH);
                 })
+                .splineTo(pos(-5, -42), rad(100))
                 .waitSeconds(2)
+                //Drop object
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
+                    bucket.forwards();
+                })
+                //Lower lift
+                .addTemporalMarker(() -> {
+                    bucket.backwards();
+                    lift.pursueTarget2(lift.LOW);
+                })
+                //Go into warehouse
                 .setReversed(true)
                 .splineTo(pos(12, -62), rad(0))
                 .forward(-30)
                 .build();
+
+//        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
+//                .lineToLinearHeading(pose(-5, -42, 100))
+//                .addTemporalMarker(() -> {
+//                    // drop initial cube
+//                })
+//                .waitSeconds(2)
+//                .setReversed(true)
+//                .splineTo(pos(12, -62), rad(0))
+//                .forward(-30)
+//                .addTemporalMarker(() -> {
+//                    // grab
+//                })
+//                .waitSeconds(2)
+//                .forward(30)
+//                .splineTo(pos(-5, -42), rad(100))
+//                .addTemporalMarker(() -> {
+//                    // drop
+//                })
+//                .waitSeconds(2)
+//                .setReversed(true)
+//                .splineTo(pos(12, -62), rad(0))
+//                .forward(-30)
+//                .build();
 
         waitForStart();
         drive.followTrajectorySequence(seq);
