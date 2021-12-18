@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 
 public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
-    RED_DUCK(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
+    RED_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(-12, -45))
             .lineToLinearHeading(pose(-60, -60, 180))
             .addTemporalMarker(() -> {
@@ -21,30 +21,49 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .waitSeconds(2.5)
             .lineTo(pos(-60, -36))
             .build()),
+    RED_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
+            .lineTo(pos(-12, -45))
+            .lineToLinearHeading(pose(-60, -60, 180))
+            .addTemporalMarker(() -> {
+                // add duck motor here
+            })
+            .waitSeconds(2.5)
+            .forward(-100)
+            .build()),
     RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
             .lineToLinearHeading(pose(-5, -42, 100))
             .addTemporalMarker(() -> {
                 // drop initial cube
             })
-            .waitSeconds(2)
+            //.waitSeconds(2)
             .setReversed(true)
             .splineTo(pos(12, -62), rad(0))
             .forward(-30)
             .addTemporalMarker(() -> {
                 // grab
             })
-            .waitSeconds(2)
+            //.waitSeconds(2)
             .forward(30)
             .splineTo(pos(-5, -42), rad(100))
             .addTemporalMarker(() -> {
                 // drop
             })
-            .waitSeconds(2)
+            //.waitSeconds(2)
             .setReversed(true)
             .splineTo(pos(12, -62), rad(0))
-            .forward(-30)
+            .forward(-26)
+            .strafeRight(24)
+            .lineToLinearHeading(pose(60, -38, 90))
             .build()),
-    BLUE_DUCK(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
+    RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
+            .lineToLinearHeading(pose(0, -56, 135))
+            .setReversed(true)
+            .splineTo(pos(12, -62), rad(0)) // now in storage
+            .forward(-26)
+            .strafeRight(24)
+            .lineToLinearHeading(pose(60, -38, 90))
+            .build()),
+    BLUE_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
             .lineTo(pos(-12, 45))
             .addTemporalMarker(() -> {
                 // drop initial cube
@@ -57,28 +76,54 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .waitSeconds(2)
             .lineTo(pos(-60, 36)) // now in hub
             .build()),
+    BLUE_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
+            .lineTo(pos(-12, 45))
+            .addTemporalMarker(() -> {
+                // drop initial cube
+            })
+            .waitSeconds(2)
+            .lineToLinearHeading(pose(-60, 60, 90))
+            .addTemporalMarker(() -> {
+                // duck motor
+            })
+            .waitSeconds(2)
+            .setReversed(true)
+            .splineTo(pos(-20, 60), rad(10))
+            .splineTo(pos(12, 62), rad(0))
+            .forward(-30)
+            .build()),
     BLUE_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
             .lineToLinearHeading(pose(-5, 42, -100))
             .addTemporalMarker(() -> {
                 // drop initial cube
             })
-            .waitSeconds(2)
+            //.waitSeconds(2)
             .setReversed(true)
             .splineTo(pos(12, 62), rad(0))
             .forward(-30)
             .addTemporalMarker(() -> {
                 // grab
             })
-            .waitSeconds(2)
+            //.waitSeconds(2)
             .forward(30)
             .splineTo(pos(-5, 42), rad(-100))
             .addTemporalMarker(() -> {
                 // drop
             })
-            .waitSeconds(2)
+            //.waitSeconds(2)
             .setReversed(true)
             .splineTo(pos(12, 62), rad(0)) // now in storage
-            .forward(-30)
+            .forward(-26)
+            .strafeLeft(24)
+            .lineToLinearHeading(pose(60, 38, 270))
+            .build()),
+    BLUE_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
+            .lineToLinearHeading(pose(0, 56, 225))
+            .setReversed(true)
+            .splineTo(pos(12, 62), rad(0)) // now in storage
+            .forward(-26)
+            .strafeLeft(24)
+            .lineToLinearHeading(pose(60, 38, 270))
             .build())
     ;
 

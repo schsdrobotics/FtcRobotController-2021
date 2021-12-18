@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.opmodes.autonomous;
+package org.firstinspires.ftc.teamcode.opmodes.autonomous.red;
 
 import android.os.Build;
 
@@ -35,28 +35,30 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.BucketHandler;
+import org.firstinspires.ftc.teamcode.DrivingHandler;
+import org.firstinspires.ftc.teamcode.DuckHandler;
+import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-import org.firstinspires.ftc.teamcode.LiftHandler;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The OpMode that runs when the robot is automatically controlled.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedWarehouse")
-public class RedWarehouse extends LinearOpMode {
+@Autonomous(name="RedDuckStorage", group="Red")
+public class RedDuckStorage extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private LiftHandler lift;
-    private SweeperHandler sweeper;
-    private BucketHandler bucket;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -67,22 +69,18 @@ public class RedWarehouse extends LinearOpMode {
         runtime.reset();
 
         // Autonomous code goes here
-
-        // FIXME this one should probably be redone to match blue
-
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        DuckHandler duck = new DuckHandler(hardwareMap, null);
         LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
-        SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
 
-        //This is a faster autonomous than the one below
-        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
+        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
                 //Raise lift
                 .addDisplacementMarker(() -> {
                     lift.pursueTarget2(lift.HIGH);
                 })
                 //Go to alliance hub
-                .lineToLinearHeading(pose(-5, -42, 100))
+                .lineTo(pos(-12, -45))
                 .waitSeconds(2)
                 //Drop object
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
@@ -93,67 +91,29 @@ public class RedWarehouse extends LinearOpMode {
                     bucket.backwards();
                     lift.pursueTarget2(lift.LOW);
                 })
-                //Go into warehouse
-                .setReversed(true)
-                .splineTo(pos(12, -62), rad(0))
-                .forward(-30)
-                //Intake on
-                .UNSTABLE_addDisplacementMarkerOffset(-3, () -> {
-                    sweeper.forwards(1);
-                })
-                //Intake off
-                .UNSTABLE_addDisplacementMarkerOffset(3, () -> {
-                    sweeper.forwards(0);
-                })
-                //Go out of warehouse
-                .forward(30)
-                //Raise lift
-                .addDisplacementMarker(() -> {
-                    lift.pursueTarget2(lift.HIGH);
-                })
-                .splineTo(pos(-5, -42), rad(100))
-                .waitSeconds(2)
-                //Drop object
-                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
-                    bucket.forwards();
-                })
-                //Lower lift
-                .addTemporalMarker(() -> {
-                    bucket.backwards();
-                    lift.pursueTarget2(lift.LOW);
-                })
-                //Go into warehouse
-                .setReversed(true)
-                .splineTo(pos(12, -62), rad(0))
-                .forward(-30)
+                //Go to duck spinner
+                .lineToLinearHeading(pose(-60, -60, 180))
                 .build();
 
-//        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
-//                .lineToLinearHeading(pose(-5, -42, 100))
-//                .addTemporalMarker(() -> {
-//                    // drop initial cube
-//                })
-//                .waitSeconds(2)
-//                .setReversed(true)
-//                .splineTo(pos(12, -62), rad(0))
-//                .forward(-30)
-//                .addTemporalMarker(() -> {
-//                    // grab
-//                })
-//                .waitSeconds(2)
-//                .forward(30)
-//                .splineTo(pos(-5, -42), rad(100))
-//                .addTemporalMarker(() -> {
-//                    // drop
-//                })
-//                .waitSeconds(2)
-//                .setReversed(true)
-//                .splineTo(pos(12, -62), rad(0))
-//                .forward(-30)
-//                .build();
+        TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
+                //Stop duck motor
+                .addTemporalMarker(() -> {
+                    duck.stop();
+                    duck.tick();
+                })
+                //Go into storage unit
+                .lineTo(pos(-60, -36))
+                .build();
 
         waitForStart();
-        drive.followTrajectorySequence(seq);
+        drive.followTrajectorySequence(seq1);
+        //Run duck spinner for 2.5 seconds
+        double startTime = getRuntime();
+        while (getRuntime() - startTime < 2.5) {
+            duck.tick();
+            duck.start(); // FIXME once we have a robot, see if we need to call reverse for red or blue
+        }
+        drive.followTrajectorySequence(seq2);
     }
 
     public static double rad(double deg) {

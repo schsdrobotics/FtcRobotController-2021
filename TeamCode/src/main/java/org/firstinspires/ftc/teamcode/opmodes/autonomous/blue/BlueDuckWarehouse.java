@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.opmodes.autonomous;
+package org.firstinspires.ftc.teamcode.opmodes.autonomous.blue;
 
 import android.os.Build;
 
@@ -35,27 +35,22 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.DrivingHandler;
+import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
-import org.firstinspires.ftc.teamcode.MotorWrapper;
-import org.firstinspires.ftc.teamcode.SweeperHandler;
+import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The OpMode that runs when the robot is automatically controlled.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueDuck")
-public class BlueDuck extends LinearOpMode {
+@Autonomous(name="BlueDuckWarehouse", group="Blue")
+public class BlueDuckWarehouse extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -70,22 +65,65 @@ public class BlueDuck extends LinearOpMode {
         // Autonomous code goes here
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         DuckHandler duck = new DuckHandler(hardwareMap, null);
+        LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
+        BucketHandler bucket = new BucketHandler(hardwareMap, null);
 
-        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(-35, 62, 270))
-                .lineTo(pos(-12, 45))
-                .addTemporalMarker(() -> {
-                    // drop initial cube
+        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, 62, 270))
+                //Raise lift
+                .addDisplacementMarker(() -> {
+                    lift.pursueTarget2(lift.HIGH);
                 })
+                //Go to alliance hub
+                .lineTo(pos(-12, 45))
                 .waitSeconds(2)
+                //Drop object
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
+                    bucket.forwards();
+                })
+                //Lower lift
+                .addTemporalMarker(() -> {
+                    bucket.backwards();
+                    lift.pursueTarget2(lift.LOW);
+                })
+                //Go to duck spinner
                 .lineToLinearHeading(pose(-60, 60, 90))
-                .addTemporalMarker(duck::start) // FIXME once we have a robot, see if we need to call reverse for red or blue
-                .waitSeconds(2.5)
-                .addTemporalMarker(duck::stop)
-                .lineTo(pos(-60, 36)) // now in hub
                 .build();
 
+        TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
+                //Stop duck motor
+                .addTemporalMarker(() -> {
+                    duck.stop();
+                    duck.tick();
+                })
+                //Go into warehouse
+                .setReversed(true)
+                .splineTo(pos(-20, 60), rad(10))
+                .splineTo(pos(12, 62), rad(0))
+                .forward(-30)
+                .build();
+
+//        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(-35, 62, 270))
+//                .lineTo(pos(-12, 45))
+//                .addTemporalMarker(() -> {
+//                    // drop initial cube
+//                })
+//                .waitSeconds(2)
+//                .lineToLinearHeading(pose(-60, 60, 90))
+//                .addTemporalMarker(duck::start)
+//                .waitSeconds(2.5)
+//                .addTemporalMarker(duck::stop)
+//                .lineTo(pos(-60, 36)) // now in hub
+//                .build();
+
         waitForStart();
-        drive.followTrajectorySequence(seq);
+        drive.followTrajectorySequence(seq1);
+        //Run duck motor for 2.5 seconds
+        double startTime = getRuntime();
+        while (getRuntime() - startTime < 2.5) {
+            duck.tick();
+            duck.start(); // FIXME once we have a robot, see if we need to call reverse for red or blue
+        }
+        drive.followTrajectorySequence(seq2);
     }
 
     public static double rad(double deg) {
