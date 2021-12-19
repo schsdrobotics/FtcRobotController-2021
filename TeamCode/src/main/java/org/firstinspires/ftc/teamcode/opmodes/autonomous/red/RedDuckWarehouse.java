@@ -96,7 +96,9 @@ public class RedDuckWarehouse extends LinearOpMode {
                     duck.tick();
                 })
                 //Go into warehouse
-                .forward(-100)
+                .splineTo(pos(-20, -60), rad(-10))
+                .splineTo(pos(12, -62), rad(0))
+                .forward(30)
                 .build();
 
         waitForStart();

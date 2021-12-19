@@ -96,10 +96,8 @@ public class BlueDuckWarehouse extends LinearOpMode {
                     duck.tick();
                 })
                 //Go into warehouse
-                .setReversed(true)
-                .splineTo(pos(-20, 60), rad(10))
-                .splineTo(pos(12, 62), rad(0))
-                .forward(-30)
+                .splineTo(pos(0, 62), rad(0))
+                .forward(40)
                 .build();
 
 //        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(-35, 62, 270))

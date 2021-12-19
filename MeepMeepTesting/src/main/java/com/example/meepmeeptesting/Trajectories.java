@@ -14,7 +14,7 @@ import java.util.function.Function;
 public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
     RED_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(-12, -45))
-            .lineToLinearHeading(pose(-60, -60, 180))
+            .lineToLinearHeading(pose(-60, -60, 90))
             .addTemporalMarker(() -> {
                 // add duck motor here
             })
@@ -23,12 +23,14 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .build()),
     RED_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(-12, -45))
-            .lineToLinearHeading(pose(-60, -60, 180))
+            .lineToLinearHeading(pose(-60, -60, 90))
             .addTemporalMarker(() -> {
                 // add duck motor here
             })
             .waitSeconds(2.5)
-            .forward(-100)
+            .splineTo(pos(-20, -60), rad(-10))
+            .splineTo(pos(12, -62), rad(0))
+            .forward(30)
             .build()),
     RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
             .lineToLinearHeading(pose(-5, -42, 100))
@@ -69,7 +71,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // drop initial cube
             })
             .waitSeconds(2)
-            .lineToLinearHeading(pose(-60, 60, 90))
+            .lineToLinearHeading(pose(-60, 60, 0))
             .addTemporalMarker(() -> {
                 // duck motor
             })
@@ -82,15 +84,13 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // drop initial cube
             })
             .waitSeconds(2)
-            .lineToLinearHeading(pose(-60, 60, 90))
+            .lineToLinearHeading(pose(-60, 60, 0))
             .addTemporalMarker(() -> {
                 // duck motor
             })
             .waitSeconds(2)
-            .setReversed(true)
-            .splineTo(pos(-20, 60), rad(10))
-            .splineTo(pos(12, 62), rad(0))
-            .forward(-30)
+            .splineTo(pos(0, 62), rad(0))
+            .forward(40)
             .build()),
     BLUE_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
             .lineToLinearHeading(pose(-5, 42, -100))
@@ -167,7 +167,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 9.5)
-                .followTrajectorySequence(RED_WAREHOUSE::apply)
+                .followTrajectorySequence(BLUE_DUCK_WAREHOUSE::apply)
                 .start();
     }
 }

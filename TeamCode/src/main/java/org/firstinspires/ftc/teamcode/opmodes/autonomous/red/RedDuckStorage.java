@@ -92,7 +92,7 @@ public class RedDuckStorage extends LinearOpMode {
                     lift.pursueTarget2(lift.LOW);
                 })
                 //Go to duck spinner
-                .lineToLinearHeading(pose(-60, -60, 180))
+                .lineToLinearHeading(pose(-60, -60, 90))
                 .build();
 
         TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())

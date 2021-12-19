@@ -93,7 +93,7 @@ public class BlueDuckStorage extends LinearOpMode {
                     lift.pursueTarget2(lift.LOW);
                 })
                 //Go to duck spinner
-                .lineToLinearHeading(pose(-60, 60, 90))
+                .lineToLinearHeading(pose(-60, 60, 0))
                 .build();
 
         TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
