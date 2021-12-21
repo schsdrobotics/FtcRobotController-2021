@@ -38,11 +38,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
+import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
-import org.firstinspires.ftc.teamcode.BucketHandler;
-import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
+import org.firstinspires.ftc.teamcode.SweeperHandler;
 
 /**
  * The OpMode that runs when the robot is manually controlled.

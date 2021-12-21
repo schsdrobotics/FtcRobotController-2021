@@ -4,7 +4,6 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -85,7 +84,7 @@ public class LiftHandler {
         TouchSensor sensorToHit = sensors[target.ordinal()];
 
         // If the switch or the encoder finds the correct position
-        if ( sensorToHit.isPressed() || target.test(motor.motor.getCurrentPosition())) {
+        if (sensorToHit.isPressed() || target.test(motor.motor.getCurrentPosition())) {
             previousLocation = target;
             motor.setPower(0);
             // Should we zero out the encoder to match the magnets when the correct position is found?
