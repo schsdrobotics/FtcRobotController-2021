@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.BucketHandler;
+import org.firstinspires.ftc.teamcode.CameraHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -67,6 +68,14 @@ public class RedDuckStorage extends LinearOpMode {
         DuckHandler duck = new DuckHandler(hardwareMap, null);
         LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
+        CameraHandler camera = new CameraHandler(hardwareMap);
+
+        while(!opModeIsActive()) {
+            camera.tick();
+            telemetry.addData("X:", camera.x);
+            telemetry.addData("Y:", camera.y);
+        }
+        waitForStart();
 
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
                 //Raise lift
@@ -99,7 +108,6 @@ public class RedDuckStorage extends LinearOpMode {
                 .lineTo(pos(-60, -36))
                 .build();
 
-        waitForStart();
         drive.followTrajectorySequence(seq1);
         //Run duck spinner for 2.5 seconds
         double startTime = getRuntime();

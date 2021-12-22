@@ -45,6 +45,7 @@ public class LiftHandler {
         if (magneticSwitchLow.isPressed() || Position.LOW.test(motorPosition)) {
             motor.setAndUpdate(0);
             initialized = true;
+            telemetry.addData("Ready!", "");
             return;
         }
         telemetry.addData("lift pos: ", motorPosition);
