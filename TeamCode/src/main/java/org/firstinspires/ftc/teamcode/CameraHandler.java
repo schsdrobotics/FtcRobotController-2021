@@ -120,7 +120,8 @@ public class CameraHandler {
 
     private HardwareMap hardwareMap;
 
-    public Recognition mostConfident = null;
+    public float y;
+    public float x;
 
 
     public CameraHandler(HardwareMap map) {
@@ -155,26 +156,23 @@ public class CameraHandler {
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
-                if (updatedRecognitions.size() > 0) {
-                    // step through the list of recognitions and display boundary info.
-                    int i = 0;
-                    int index = 0;
-                    float maximumConfidence = 0;
-                    //Get the most confident cone
-                    for (Recognition recognition : updatedRecognitions) {
-                        float confidence = recognition.getConfidence();
-                        if (confidence < maximumConfidence) {
-                            maximumConfidence = confidence;
-                            index = i;
-                        }
-                        i++;
+                // step through the list of recognitions and display boundary info.
+                int i = 0;
+                int index = 0;
+                float maximumConfidence = 0;
+                //Get the most confident cone
+                for (Recognition recognition : updatedRecognitions) {
+                    float confidence = recognition.getConfidence();
+                    if (confidence < maximumConfidence) {
+                        maximumConfidence = confidence;
+                        index = i;
                     }
-                    mostConfident = updatedRecognitions.get(index);
+                    i++;
                 }
-                //If size = 0
-                else {
-                    mostConfident = null;
-                }
+                Recognition mostConfident = updatedRecognitions.get(index);
+                //Assuming camera is rotate 90 degrees CCW
+                x = mostConfident.getTop();
+                y = mostConfident.getLeft();
             }
         }
     }
