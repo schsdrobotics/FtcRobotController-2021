@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.BucketHandler;
+import org.firstinspires.ftc.teamcode.CameraHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -53,6 +54,14 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 public class BlueDuckStorage extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
+    private float xCenter;
+    private int target;
+
+    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+    DuckHandler duck = new DuckHandler(hardwareMap, null);
+    LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
+    BucketHandler bucket = new BucketHandler(hardwareMap, null);
+    CameraHandler camera = new CameraHandler(hardwareMap);
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -63,15 +72,21 @@ public class BlueDuckStorage extends LinearOpMode {
         runtime.reset();
 
         // Autonomous code goes here
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        DuckHandler duck = new DuckHandler(hardwareMap, null);
-        LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
-        BucketHandler bucket = new BucketHandler(hardwareMap, null);
 
+        while (!opModeIsActive()) {
+            camera.tick();
+            //Get x-coordinate of center of box
+            if (camera.mostConfident != null) {
+                xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight())/2;
+            }
+        }
+        waitForStart();
+
+        determineTarget();
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, 62, 270))
                 //Raise lift
                 .addDisplacementMarker(() -> {
-                    lift.pursueTarget2(lift.HIGH);
+                    lift.pursueTarget2(target);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, 45))
@@ -112,7 +127,6 @@ public class BlueDuckStorage extends LinearOpMode {
 //                .lineTo(pos(-60, 36)) // now in hub
 //                .build();
 
-        waitForStart();
         drive.followTrajectorySequence(seq1);
         //Run duck spinner for 2.5 seconds
         double startTime = getRuntime();
@@ -121,6 +135,25 @@ public class BlueDuckStorage extends LinearOpMode {
             duck.start(); // FIXME once we have a robot, see if we need to call reverse for red or blue
         }
         drive.followTrajectorySequence(seq2);
+    }
+
+    private void determineTarget() {
+        //Target will be high if there are no objects detected
+        target = lift.HIGH;
+        if (camera.mostConfident != null) {
+            if (xCenter < 477) {
+                //Set the target to low
+                target = lift.LOW;
+            }
+            else if (xCenter > 803) {
+                //Set the target to high
+                target = lift.HIGH;
+            }
+            else {
+                //Set the target to middle
+                target = lift.MIDDLE;
+            }
+        }
     }
 
     public static double rad(double deg) {

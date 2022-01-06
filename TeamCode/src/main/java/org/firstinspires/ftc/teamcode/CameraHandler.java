@@ -120,8 +120,7 @@ public class CameraHandler {
 
     private HardwareMap hardwareMap;
 
-    public float y;
-    public float x;
+    public Recognition mostConfident = null;
 
 
     public CameraHandler(HardwareMap map) {
@@ -156,23 +155,26 @@ public class CameraHandler {
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
-                // step through the list of recognitions and display boundary info.
-                int i = 0;
-                int index = 0;
-                float maximumConfidence = 0;
-                //Get the most confident cone
-                for (Recognition recognition : updatedRecognitions) {
-                    float confidence = recognition.getConfidence();
-                    if (confidence < maximumConfidence) {
-                        maximumConfidence = confidence;
-                        index = i;
+                if (updatedRecognitions.size() > 0) {
+                    // step through the list of recognitions and display boundary info.
+                    int i = 0;
+                    int index = 0;
+                    float maximumConfidence = 0;
+                    //Get the most confident cone
+                    for (Recognition recognition : updatedRecognitions) {
+                        float confidence = recognition.getConfidence();
+                        if (confidence < maximumConfidence) {
+                            maximumConfidence = confidence;
+                            index = i;
+                        }
+                        i++;
                     }
-                    i++;
+                    mostConfident = updatedRecognitions.get(index);
                 }
-                Recognition mostConfident = updatedRecognitions.get(index);
-                //Assuming camera is rotate 90 degrees CCW
-                x = mostConfident.getTop();
-                y = mostConfident.getLeft();
+                //If size = 0
+                else {
+                    mostConfident = null;
+                }
             }
         }
     }
