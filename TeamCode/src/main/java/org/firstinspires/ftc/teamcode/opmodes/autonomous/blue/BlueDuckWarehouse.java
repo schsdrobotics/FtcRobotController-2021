@@ -68,10 +68,13 @@ public class BlueDuckWarehouse extends LinearOpMode {
         LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
 
+        //Assume lift is down
+        lift.finishInit();
+
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, 62, 270))
                 //Raise lift
                 .addDisplacementMarker(() -> {
-                    lift.pursueTarget2(lift.HIGH);
+                    lift.pursueTargetAuto(lift.HIGH);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, 45))
@@ -83,7 +86,7 @@ public class BlueDuckWarehouse extends LinearOpMode {
                 //Lower lift
                 .addTemporalMarker(() -> {
                     bucket.backwards();
-                    lift.pursueTarget2(lift.LOW);
+                    lift.pursueTargetAuto(lift.LOW);
                 })
                 //Go to duck spinner
                 .lineToLinearHeading(pose(-60, 60, 90))

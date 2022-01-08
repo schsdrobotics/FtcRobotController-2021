@@ -67,6 +67,9 @@ public class BlueWarehousePark extends LinearOpMode {
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
         SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
 
+        //Assume lift is down
+        lift.finishInit();
+
         TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, 62, 270))
                 //Go out a bit
                 .lineToLinearHeading(pose(0, 56, 225))

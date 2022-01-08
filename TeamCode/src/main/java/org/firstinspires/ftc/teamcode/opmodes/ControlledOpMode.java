@@ -44,6 +44,25 @@ import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 
+/*
+Controls:
+    Gamepad 1:
+        Left Joystick:
+        x = strafing
+        y = going forward and backwards
+        Right Joystick:
+            x = rotating
+        Right Trigger: sweeper forwards
+        Left Trigger: sweeper backwards
+    Gamepad 2:
+        X: lift to low position
+        Y: lift to middle position
+        B: lift to high position
+        Right Trigger: drop item
+        Guide(button in center of controller): duck spinner
+        D-pad Left/Right/Up/Down: arm left/right/up/down
+ */
+
 /**
  * The OpMode that runs when the robot is manually controlled.
  */

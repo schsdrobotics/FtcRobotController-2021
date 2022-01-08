@@ -72,11 +72,14 @@ public class RedWarehouse extends LinearOpMode {
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
         SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
 
+        //Assume lift is down
+        lift.finishInit();
+
         //This is a faster autonomous than the one below
         TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
                 //Raise lift
                 .addDisplacementMarker(() -> {
-                    lift.pursueTarget2(lift.HIGH);
+                    lift.pursueTargetAuto(lift.HIGH);
                 })
                 //Go to alliance hub
                 .lineToLinearHeading(pose(-5, -42, 100))
@@ -88,7 +91,7 @@ public class RedWarehouse extends LinearOpMode {
                 //Lower lift
                 .addTemporalMarker(() -> {
                     bucket.backwards();
-                    lift.pursueTarget2(lift.LOW);
+                    lift.pursueTargetAuto(lift.LOW);
                 })
                 //Go into warehouse
                 .setReversed(true)
@@ -104,7 +107,7 @@ public class RedWarehouse extends LinearOpMode {
                 })
                 //Raise lift
                 .UNSTABLE_addDisplacementMarkerOffset(8, () -> {
-                    lift.pursueTarget2(lift.HIGH);
+                    lift.pursueTargetAuto(lift.HIGH);
                 })
                 //Go out of warehouse
                 .forward(30)
@@ -117,7 +120,7 @@ public class RedWarehouse extends LinearOpMode {
                 //Lower lift
                 .addTemporalMarker(() -> {
                     bucket.backwards();
-                    lift.pursueTarget2(lift.LOW);
+                    lift.pursueTargetAuto(lift.LOW);
                 })
                 //Go into warehouse
                 .setReversed(true)

@@ -94,7 +94,8 @@ public class LiftHandler {
         motor.update();
     }
 
-    public void pursueTarget2(int pos) {
+    public void pursueTargetAuto(int pos) {
+        // goToPosition will make RunMode RUN_TO_POSITION
         motor.goToPosition(pos, 1);
         motor.update();
     }

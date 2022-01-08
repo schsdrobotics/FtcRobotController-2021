@@ -83,10 +83,13 @@ public class BlueDuckStorage extends LinearOpMode {
         waitForStart();
 
         determineTarget();
+        //Assume lift is down
+        lift.finishInit();
+
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, 62, 270))
                 //Raise lift
                 .addDisplacementMarker(() -> {
-                    lift.pursueTarget2(target);
+                    lift.pursueTargetAuto(target);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, 45))
@@ -98,7 +101,7 @@ public class BlueDuckStorage extends LinearOpMode {
                 //Lower lift
                 .addTemporalMarker(() -> {
                     bucket.backwards();
-                    lift.pursueTarget2(lift.LOW);
+                    lift.pursueTargetAuto(lift.LOW);
                 })
                 //Go to duck spinner
                 .lineToLinearHeading(pose(-60, 60, 0))

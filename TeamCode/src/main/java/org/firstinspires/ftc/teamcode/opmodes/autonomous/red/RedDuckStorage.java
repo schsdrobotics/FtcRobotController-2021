@@ -68,19 +68,16 @@ public class RedDuckStorage extends LinearOpMode {
         DuckHandler duck = new DuckHandler(hardwareMap, null);
         LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
-        CameraHandler camera = new CameraHandler(hardwareMap);
 
-        while(!opModeIsActive()) {
-            camera.tick();
-            telemetry.addData("X:", camera.x);
-            telemetry.addData("Y:", camera.y);
-        }
         waitForStart();
+
+        //Assume lift is down
+        lift.finishInit();
 
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
                 //Raise lift
                 .addDisplacementMarker(() -> {
-                    lift.pursueTarget2(lift.HIGH);
+                    lift.pursueTargetAuto(lift.HIGH);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, -45))
@@ -92,7 +89,7 @@ public class RedDuckStorage extends LinearOpMode {
                 //Lower lift
                 .addTemporalMarker(() -> {
                     bucket.backwards();
-                    lift.pursueTarget2(lift.LOW);
+                    lift.pursueTargetAuto(lift.LOW);
                 })
                 //Go to duck spinner
                 .lineToLinearHeading(pose(-60, -60, 90))
