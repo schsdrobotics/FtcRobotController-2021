@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.BucketHandler;
+import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -65,15 +66,16 @@ public class RedWarehousePark extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         runtime.reset();
 
-        // Autonomous code goes here
-
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
         SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
+        IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap, null);
 
         //Assume lift is down
         lift.finishInit();
+        //Assume intakeServo is close to up position
+        intakeServo.goToPos(intakeServo.UP);
 
         TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
                 //Go out a little bit

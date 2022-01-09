@@ -3,26 +3,24 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class ArmHandler {
-    private final ServoWrapper vertical;
-    private final ServoWrapper horizontal;
+public class IntakeServoHandler {
+    public final ServoWrapper servo;
     private final Gamepad controller;
     private long lastMillis = System.currentTimeMillis();
+    public final double UP = 0.95;
+    public final double DOWN = 0.05;
+    public final double range = UP - DOWN;
 
-    public ArmHandler(HardwareMap map, Gamepad controller) {
+    public IntakeServoHandler(HardwareMap map, Gamepad controller) {
         this.controller = controller;
-        vertical = ServoWrapper.get(map, "verticalServo");
-        horizontal = ServoWrapper.get(map, "horizontalServo");
-        System.out.println("vertical controller: " + vertical.servo.getController());
-        System.out.println("vertical controller: " + horizontal.servo.getController());
+        servo = ServoWrapper.get(map, "intakeServo");
     }
 
     public void tick() {
         long millis = System.currentTimeMillis();
         if (millis - lastMillis > 10) { // want a constant speed
             // Speed is based on how far the joystick is held
-            horizontal.setPos(horizontal.getPos() + (0.01 * controller.right_stick_x));
-            vertical.setPos(vertical.getPos() - (0.01 * controller.right_stick_y));
+            servo.setPos(servo.getPos() + (0.01 * controller.left_stick_y));
 
             // This is the code if we want arm on d-pad
 //            if (controller.dpad_left) {  // if we want this on a joystick, change the condition to controller.left_stick_x != 0 etc.
@@ -37,9 +35,21 @@ public class ArmHandler {
 //                vertical.setPos(vertical.getPos() - 0.01);
 //            }
 
-            horizontal.update();
-            vertical.update();
+            servo.update();
             this.lastMillis = millis;
         }
+    }
+
+    public void goToPos(double pos) {
+        if (pos > UP) {
+            servo.setPos(UP);
+        }
+        else if (pos < DOWN) {
+            servo.setPos(DOWN);
+        }
+        else {
+            servo.setPos(pos);
+        }
+        servo.update();
     }
 }

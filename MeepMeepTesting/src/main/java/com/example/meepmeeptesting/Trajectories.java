@@ -124,6 +124,27 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .forward(-26)
             .strafeLeft(24)
             .lineToLinearHeading(pose(60, 38, 270))
+            .build()),
+    TEST(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .addTemporalMarker(() -> {
+                //slheflkjaes;e;okf
+            })
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
+            .forward(1)
             .build())
     ;
 
@@ -167,7 +188,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 9.5)
-                .followTrajectorySequence(BLUE_DUCK_WAREHOUSE::apply)
+                .followTrajectorySequence(TEST::apply)
                 .start();
     }
 }

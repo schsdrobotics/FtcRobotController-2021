@@ -41,6 +41,7 @@ import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
+import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 
@@ -48,8 +49,8 @@ import org.firstinspires.ftc.teamcode.SweeperHandler;
 Controls:
     Gamepad 1:
         Left Joystick:
-        x = strafing
-        y = going forward and backwards
+            x = strafing
+            y = going forward and backwards
         Right Joystick:
             x = rotating
         Right Trigger: sweeper forwards
@@ -60,7 +61,8 @@ Controls:
         B: lift to high position
         Right Trigger: drop item
         Guide(button in center of controller): duck spinner
-        D-pad Left/Right/Up/Down: arm left/right/up/down
+        Right Joystick: arm
+        Left Joystick Y: intake servo
  */
 
 /**
@@ -71,24 +73,26 @@ Controls:
 public class ControlledOpMode extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DrivingHandler drivingHandler;
-    private SweeperHandler sweeperHandler;
-    private LiftHandler liftHandler;
-    private BucketHandler bucketHandler;
-    private DuckHandler duckHandler;
-    private ArmHandler armHandler;
+    private DrivingHandler driving;
+    private SweeperHandler sweeper;
+    private LiftHandler lift;
+    private BucketHandler bucket;
+    private DuckHandler duck;
+    private ArmHandler arm;
+    private IntakeServoHandler intakeServo;
 
     /**
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        drivingHandler = new DrivingHandler(hardwareMap, gamepad1);
-        sweeperHandler = new SweeperHandler(hardwareMap, gamepad1);
-        liftHandler = new LiftHandler(hardwareMap, gamepad2, telemetry);
-        bucketHandler = new BucketHandler(hardwareMap, gamepad2);
-        duckHandler = new DuckHandler(hardwareMap, gamepad2);
-        armHandler = new ArmHandler(hardwareMap, gamepad2);
+        driving = new DrivingHandler(hardwareMap, gamepad1);
+        sweeper = new SweeperHandler(hardwareMap, gamepad1);
+        lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
+        bucket = new BucketHandler(hardwareMap, gamepad2);
+        duck = new DuckHandler(hardwareMap, gamepad2);
+        arm = new ArmHandler(hardwareMap, gamepad2);
+        intakeServo = new IntakeServoHandler(hardwareMap, gamepad2);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -97,8 +101,8 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (!liftHandler.initialized) {
-            liftHandler.goToStart();
+        if (!lift.initialized) {
+            lift.goToStart();
         }
     }
 
@@ -107,7 +111,7 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void start() {
-        liftHandler.finishInit();
+        lift.finishInit();
         runtime.reset();
     }
 
@@ -116,12 +120,13 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void loop() {
-        drivingHandler.tick();
-        sweeperHandler.tick();
-        liftHandler.tick();
-        bucketHandler.tick();
-        duckHandler.tick();
-        armHandler.tick();
+        driving.tick();
+        sweeper.tick();
+        lift.tick();
+        bucket.tick();
+        duck.tick();
+        arm.tick();
+        intakeServo.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 

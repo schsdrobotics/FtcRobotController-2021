@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
+import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -62,14 +63,16 @@ public class RedDuckWarehouse extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         runtime.reset();
 
-        // Autonomous code goes here
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         DuckHandler duck = new DuckHandler(hardwareMap, null);
         LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
+        IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap, null);
 
         //Assume lift is down
         lift.finishInit();
+        //Assume intakeServo is close to up position
+        intakeServo.goToPos(intakeServo.UP);
 
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
                 //Raise lift
