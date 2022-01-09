@@ -76,7 +76,7 @@ public class BlueDuckStorage extends LinearOpMode {
         //Assume lift is down
         lift.finishInit();
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.UP);
+        intakeServo.goToPos(intakeServo.HOOKED);
 
         while (!opModeIsActive()) {
             camera.tick();
@@ -90,9 +90,11 @@ public class BlueDuckStorage extends LinearOpMode {
         determineTarget();
 
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, 62, 270))
-                //Raise lift
                 .addDisplacementMarker(() -> {
+                    //Raise lift
                     lift.pursueTargetAuto(target);
+                    //Drop intake
+                    intakeServo.goToPos(intakeServo.RELEASED);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, 45))
@@ -147,6 +149,7 @@ public class BlueDuckStorage extends LinearOpMode {
         //Target will be high if there are no objects detected
         target = lift.HIGH;
         if (camera.mostConfident != null) {
+            //FIXME tune these values
             if (xCenter < 477) {
                 //Set the target to low
                 target = lift.LOW;

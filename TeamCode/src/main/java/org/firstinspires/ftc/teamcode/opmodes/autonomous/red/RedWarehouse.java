@@ -75,13 +75,15 @@ public class RedWarehouse extends LinearOpMode {
         //Assume lift is down
         lift.finishInit();
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.UP);
+        intakeServo.goToPos(intakeServo.HOOKED);
 
         //This is a faster autonomous than the one below
         TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
-                //Raise lift
                 .addDisplacementMarker(() -> {
+                    //Raise lift
                     lift.pursueTargetAuto(lift.HIGH);
+                    //Drop intake
+                    intakeServo.goToPos(intakeServo.RELEASED);
                 })
                 //Go to alliance hub
                 .lineToLinearHeading(pose(-5, -42, 100))
@@ -90,9 +92,10 @@ public class RedWarehouse extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
                     bucket.forwards();
                 })
-                //Lower lift
                 .addTemporalMarker(() -> {
+                    //Retract bucket
                     bucket.backwards();
+                    //Lower lift
                     lift.pursueTargetAuto(lift.LOW);
                 })
                 //Go into warehouse

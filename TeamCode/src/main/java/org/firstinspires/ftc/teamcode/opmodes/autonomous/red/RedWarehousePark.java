@@ -75,9 +75,13 @@ public class RedWarehousePark extends LinearOpMode {
         //Assume lift is down
         lift.finishInit();
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.UP);
+        intakeServo.goToPos(intakeServo.HOOKED);
 
         TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
+                .addTemporalMarker(() -> {
+                    //Drop intake
+                    intakeServo.goToPos(intakeServo.RELEASED);
+                })
                 //Go out a little bit
                 .lineToLinearHeading(pose(0, -56, 135))
                 //Go into warehouse

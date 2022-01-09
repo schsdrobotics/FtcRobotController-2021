@@ -40,7 +40,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.BucketHandler;
-import org.firstinspires.ftc.teamcode.CameraHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
@@ -75,12 +74,14 @@ public class RedDuckStorage extends LinearOpMode {
         //Assume lift is down
         lift.finishInit();
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.UP);
+        intakeServo.goToPos(intakeServo.HOOKED);
 
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-                //Raise lift
                 .addDisplacementMarker(() -> {
+                    //Raise lift
                     lift.pursueTargetAuto(lift.HIGH);
+                    //Drop intake
+                    intakeServo.goToPos(intakeServo.RELEASED);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, -45))

@@ -72,12 +72,14 @@ public class RedDuckWarehouse extends LinearOpMode {
         //Assume lift is down
         lift.finishInit();
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.UP);
+        intakeServo.goToPos(intakeServo.HOOKED);
 
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-                //Raise lift
                 .addDisplacementMarker(() -> {
+                    //Raise lift
                     lift.pursueTargetAuto(lift.HIGH);
+                    //Drop intake
+                    intakeServo.goToPos(intakeServo.RELEASED);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, -45))

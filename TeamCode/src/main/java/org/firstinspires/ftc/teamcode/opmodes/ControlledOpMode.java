@@ -41,7 +41,6 @@ import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
-import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 
@@ -62,7 +61,6 @@ Controls:
         Right Trigger: drop item
         Guide(button in center of controller): duck spinner
         Right Joystick: arm
-        Left Joystick Y: intake servo
  */
 
 /**
@@ -79,7 +77,6 @@ public class ControlledOpMode extends OpMode {
     private BucketHandler bucket;
     private DuckHandler duck;
     private ArmHandler arm;
-    private IntakeServoHandler intakeServo;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -92,7 +89,6 @@ public class ControlledOpMode extends OpMode {
         bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
         arm = new ArmHandler(hardwareMap, gamepad2);
-        intakeServo = new IntakeServoHandler(hardwareMap, gamepad2);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -126,7 +122,6 @@ public class ControlledOpMode extends OpMode {
         bucket.tick();
         duck.tick();
         arm.tick();
-        intakeServo.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 

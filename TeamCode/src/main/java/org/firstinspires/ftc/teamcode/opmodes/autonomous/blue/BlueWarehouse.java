@@ -54,9 +54,6 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 public class BlueWarehouse extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    //Setting this to anything greater than 22 will probably break the code
-    private final double distanceWhileMovingServo = 22;
-    private final double intakeServoIncrement = 0.01;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -72,18 +69,18 @@ public class BlueWarehouse extends LinearOpMode {
         SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
         IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap, null);
 
-        final double loops = intakeServo.range / intakeServoIncrement;
-
         //Assume lift is down
         lift.finishInit();
         //Assume intakeServo is close to up position
-        intakeServo.servo.setPos(intakeServo.UP);
+        intakeServo.goToPos(intakeServo.HOOKED);
 
         //This is a faster autonomous than the one below
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(12, 62, 270))
-                //Raise lift
                 .addDisplacementMarker(() -> {
-                    lift.pursueTargetAuto(lift.HIGH); // FIXME we need to use vuforia to find which position to target
+                    //Raise lift
+                    lift.pursueTargetAuto(lift.HIGH);
+                    //Drop intake
+                    intakeServo.goToPos(intakeServo.RELEASED);
                 })
                 //Go to alliance hub
                 .lineToLinearHeading(pose(-5, 42, -100))
@@ -92,28 +89,16 @@ public class BlueWarehouse extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
                     bucket.forwards();
                 })
-                //Lower lift
                 .addTemporalMarker(() -> {
+                    //Retract bucket
                     bucket.backwards();
+                    //Lower lift
                     lift.pursueTargetAuto(lift.LOW);
                 })
                 //Go into warehouse
                 .setReversed(true)
                 .splineTo(pos(12, 62), rad(0))
-                .build();
-
-        //This will run repeatedly until robot has moved distanceWhileMovingServo inches
-        TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
-                //Lower intake
-                .addTemporalMarker(() -> {
-                    intakeServo.goToPos(intakeServo.servo.getPos() - intakeServoIncrement);
-                })
-                //Go backwards a distance so then after n loops it travels the correct distance backwards
-                .forward(-1 * (distanceWhileMovingServo / loops))
-                .build();
-
-        TrajectorySequence seq3 = drive.trajectorySequenceBuilder(pose(12 + distanceWhileMovingServo, 62, 0))
-                .forward(-1 * (30 - distanceWhileMovingServo))
+                .forward(-30)
                 //Intake on
                 .UNSTABLE_addDisplacementMarkerOffset(-3, () -> {
                     sweeper.forwards(1); // FIXME forwards or backwards?
@@ -126,21 +111,8 @@ public class BlueWarehouse extends LinearOpMode {
                 .UNSTABLE_addDisplacementMarkerOffset(8, () -> {
                     lift.pursueTargetAuto(lift.HIGH);
                 })
-                .forward(30 - distanceWhileMovingServo)
-                .build();
-
-        //This will run repeatedly until robot has moved distanceWhileMovingServo inches
-        TrajectorySequence seq4 = drive.trajectorySequenceBuilder(seq3.end())
-                //Raise intake
-                .addTemporalMarker(() -> {
-                    intakeServo.goToPos(intakeServo.servo.getPos() + intakeServoIncrement);
-                })
-                //Go forwards a distance so then after n loops it travels the correct distance forwards
-                .forward(distanceWhileMovingServo / loops)
-                .build();
-
-        TrajectorySequence seq5 = drive.trajectorySequenceBuilder(pose(12, 62, 0))
                 //Go to alliance hub
+                .forward(30)
                 .splineTo(pos(-5, 42), rad(-100))
                 .waitSeconds(0.5)
                 //Drop object
@@ -195,14 +167,6 @@ public class BlueWarehouse extends LinearOpMode {
 
         waitForStart();
         drive.followTrajectorySequence(seq1);
-        for (int i = 0; i < loops; i++) {
-            drive.followTrajectorySequence(seq2);
-        }
-        drive.followTrajectorySequence(seq3);
-        for (int i = 0; i < loops; i++) {
-            drive.followTrajectorySequence(seq4);
-        }
-        drive.followTrajectorySequence(seq5);
     }
 
     public static double rad(double deg) {
