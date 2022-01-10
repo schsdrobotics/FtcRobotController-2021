@@ -29,12 +29,14 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.blue;
 
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.blue.BlueDuckStorage.pos;
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.blue.BlueDuckStorage.pose;
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.blue.BlueDuckStorage.rad;
+
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -78,7 +80,7 @@ public class BlueWarehouse extends LinearOpMode {
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(12, 62, 270))
                 .addDisplacementMarker(() -> {
                     //Raise lift
-                    lift.pursueTargetAuto(lift.HIGH);
+                    lift.pursueTargetAuto(LiftHandler.HIGH);
                     //Drop intake
                     intakeServo.goToPos(intakeServo.RELEASED);
                 })
@@ -93,7 +95,7 @@ public class BlueWarehouse extends LinearOpMode {
                     //Retract bucket
                     bucket.backwards();
                     //Lower lift
-                    lift.pursueTargetAuto(lift.LOW);
+                    lift.pursueTargetAuto(LiftHandler.LOW);
                 })
                 //Go into warehouse
                 .setReversed(true)
@@ -109,7 +111,7 @@ public class BlueWarehouse extends LinearOpMode {
                 })
                 //Raise lift
                 .UNSTABLE_addDisplacementMarkerOffset(8, () -> {
-                    lift.pursueTargetAuto(lift.HIGH);
+                    lift.pursueTargetAuto(LiftHandler.HIGH);
                 })
                 //Go to alliance hub
                 .forward(30)
@@ -122,7 +124,7 @@ public class BlueWarehouse extends LinearOpMode {
                 //Lower lift
                 .addTemporalMarker(() -> {
                     bucket.backwards();
-                    lift.pursueTargetAuto(lift.LOW);
+                    lift.pursueTargetAuto(LiftHandler.LOW);
                 })
                 //Go into warehouse
                 .setReversed(true)
@@ -168,21 +170,4 @@ public class BlueWarehouse extends LinearOpMode {
         waitForStart();
         drive.followTrajectorySequence(seq1);
     }
-
-    public static double rad(double deg) {
-        return Math.toRadians(deg);
-    }
-
-    public static Vector2d pos(double x, double y) {
-        return new Vector2d(x, y);
-    }
-
-    public static Vector2d pos(double pos) {
-        return pos(pos, pos);
-    }
-
-    public static Pose2d pose(double x, double y, double deg) {
-        return new Pose2d(x, y, rad(deg));
-    }
-
 }

@@ -106,7 +106,7 @@ public class BlueDuckStorage extends LinearOpMode {
                 //Lower lift
                 .addTemporalMarker(() -> {
                     bucket.backwards();
-                    lift.pursueTargetAuto(lift.LOW);
+                    lift.pursueTargetAuto(LiftHandler.LOW);
                 })
                 //Go to duck spinner
                 .lineToLinearHeading(pose(-60, 60, 0))
@@ -147,20 +147,20 @@ public class BlueDuckStorage extends LinearOpMode {
 
     private void determineTarget() {
         //Target will be high if there are no objects detected
-        target = lift.HIGH;
+        target = LiftHandler.HIGH;
         if (camera.mostConfident != null) {
             //FIXME tune these values
             if (xCenter < 477) {
                 //Set the target to low
-                target = lift.LOW;
+                target = LiftHandler.LOW;
             }
             else if (xCenter > 803) {
                 //Set the target to high
-                target = lift.HIGH;
+                target = LiftHandler.HIGH;
             }
             else {
                 //Set the target to middle
-                target = lift.MIDDLE;
+                target = LiftHandler.MIDDLE;
             }
         }
     }
