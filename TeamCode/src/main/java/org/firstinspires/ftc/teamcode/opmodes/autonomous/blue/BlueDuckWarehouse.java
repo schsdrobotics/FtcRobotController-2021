@@ -69,10 +69,8 @@ public class BlueDuckWarehouse extends LinearOpMode {
         DuckHandler duck = new DuckHandler(hardwareMap, null);
         LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
-        IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap, null);
+        IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
 
-        //Assume lift is down
-        lift.finishInit();
         //Assume intakeServo is close to up position
         intakeServo.goToPos(intakeServo.HOOKED);
 

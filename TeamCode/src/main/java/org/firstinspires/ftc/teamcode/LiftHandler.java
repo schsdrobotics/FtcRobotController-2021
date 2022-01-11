@@ -24,8 +24,9 @@ public class LiftHandler {
     private final TouchSensor[] sensors; // sensors[Position.ordinal()] gets the sensor for a given position
     private Position previousLocation = Position.LOW;
     private Position target = Position.LOW;
-    public boolean initialized = false;
-    public static final int LOW = 25;
+    public boolean initialized = true;
+    public static final int INTAKE = 25;
+    public static final int LOW = 3;
     public static final int MIDDLE = 500;
     public static final int HIGH = 1000;
 
@@ -40,25 +41,28 @@ public class LiftHandler {
         motor.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void goToStart() { // CANNOT PRESS START UNTIL THIS FINISHES OR ELSE IT BREAKS
-        int motorPosition = motor.motor.getCurrentPosition();
-        if (magneticSwitchLow.isPressed() || Position.LOW.test(motorPosition)) {
-            motor.setAndUpdate(0);
-            initialized = true;
-            telemetry.addData("Ready!", "");
-            return;
-        }
-        telemetry.addData("lift pos: ", motorPosition);
-        motor.setAndUpdate(Integer.compare(25, motorPosition));
-    }
-
-    public void finishInit() {
+    public void reset() {
+        DcMotor.RunMode mode = motor.motor.getMode();
         motor.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.motor.setMode(mode);
+        target = Position.LOW;
+        previousLocation = Position.LOW;
     }
 
     public void tick() {
         if (controller != null) {
+            if (controller.dpad_up) {
+                motor.setAndUpdate(.5);
+            } else if (controller.dpad_down) {
+                motor.setAndUpdate(-.5);
+            } else {
+                motor.setAndUpdate(0);
+            }
+            if (controller.left_stick_button && controller.right_stick_button &&
+                    controller.left_bumper && controller.right_bumper) {
+                reset();
+            }
+
             boolean x = controller.x;
             boolean y = controller.y;
             boolean b = controller.b;
@@ -80,18 +84,15 @@ public class LiftHandler {
 
         // Go in required direction
         int speed = Position.getSpeed(previousLocation, target);
-        motor.setPower(-speed);
-
-        TouchSensor sensorToHit = sensors[target.ordinal()];
+        motor.motor.setPower(speed > 0 ? 0.85 : -0.85);
 
         // If the switch or the encoder finds the correct position
-        if (sensorToHit.isPressed() || target.test(motor.motor.getCurrentPosition())) {
+        if (target.test(motor.motor.getCurrentPosition())) {
             previousLocation = target;
-            motor.setPower(0);
-            // Should we zero out the encoder to match the magnets when the correct position is found?
+            motor.motor.setPower(0);
         }
 
-        motor.update();
+//        motor.update();
     }
 
     public void pursueTargetAuto(int pos) {
@@ -100,11 +101,10 @@ public class LiftHandler {
         motor.update();
     }
 
-    public enum Position implements Predicate<Integer> { // FIXME test these positions
-        // When we have a robot, define the low position such that when the robot starts it is always on a magnet.
-        LOW(pos -> pos >= 0 && pos < 50),
-        MIDDLE(pos -> pos >= 475 && pos <= 525),
-        HIGH(pos -> pos > 1000);
+    public enum Position implements Predicate<Integer> {
+        LOW(pos -> pos <= 20),
+        MIDDLE(pos -> pos >= 110 && pos <= 145),
+        HIGH(pos -> pos > 250);
 
         private final Predicate<Integer> inRange;
 
@@ -118,7 +118,7 @@ public class LiftHandler {
         }
 
         public static int getSpeed(Position current, Position target) {
-            return Integer.compare(current.ordinal(), target.ordinal());
+            return -Integer.compare(current.ordinal(), target.ordinal());
         }
     }
 

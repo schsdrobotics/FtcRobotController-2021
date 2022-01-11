@@ -27,10 +27,7 @@ repositories {
     }
 }
 
-project.ext.jomlVersion = "1.9.3-SNAPSHOT"
-
 dependencies {
-    implementation "org.joml:joml-android:${jomlVersion}"
     implementation project(':FtcRobotController')
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
     implementation 'org.apache.commons:commons-math3:3.6.1'

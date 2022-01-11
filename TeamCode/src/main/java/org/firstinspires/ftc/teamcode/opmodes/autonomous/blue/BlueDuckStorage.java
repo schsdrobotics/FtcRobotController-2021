@@ -63,7 +63,7 @@ public class BlueDuckStorage extends LinearOpMode {
     LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
     BucketHandler bucket = new BucketHandler(hardwareMap, null);
     CameraHandler camera = new CameraHandler(hardwareMap);
-    IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap, null);
+    IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -73,8 +73,6 @@ public class BlueDuckStorage extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         runtime.reset();
 
-        //Assume lift is down
-        lift.finishInit();
         //Assume intakeServo is close to up position
         intakeServo.goToPos(intakeServo.HOOKED);
 

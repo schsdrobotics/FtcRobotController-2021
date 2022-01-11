@@ -5,13 +5,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class IntakeServoHandler {
     public final ServoWrapper servo;
-    private final Gamepad controller;
     private long lastMillis = System.currentTimeMillis();
     public final double HOOKED = 0.5;
     public final double RELEASED = 0.8;
 
-    public IntakeServoHandler(HardwareMap map, Gamepad controller) {
-        this.controller = controller;
+    public IntakeServoHandler(HardwareMap map) {
         servo = ServoWrapper.get(map, "intakeServo");
     }
 

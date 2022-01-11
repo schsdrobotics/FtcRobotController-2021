@@ -41,6 +41,7 @@ import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
+import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 
@@ -77,18 +78,21 @@ public class ControlledOpMode extends OpMode {
     private BucketHandler bucket;
     private DuckHandler duck;
     private ArmHandler arm;
+    private IntakeServoHandler intakeServo;
 
     /**
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        driving = new DrivingHandler(hardwareMap, gamepad1);
+//        driving = new DrivingHandler(hardwareMap, gamepad1);
         sweeper = new SweeperHandler(hardwareMap, gamepad1);
         lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
-        bucket = new BucketHandler(hardwareMap, gamepad2);
+//        bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
-        arm = new ArmHandler(hardwareMap, gamepad2);
+//        arm = new ArmHandler(hardwareMap, gamepad2);
+        intakeServo = new IntakeServoHandler(hardwareMap);
+//        intakeServo.goToPos(intakeServo.HOOKED);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -97,9 +101,6 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void init_loop() {
-        if (!lift.initialized) {
-            lift.goToStart();
-        }
     }
 
     /**
@@ -107,7 +108,7 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void start() {
-        lift.finishInit();
+//        intakeServo.goToPos(intakeServo.RELEASED);
         runtime.reset();
     }
 
@@ -116,12 +117,12 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void loop() {
-        driving.tick();
+//        driving.tick();
         sweeper.tick();
         lift.tick();
-        bucket.tick();
+//        bucket.tick();
         duck.tick();
-        arm.tick();
+//        arm.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
