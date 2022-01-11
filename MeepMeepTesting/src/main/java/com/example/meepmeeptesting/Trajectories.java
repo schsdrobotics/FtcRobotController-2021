@@ -145,6 +145,28 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .forward(1)
             .forward(1)
             .forward(1)
+            .build()),
+    REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 270))
+            .lineToLinearHeading(pose(-58, -60, 270))
+            //do duck stuff
+            .lineToLinearHeading(pose(-12, -45, 270))
+            //deposit thing
+            .waitSeconds(0)
+            .splineTo(pos(12, -62), rad(0))
+            .forward(30)
+            //pick up stuff
+            .forward(-30)
+            .splineTo(pos(-5, -42), rad(110))
+            //deposit thing
+            .waitSeconds(0)
+            .splineTo(pos(12, -62), rad(0))
+            .forward(30)
+            .forward(-30)
+            .splineTo(pos(-5, -42), rad(110))
+            //deposit thing
+            .waitSeconds(0)
+            .splineTo(pos(12, -62), rad(0))
+            .forward(30)
             .build())
     ;
 
@@ -188,7 +210,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 9.5)
-                .followTrajectorySequence(TEST::apply)
+                .followTrajectorySequence(REMOTE::apply)
                 .start();
     }
 }

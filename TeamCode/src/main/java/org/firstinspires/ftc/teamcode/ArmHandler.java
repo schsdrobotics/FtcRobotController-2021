@@ -19,7 +19,7 @@ public class ArmHandler {
 
     public void tick() {
         long millis = System.currentTimeMillis();
-        if (millis - lastMillis > 10) { // want a constant speed
+        if (millis - lastMillis > 10) {
             // Speed is based on how far the joystick is held
             horizontal.setPos(horizontal.getPos() + (0.01 * controller.right_stick_x));
             vertical.setPos(vertical.getPos() - (0.01 * controller.right_stick_y));
