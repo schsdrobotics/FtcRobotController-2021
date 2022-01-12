@@ -85,14 +85,14 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void init() {
-//        driving = new DrivingHandler(hardwareMap, gamepad1);
-        sweeper = new SweeperHandler(hardwareMap, gamepad1);
-        lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
+        driving = new DrivingHandler(hardwareMap, gamepad1);
+//        sweeper = new SweeperHandler(hardwareMap, gamepad1);
+//        lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
 //        bucket = new BucketHandler(hardwareMap, gamepad2);
-        duck = new DuckHandler(hardwareMap, gamepad2);
+//        duck = new DuckHandler(hardwareMap, gamepad2);
 //        arm = new ArmHandler(hardwareMap, gamepad2);
-        intakeServo = new IntakeServoHandler(hardwareMap);
-//        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+//        intakeServo = new IntakeServoHandler(hardwareMap);
+//        intakeServo.goToPos(intakeServo.HOOKED);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -108,7 +108,7 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void start() {
-//        intakeServo.goToPos(IntakeServoHandler.RELEASED);
+//        intakeServo.goToPos(intakeServo.RELEASED);
         runtime.reset();
     }
 
@@ -117,11 +117,11 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void loop() {
-//        driving.tick();
-        sweeper.tick();
-        lift.tick();
+        driving.tick();
+//        sweeper.tick();
+//        lift.tick();
 //        bucket.tick();
-        duck.tick();
+//        duck.tick();
 //        arm.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
