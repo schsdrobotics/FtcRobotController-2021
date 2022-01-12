@@ -92,7 +92,7 @@ public class ControlledOpMode extends OpMode {
         duck = new DuckHandler(hardwareMap, gamepad2);
 //        arm = new ArmHandler(hardwareMap, gamepad2);
         intakeServo = new IntakeServoHandler(hardwareMap);
-//        intakeServo.goToPos(intakeServo.HOOKED);
+//        intakeServo.goToPos(IntakeServoHandler.HOOKED);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -108,7 +108,7 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void start() {
-//        intakeServo.goToPos(intakeServo.RELEASED);
+//        intakeServo.goToPos(IntakeServoHandler.RELEASED);
         runtime.reset();
     }
 

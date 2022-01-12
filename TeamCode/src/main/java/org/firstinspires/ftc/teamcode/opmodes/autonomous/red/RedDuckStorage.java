@@ -73,14 +73,14 @@ public class RedDuckStorage extends LinearOpMode {
         waitForStart();
 
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.HOOKED);
+        intakeServo.goToPos(IntakeServoHandler.HOOKED);
 
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
                 .addDisplacementMarker(() -> {
                     //Raise lift
                     lift.pursueTargetAuto(LiftHandler.HIGH);
                     //Drop intake
-                    intakeServo.goToPos(intakeServo.RELEASED);
+                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, -45))

@@ -75,12 +75,12 @@ public class RedWarehousePark extends LinearOpMode {
         IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
 
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.HOOKED);
+        intakeServo.goToPos(IntakeServoHandler.HOOKED);
 
         TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
                 .addTemporalMarker(() -> {
                     //Drop intake
-                    intakeServo.goToPos(intakeServo.RELEASED);
+                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
                 })
                 //Go out a little bit
                 .lineToLinearHeading(pose(0, -56, 135))

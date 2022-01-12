@@ -75,7 +75,7 @@ public class RedWarehouse extends LinearOpMode {
         IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
 
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.HOOKED);
+        intakeServo.goToPos(IntakeServoHandler.HOOKED);
 
         //This is a faster autonomous than the one below
         TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
@@ -83,7 +83,7 @@ public class RedWarehouse extends LinearOpMode {
                     //Raise lift
                     lift.pursueTargetAuto(LiftHandler.HIGH);
                     //Drop intake
-                    intakeServo.goToPos(intakeServo.RELEASED);
+                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
                 })
                 //Go to alliance hub
                 .lineToLinearHeading(pose(-5, -42, 100))

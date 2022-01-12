@@ -74,7 +74,7 @@ public class BlueDuckStorage extends LinearOpMode {
         runtime.reset();
 
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.HOOKED);
+        intakeServo.goToPos(IntakeServoHandler.HOOKED);
 
         while (!opModeIsActive()) {
             camera.tick();
@@ -92,7 +92,7 @@ public class BlueDuckStorage extends LinearOpMode {
                     //Raise lift
                     lift.pursueTargetAuto(target);
                     //Drop intake
-                    intakeServo.goToPos(intakeServo.RELEASED);
+                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
                 })
                 //Go to alliance hub
                 .lineTo(pos(-12, 45))

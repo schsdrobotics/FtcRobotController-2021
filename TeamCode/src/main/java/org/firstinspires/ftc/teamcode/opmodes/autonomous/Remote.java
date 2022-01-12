@@ -78,7 +78,7 @@ public class Remote extends LinearOpMode {
         runtime.reset();
 
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.HOOKED);
+        intakeServo.goToPos(IntakeServoHandler.HOOKED);
 
         while (!opModeIsActive()) {
             camera.tick();
@@ -94,7 +94,7 @@ public class Remote extends LinearOpMode {
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 270))
                 .addTemporalMarker(() -> {
                     //Drop intake
-                    intakeServo.goToPos(intakeServo.RELEASED);
+                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
                 })
                 .lineToLinearHeading(pose(-58, -60, 270))
                 .addTemporalMarker(() -> {
