@@ -146,26 +146,28 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .forward(1)
             .forward(1)
             .build()),
-    REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 270))
-            .lineToLinearHeading(pose(-58, -60, 270))
+    REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
+            .splineTo(pos(-38, -55), rad(125))
+            .splineTo(pos(-58, -55), rad(250))
             //do duck stuff
-            .lineToLinearHeading(pose(-12, -45, 270))
+            .lineToLinearHeading(pose(-12, -45, 90))
             //deposit thing
             .waitSeconds(0)
-            .splineTo(pos(12, -62), rad(0))
-            .forward(30)
+            .setReversed(true)
+            .splineTo(pos(12, -62), rad(180))
+            .forward(-30)
             //pick up stuff
-            .forward(-30)
-            .splineTo(pos(-5, -42), rad(110))
+            .forward(30)
+            .splineTo(pos(-5, -42), rad(290))
             //deposit thing
             .waitSeconds(0)
-            .splineTo(pos(12, -62), rad(0))
+            .splineTo(pos(12, -62), rad(180))
             .forward(30)
             .forward(-30)
-            .splineTo(pos(-5, -42), rad(110))
+            .splineTo(pos(-5, -42), rad(290))
             //deposit thing
             .waitSeconds(0)
-            .splineTo(pos(12, -62), rad(0))
+            .splineTo(pos(12, -62), rad(180))
             .forward(30)
             .build())
     ;

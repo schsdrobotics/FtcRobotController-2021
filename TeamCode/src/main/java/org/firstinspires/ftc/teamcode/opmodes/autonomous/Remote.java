@@ -59,48 +59,51 @@ public class Remote extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private float xCenter;
-    private int target;
-
-    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-    DuckHandler duck = new DuckHandler(hardwareMap, null);
-    LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
-    BucketHandler bucket = new BucketHandler(hardwareMap, null);
-    SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
-    CameraHandler camera = new CameraHandler(hardwareMap);
-    IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
+    private int target = LiftHandler.HIGH;
 
     /**
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void runOpMode() throws InterruptedException {
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        DuckHandler duck = new DuckHandler(hardwareMap, null);
+        LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
+        BucketHandler bucket = new BucketHandler(hardwareMap, null);
+        SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
+//    CameraHandler camera = new CameraHandler(hardwareMap);
+        IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
+
         telemetry.addData("Status", "Initialized");
         runtime.reset();
 
         //Assume intakeServo is close to up position
         intakeServo.goToPos(intakeServo.HOOKED);
 
-        while (!opModeIsActive()) {
-            camera.tick();
-            //Get x-coordinate of center of box
-            if (camera.mostConfident != null) {
-                xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight())/2;
-            }
-        }
+//        while (!opModeIsActive()) {
+//            camera.tick();
+//            //Get x-coordinate of center of box
+//            if (camera.mostConfident != null) {
+//                xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight())/2;
+//            }
+//        }
         waitForStart();
 
-        determineTarget();
+//        determineTarget();
 
-        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 270))
-                .addTemporalMarker(() -> {
-                    //Drop intake
-                    intakeServo.goToPos(intakeServo.RELEASED);
-                })
-                .lineToLinearHeading(pose(-58, -60, 270))
-                .addTemporalMarker(() -> {
-                    //Raise lift
-                    lift.pursueTargetAuto(target);
-                })
+
+        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
+                .splineTo(pos(-38, -55), rad(125))
+                .splineTo(pos(-58, -55), rad(250))
+//                .addTemporalMarker(() -> {
+//                    //Drop intake
+//                    intakeServo.goToPos(intakeServo.RELEASED);
+//                })
+//                .lineToLinearHeading(pose(-58, -60, 270))
+//                .addTemporalMarker(() -> {
+//                    //Raise lift
+//                    lift.pursueTargetAuto(target);
+//                })
                 .build();
 
         TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
@@ -191,26 +194,26 @@ public class Remote extends LinearOpMode {
             duck.tick();
             duck.start(); // FIXME once we have a robot, see if we need to call reverse for red or blue
         }
-        drive.followTrajectorySequence(seq2);
+//        drive.followTrajectorySequence(seq2);
     }
 
-    private void determineTarget() {
-        //Target will be high if there are no objects detected
-        target = LiftHandler.HIGH;
-        if (camera.mostConfident != null) {
-            //FIXME tune these values
-            if (xCenter < 477) {
-                //Set the target to low
-                target = LiftHandler.LOW;
-            }
-            else if (xCenter > 803) {
-                //Set the target to high
-                target = LiftHandler.HIGH;
-            }
-            else {
-                //Set the target to middle
-                target = LiftHandler.MIDDLE;
-            }
-        }
-    }
+//    private void determineTarget() {
+//        //Target will be high if there are no objects detected
+//        target = LiftHandler.HIGH;
+//        if (camera.mostConfident != null) {
+//            //FIXME tune these values
+//            if (xCenter < 477) {
+//                //Set the target to low
+//                target = LiftHandler.LOW;
+//            }
+//            else if (xCenter > 803) {
+//                //Set the target to high
+//                target = LiftHandler.HIGH;
+//            }
+//            else {
+//                //Set the target to middle
+//                target = LiftHandler.MIDDLE;
+//            }
+//        }
+//    }
 }
