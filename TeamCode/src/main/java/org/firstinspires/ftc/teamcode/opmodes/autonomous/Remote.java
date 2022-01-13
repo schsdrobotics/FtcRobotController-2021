@@ -60,6 +60,7 @@ public class Remote extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private float xCenter;
     private int target = LiftHandler.HIGH;
+    private CameraHandler camera;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -71,39 +72,37 @@ public class Remote extends LinearOpMode {
         LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
         BucketHandler bucket = new BucketHandler(hardwareMap, null);
         SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
-//    CameraHandler camera = new CameraHandler(hardwareMap);
         IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
+        camera = new CameraHandler(hardwareMap);
 
         telemetry.addData("Status", "Initialized");
         runtime.reset();
 
         //Assume intakeServo is close to up position
-        intakeServo.goToPos(intakeServo.HOOKED);
+        intakeServo.goToPos(IntakeServoHandler.HOOKED);
 
-//        while (!opModeIsActive()) {
-//            camera.tick();
-//            //Get x-coordinate of center of box
-//            if (camera.mostConfident != null) {
-//                xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight())/2;
-//            }
-//        }
+        while (!opModeIsActive()) {
+            camera.tick();
+            //Get x-coordinate of center of box
+            if (camera.mostConfident != null) {
+                xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight())/2;
+                telemetry.addData("xCenter", xCenter);
+                telemetry.update();
+            }
+        }
         waitForStart();
 
-//        determineTarget();
-
+        determineTarget();
 
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-                .splineTo(pos(-38, -55), rad(125))
-                .splineTo(pos(-58, -55), rad(250))
-//                .addTemporalMarker(() -> {
-//                    //Drop intake
-//                    intakeServo.goToPos(intakeServo.RELEASED);
-//                })
-//                .lineToLinearHeading(pose(-58, -60, 270))
-//                .addTemporalMarker(() -> {
-//                    //Raise lift
-//                    lift.pursueTargetAuto(target);
-//                })
+                .addTemporalMarker(() -> {
+                    //Drop intake
+//                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
+                    //Make bucket stand straight up
+                    bucket.halfway();
+                })
+                .splineTo(pos(-38, -55), rad(180))
+                .splineTo(pos(-59, -56), rad(270))
                 .build();
 
         TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
@@ -111,9 +110,11 @@ public class Remote extends LinearOpMode {
                     //Stop duck motor
                     duck.stop();
                     duck.tick();
+                    //Raise lift
+                    lift.pursueTargetAuto(target);
                 })
                 //Go to alliance hub
-                .lineToLinearHeading(pose(-12, -45, 270))
+                .lineToLinearHeading(pose(-5, -41, 270))
                 .addTemporalMarker(() -> {
                     //Deposit item
                     bucket.forwards();
@@ -125,95 +126,98 @@ public class Remote extends LinearOpMode {
                     lift.pursueTargetAuto(LiftHandler.LOW);
                 })
                 //Go into warehouse
-                .splineTo(pos(12, -62), rad(0))
-                .forward(30)
+                .splineTo(pos(12, -68), rad(350))
+//                .forward(30)
 
-                //Intake on
-                .UNSTABLE_addDisplacementMarkerOffset(-5, () -> {
-                    sweeper.forwards(1); // FIXME forwards or backwards?
-                })
-                //Intake off
-                .UNSTABLE_addDisplacementMarkerOffset(5, () -> {
-                    sweeper.forwards(0);
-                })
-                //Raise lift
-                .UNSTABLE_addDisplacementMarkerOffset(8, () -> {
-                    lift.pursueTargetAuto(LiftHandler.HIGH);
-                })
-                //Go to alliance hub
-                .forward(-30)
-                .splineTo(pos(-5, -42), rad(110))
-                .addTemporalMarker(() -> {
-                    //Deposit item
-                    bucket.forwards();
-                })
-                .waitSeconds(0.5)
-                .addTemporalMarker(() -> {
-                    //Retract bucket and lift
-                    bucket.backwards();
-                    lift.pursueTargetAuto(LiftHandler.LOW);
-                })
-                //Go into warehouse
-                .splineTo(pos(12, -62), rad(0))
-                .forward(30)
-
-                //Intake on
-                .UNSTABLE_addDisplacementMarkerOffset(-5, () -> {
-                    sweeper.forwards(1); // FIXME forwards or backwards?
-                })
-                //Intake off
-                .UNSTABLE_addDisplacementMarkerOffset(5, () -> {
-                    sweeper.forwards(0);
-                })
-                //Raise lift
-                .UNSTABLE_addDisplacementMarkerOffset(8, () -> {
-                    lift.pursueTargetAuto(LiftHandler.HIGH);
-                })
-                //Go to alliance hub
-                .forward(-30)
-                .splineTo(pos(-5, -42), rad(110))
-                .addTemporalMarker(() -> {
-                    //Deposit item
-                    bucket.forwards();
-                })
-                .waitSeconds(0.5)
-                .addTemporalMarker(() -> {
-                    //Retract bucket and lift
-                    bucket.backwards();
-                    lift.pursueTargetAuto(LiftHandler.LOW);
-                })
-                //Go into warehouse
-                .splineTo(pos(12, -62), rad(0))
-                .forward(30)
+//                //Intake on
+//                .UNSTABLE_addDisplacementMarkerOffset(-5, () -> {
+//                    sweeper.forwards(1); // FIXME forwards or backwards?
+//                })
+//                //Intake off
+//                .UNSTABLE_addDisplacementMarkerOffset(5, () -> {
+//                    sweeper.forwards(0);
+//                })
+//                .UNSTABLE_addDisplacementMarkerOffset(8, () -> {
+//                    //Raise lift
+//                    lift.pursueTargetAuto(LiftHandler.HIGH);
+//                    //Make bucket stand straight up
+//                    bucket.halfway();
+//                })
+//                //Go to alliance hub
+//                .setReversed(true)
+//                .forward(-30)
+//                .splineTo(pos(-5, -42), rad(110))
+//                .addTemporalMarker(() -> {
+//                    //Deposit item
+//                    bucket.forwards();
+//                })
+//                .waitSeconds(0.5)
+//                .addTemporalMarker(() -> {
+//                    //Retract bucket and lift
+//                    bucket.backwards();
+//                    lift.pursueTargetAuto(LiftHandler.LOW);
+//                })
+//                //Go into warehouse
+//                .setReversed(false)
+//                .splineTo(pos(12, -62), rad(0))
+//                .forward(30)
+//
+//                //Intake on
+//                .UNSTABLE_addDisplacementMarkerOffset(-5, () -> {
+//                    sweeper.forwards(1); // FIXME forwards or backwards?
+//                })
+//                //Intake off
+//                .UNSTABLE_addDisplacementMarkerOffset(5, () -> {
+//                    sweeper.forwards(0);
+//                })
+//                .UNSTABLE_addDisplacementMarkerOffset(8, () -> {
+//                    //Raise lift
+//                    lift.pursueTargetAuto(LiftHandler.HIGH);
+//                    //Make bucket stand straight up
+//                    bucket.halfway();
+//                })
+//                //Go to alliance hub
+//                .setReversed(true)
+//                .forward(-30)
+//                .splineTo(pos(-5, -42), rad(110))
+//                .addTemporalMarker(() -> {
+//                    //Deposit item
+//                    bucket.forwards();
+//                })
+//                .waitSeconds(0.5)
+//                .addTemporalMarker(() -> {
+//                    //Retract bucket and lift
+//                    bucket.backwards();
+//                    lift.pursueTargetAuto(LiftHandler.LOW);
+//                })
+//                //Go into warehouse
+//                .setReversed(false)
+//                .splineTo(pos(12, -62), rad(0))
+//                .forward(30)
                 .build();
 
         drive.followTrajectorySequence(seq1);
         //Run duck spinner for 2.5 seconds
         double startTime = getRuntime();
-        while (getRuntime() - startTime < 2.5) {
+        while (getRuntime() - startTime < 1.5) {
             duck.tick();
             duck.start(); // FIXME once we have a robot, see if we need to call reverse for red or blue
         }
-//        drive.followTrajectorySequence(seq2);
+        drive.followTrajectorySequence(seq2);
     }
 
-//    private void determineTarget() {
-//        //Target will be high if there are no objects detected
-//        target = LiftHandler.HIGH;
-//        if (camera.mostConfident != null) {
-//            //FIXME tune these values
-//            if (xCenter < 477) {
-//                //Set the target to low
-//                target = LiftHandler.LOW;
-//            }
-//            else if (xCenter > 803) {
-//                //Set the target to high
-//                target = LiftHandler.HIGH;
-//            }
-//            else {
-//                //Set the target to middle
-//                target = LiftHandler.MIDDLE;
-//            }
-//        }
-//    }
+    private void determineTarget() {
+        //Target will be high if there are no objects detected
+        if (camera.mostConfident != null) {
+            //FIXME tune these values
+            if (xCenter < 300) {
+                //Set the target to low
+                target = LiftHandler.LOW;
+            }
+            else if (xCenter < 600) {
+                //Set the target to middle
+                target = LiftHandler.MIDDLE;
+            }
+        }
+    }
 }

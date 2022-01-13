@@ -14,17 +14,21 @@ public class BucketHandler {
 
      public void tick() {
         if (controller != null) {
-            if (controller.right_trigger != 0) {
-                servo.max();
-            } else servo.min();
+            if (controller.right_trigger <= 0.1) {
+                backwards();
+            } else forwards();
         }
      }
 
      public void forwards() {
-         servo.max();
+         servo.min();
      }
 
      public void backwards() {
-        servo.min();
+        servo.max();
+     }
+
+     public void halfway() {
+        servo.setAndUpdate(0.5);
      }
 }

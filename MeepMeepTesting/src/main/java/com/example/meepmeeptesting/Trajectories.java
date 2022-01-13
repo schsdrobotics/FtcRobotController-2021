@@ -147,28 +147,40 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .forward(1)
             .build()),
     REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-            .splineTo(pos(-38, -55), rad(125))
-            .splineTo(pos(-58, -55), rad(250))
-            //do duck stuff
-            .lineToLinearHeading(pose(-12, -45, 90))
-            //deposit thing
+            .waitSeconds(30)
+            .splineTo(pos(-38, -55), rad(180))
+            .splineTo(pos(-58, -55.5), rad(270))
+            .addTemporalMarker(() -> {
+                //do duck stuff
+            })
+            .lineToLinearHeading(pose(-12, -45, 270))
+            .addTemporalMarker(() -> {
+                //deposit thing
+            })
             .waitSeconds(0)
-            .setReversed(true)
-            .splineTo(pos(12, -62), rad(180))
-            .forward(-30)
-            //pick up stuff
+            .splineTo(pos(12, -62), rad(0))
             .forward(30)
-            .splineTo(pos(-5, -42), rad(290))
-            //deposit thing
-            .waitSeconds(0)
-            .splineTo(pos(12, -62), rad(180))
-            .forward(30)
-            .forward(-30)
-            .splineTo(pos(-5, -42), rad(290))
-            //deposit thing
-            .waitSeconds(0)
-            .splineTo(pos(12, -62), rad(180))
-            .forward(30)
+            .addTemporalMarker(() -> {
+                //pick up stuff
+            })
+
+//            .setReversed(true)
+//            .forward(-30)
+//            .splineTo(pos(-5, -42), rad(110))
+//            //deposit thing
+//            .waitSeconds(0)
+//            .setReversed(false)
+//            .splineTo(pos(12, -62), rad(0))
+//            .forward(30)
+//            //pick up stuff
+//            .setReversed(true)
+//            .forward(-30)
+//            .splineTo(pos(-5, -42), rad(110))
+//            //deposit thing
+//            .waitSeconds(0)
+//            .setReversed(false)
+//            .splineTo(pos(12, -62), rad(0))
+//            .forward(30)
             .build())
     ;
 
@@ -203,7 +215,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
     public static void main(String[] args) {
         // Declare a MeepMeep instance
         // With a field size of 800 pixels
-        MeepMeep mm = new MeepMeep(800)
+        MeepMeep mm = new MeepMeep(750)
                 // Set field image
                 .setBackground(MeepMeep.Background.FIELD_FREIGHT_FRENZY)
                 // Set theme

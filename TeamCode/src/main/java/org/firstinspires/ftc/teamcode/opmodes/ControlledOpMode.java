@@ -71,7 +71,7 @@ Controls:
 @TeleOp(name="ControlledOpMode")
 public class ControlledOpMode extends OpMode {
     // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime runtime = new ElapsedTime();
     private DrivingHandler driving;
     private SweeperHandler sweeper;
     private LiftHandler lift;
@@ -86,13 +86,13 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void init() {
         driving = new DrivingHandler(hardwareMap, gamepad1);
-//        sweeper = new SweeperHandler(hardwareMap, gamepad1);
-//        lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
-//        bucket = new BucketHandler(hardwareMap, gamepad2);
-//        duck = new DuckHandler(hardwareMap, gamepad2);
-//        arm = new ArmHandler(hardwareMap, gamepad2);
-//        intakeServo = new IntakeServoHandler(hardwareMap);
-//        intakeServo.goToPos(intakeServo.HOOKED);
+        sweeper = new SweeperHandler(hardwareMap, gamepad1);
+        lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
+        bucket = new BucketHandler(hardwareMap, gamepad2);
+        duck = new DuckHandler(hardwareMap, gamepad2);
+        arm = new ArmHandler(hardwareMap, gamepad1);
+        intakeServo = new IntakeServoHandler(hardwareMap);
+        intakeServo.goToPos(IntakeServoHandler.HOOKED);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -108,7 +108,8 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void start() {
-//        intakeServo.goToPos(intakeServo.RELEASED);
+        intakeServo.goToPos(IntakeServoHandler.RELEASED);
+        arm.onStart();
         runtime.reset();
     }
 
@@ -118,11 +119,11 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void loop() {
         driving.tick();
-//        sweeper.tick();
-//        lift.tick();
-//        bucket.tick();
-//        duck.tick();
-//        arm.tick();
+        sweeper.tick();
+        lift.tick();
+        bucket.tick();
+        duck.tick();
+        arm.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
