@@ -40,7 +40,7 @@ public class ServoWrapper {
     }
 
     public void min() {
-        servo.setPosition(-1);
+        servo.setPosition(0);
 //        setAndUpdate(1 - (LIMIT / 100f));
     }
 

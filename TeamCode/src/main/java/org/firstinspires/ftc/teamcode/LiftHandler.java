@@ -25,9 +25,10 @@ public class LiftHandler {
     private Position previousLocation = Position.LOW;
     private Position target = Position.LOW;
     public boolean initialized = true;
-    public static final int LOW = 10;
-    public static final int MIDDLE = 200;
-    public static final int HIGH = 250;
+    public static final int INTAKING = 10;
+    public static final int LOW = 50;
+    public static final int MIDDLE = 190;
+    public static final int HIGH = 310;
 
     public LiftHandler(HardwareMap map, Gamepad controller, Telemetry telemetry) {
         this.telemetry = telemetry;

@@ -47,6 +47,7 @@ import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
@@ -54,8 +55,8 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
  * The OpMode that runs when the robot is automatically controlled.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="Remote", group="Remote")
-public class Remote extends LinearOpMode {
+@Autonomous(name="Remote2", group="Remote")
+public class Remote2 extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private float xCenter;
@@ -101,21 +102,11 @@ public class Remote extends LinearOpMode {
 //                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
                     //Make bucket stand straight up
                     bucket.halfway();
-                })
-                .splineTo(pos(-38, -55), rad(180))
-                .splineTo(pos(-59, -55), rad(265))
-                .build();
-
-        TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
-                .addTemporalMarker(() -> {
-                    //Stop duck motor
-                    duck.stop();
-                    duck.tick();
                     //Raise lift
                     lift.pursueTargetAuto(target);
                 })
-                //Go to alliance hub
-                .lineToLinearHeading(pose(0, -41, 270))
+                .lineTo(pos(-30.0459800714513, -58.3670520523976))
+                .lineToSplineHeading(pose(-5, -40, 270))
                 .addTemporalMarker(() -> {
                     //Deposit item
                     bucket.forwards();
@@ -124,11 +115,24 @@ public class Remote extends LinearOpMode {
                 .addTemporalMarker(() -> {
                     //Retract bucket and lift
                     bucket.backwards();
-                    lift.pursueTargetAuto(LiftHandler.LOW);
+                    lift.pursueTargetAuto(LiftHandler.INTAKING);
+                })
+                //Go to duck motor
+                .lineToLinearHeading(pose(-59,-51, 245))
+                .UNSTABLE_addDisplacementMarkerOffset(-10, () -> {
+                    DriveConstants.MAX_VEL = 5;
+                })
+                .build();
+
+        TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
+                .addTemporalMarker(() -> {
+                    //Stop duck motor
+                    duck.stop();
+                    duck.tick();
                 })
                 //Go into warehouse
-                .splineTo(pos(12, -68), rad(350))
-                .forward(40)
+                .lineToSplineHeading(pose(-20, -57, -5))
+                .splineToConstantHeading(pos(47, -77), -5)
 //
 //                //Intake on
 //                .UNSTABLE_addDisplacementMarkerOffset(-5, () -> {
@@ -198,6 +202,7 @@ public class Remote extends LinearOpMode {
                 .build();
 
         drive.followTrajectorySequence(seq1);
+        DriveConstants.MAX_VEL = 45;
         //Run duck spinner for 2.5 seconds
         double startTime = getRuntime();
         while (getRuntime() - startTime < 1.5) {
