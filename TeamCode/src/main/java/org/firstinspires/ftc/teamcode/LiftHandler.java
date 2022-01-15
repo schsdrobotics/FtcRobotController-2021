@@ -7,7 +7,6 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -17,11 +16,12 @@ import java.util.function.Predicate;
 public class LiftHandler {
     private final Telemetry telemetry;
     private final MotorWrapper motor;
-    private final Gamepad controller;
-    private final TouchSensor magneticSwitchLow;
-    private final TouchSensor magneticSwitchMiddle;
-    private final TouchSensor magneticSwitchHigh;
-    private final TouchSensor[] sensors; // sensors[Position.ordinal()] gets the sensor for a given position
+    private final Gamepad gamepad1;
+    private final Gamepad gamepad2;
+//    private final TouchSensor magneticSwitchLow;
+//    private final TouchSensor magneticSwitchMiddle;
+//    private final TouchSensor magneticSwitchHigh;
+//    private final TouchSensor[] sensors; // sensors[Position.ordinal()] gets the sensor for a given position
     private Position previousLocation = Position.LOW;
     private Position target = Position.LOW;
     public boolean initialized = true;
@@ -30,14 +30,15 @@ public class LiftHandler {
     public static final int MIDDLE = 190;
     public static final int HIGH = 310;
 
-    public LiftHandler(HardwareMap map, Gamepad controller, Telemetry telemetry) {
+    public LiftHandler(HardwareMap map, Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry) {
         this.telemetry = telemetry;
         motor = MotorWrapper.get("liftMotor", map);
-        this.controller = controller;
-        magneticSwitchLow = map.get(TouchSensor.class, "magneticSwitchLow");
-        magneticSwitchMiddle = map.get(TouchSensor.class, "magneticSwitchMiddle");
-        magneticSwitchHigh = map.get(TouchSensor.class, "magneticSwitchHigh");
-        sensors = new TouchSensor[] {magneticSwitchLow, magneticSwitchMiddle, magneticSwitchHigh};
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
+//        magneticSwitchLow = map.get(TouchSensor.class, "magneticSwitchLow");
+//        magneticSwitchMiddle = map.get(TouchSensor.class, "magneticSwitchMiddle");
+//        magneticSwitchHigh = map.get(TouchSensor.class, "magneticSwitchHigh");
+//        sensors = new TouchSensor[] {magneticSwitchLow, magneticSwitchMiddle, magneticSwitchHigh};
         motor.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
@@ -50,22 +51,22 @@ public class LiftHandler {
     }
 
     public void tick() {
-        if (controller != null) {
-            if (controller.dpad_up) {
+        if (gamepad1 != null) {
+            if (gamepad1.dpad_up) {
                 motor.setAndUpdate(.5);
-            } else if (controller.dpad_down) {
+            } else if (gamepad1.dpad_down) {
                 motor.setAndUpdate(-.5);
             } else {
                 motor.setAndUpdate(0);
             }
-            if (controller.left_stick_button && controller.right_stick_button &&
-                    controller.left_bumper && controller.right_bumper) {
+            if (gamepad2.left_stick_button && gamepad2.right_stick_button &&
+                    gamepad2.left_bumper && gamepad2.right_bumper) {
                 reset();
             }
 
-            boolean x = controller.x;
-            boolean y = controller.y;
-            boolean b = controller.b;
+            boolean x = gamepad2.x;
+            boolean y = gamepad2.y;
+            boolean b = gamepad2.b;
             if (motor.getPower() == 0 && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
                 if (x) {
                     target = Position.LOW;
@@ -104,7 +105,7 @@ public class LiftHandler {
     public enum Position implements Predicate<Integer> {
         LOW(pos -> pos <= 20),
         MIDDLE(pos -> pos >= 110 && pos <= 145),
-        HIGH(pos -> pos > 250);
+        HIGH(pos -> pos > 300 );
 
         private final Predicate<Integer> inRange;
 

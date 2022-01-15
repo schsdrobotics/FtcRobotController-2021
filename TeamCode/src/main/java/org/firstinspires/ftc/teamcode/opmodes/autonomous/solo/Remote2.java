@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.opmodes.autonomous;
+package org.firstinspires.ftc.teamcode.opmodes.autonomous.solo;
 
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.blue.BlueDuckStorage.pos;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.blue.BlueDuckStorage.pose;
@@ -108,10 +108,13 @@ public class Remote2 extends LinearOpMode {
                 .lineTo(pos(-30.0459800714513, -58.3670520523976))
                 .lineToSplineHeading(pose(-5, -40, 270))
                 .addTemporalMarker(() -> {
-                    //Deposit item
                     bucket.forwards();
                 })
                 .waitSeconds(0.5)
+//                .UNSTABLE_addTemporalMarkerOffset(-5, () -> {
+//                    //Deposit item
+//                    bucket.forwards();
+//                })
                 .addTemporalMarker(() -> {
                     //Retract bucket and lift
                     bucket.backwards();
@@ -119,9 +122,6 @@ public class Remote2 extends LinearOpMode {
                 })
                 //Go to duck motor
                 .lineToLinearHeading(pose(-59,-51, 245))
-                .UNSTABLE_addDisplacementMarkerOffset(-10, () -> {
-                    DriveConstants.MAX_VEL = 5;
-                })
                 .build();
 
         TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
@@ -132,7 +132,7 @@ public class Remote2 extends LinearOpMode {
                 })
                 //Go into warehouse
                 .lineToSplineHeading(pose(-20, -57, -5))
-                .splineToConstantHeading(pos(47, -77), -5)
+                .splineToConstantHeading(pos(47, -76), -5)
 //
 //                //Intake on
 //                .UNSTABLE_addDisplacementMarkerOffset(-5, () -> {
@@ -202,7 +202,6 @@ public class Remote2 extends LinearOpMode {
                 .build();
 
         drive.followTrajectorySequence(seq1);
-        DriveConstants.MAX_VEL = 45;
         //Run duck spinner for 2.5 seconds
         double startTime = getRuntime();
         while (getRuntime() - startTime < 1.5) {

@@ -190,7 +190,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineTo(pos(-47,-57))
             .waitSeconds(0)
             .lineToSplineHeading(pose(-25, -57, 0))
-            .splineToConstantHeading(pos(12, -62), 0)
+            .splineToConstantHeading(pos(47, -74), 0)
 //            .forward(30)
             .build())
     ;

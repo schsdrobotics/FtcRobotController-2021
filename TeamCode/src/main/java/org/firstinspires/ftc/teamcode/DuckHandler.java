@@ -27,6 +27,12 @@ public class DuckHandler {
         long millis = System.currentTimeMillis();
         if (controller != null) {
             on = controller.guide;
+            // reversing
+            if (controller.start && millis - millisAtReverse > 500) {
+                reversed = !reversed;
+                milliTimer = 0;
+                millisAtReverse = millis;
+            }
         }
         if (on) {
             double speed = rpmToTicksPerSecond(200) * (reversed ? -1 : 1);
@@ -36,14 +42,6 @@ public class DuckHandler {
             milliTimer += milliDiff;
             if (milliTimer > MILLIS_FOR_PLATE_REV) {
                 speed = rpmToTicksPerSecond(375) * (reversed ? -1 : 1);
-            }
-            // reversing
-            if (controller != null) {
-                if (controller.left_stick_button && millis - millisAtReverse > 500) {
-                    reversed = !reversed;
-                    milliTimer = 0;
-                    millisAtReverse = millis;
-                }
             }
             motor.setVelocity(speed);
         } else {

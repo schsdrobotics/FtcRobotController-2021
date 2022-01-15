@@ -14,9 +14,11 @@ public class BucketHandler {
 
      public void tick() {
         if (controller != null) {
-            if (controller.right_trigger <= 0.1) {
-                backwards();
-            } else forwards();
+            if (controller.right_trigger <= 0.1) backwards();
+            else {
+                if (controller.left_trigger <= 0.1) halfway();
+                else forwards();
+            }
         }
      }
 

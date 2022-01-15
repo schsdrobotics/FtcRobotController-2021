@@ -33,6 +33,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -55,13 +56,17 @@ Controls:
             x = rotating
         Right Trigger: sweeper forwards
         Left Trigger: sweeper backwards
+        D-Pad: manual lift control (emergency)
     Gamepad 2:
         X: lift to low position
         Y: lift to middle position
         B: lift to high position
-        Right Trigger: drop item
+        Both sticks + both bumpers: reset lift encoder (emergency)
+        Right Trigger: midway
+        Left + Right Trigger: drop item
         Guide(button in center of controller): duck spinner
-        Right Joystick: arm
+        start: reverse duck motor
+        D-Pad: arm
  */
 
 /**
@@ -87,10 +92,10 @@ public class ControlledOpMode extends OpMode {
     public void init() {
         driving = new DrivingHandler(hardwareMap, gamepad1);
         sweeper = new SweeperHandler(hardwareMap, gamepad1);
-        lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
+        lift = new LiftHandler(hardwareMap, gamepad1, gamepad2, telemetry);
         bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
-        arm = new ArmHandler(hardwareMap, gamepad1);
+        arm = new ArmHandler(hardwareMap, gamepad2);
         intakeServo = new IntakeServoHandler(hardwareMap);
         intakeServo.goToPos(IntakeServoHandler.HOOKED);
         telemetry.addData("Status", "Initialized");
@@ -109,7 +114,7 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void start() {
         intakeServo.goToPos(IntakeServoHandler.RELEASED);
-        arm.onStart();
+//        arm.onStart();
         runtime.reset();
     }
 
