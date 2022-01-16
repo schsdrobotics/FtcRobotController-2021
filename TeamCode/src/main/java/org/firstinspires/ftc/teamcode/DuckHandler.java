@@ -20,6 +20,7 @@ public class DuckHandler {
     public DuckHandler(HardwareMap map, Gamepad controller) {
         motor = map.get(DcMotorEx.class, "duckMotor");
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.controller = controller;
     }
 

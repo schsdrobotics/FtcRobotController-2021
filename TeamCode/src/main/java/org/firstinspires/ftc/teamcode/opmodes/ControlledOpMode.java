@@ -92,7 +92,7 @@ public class ControlledOpMode extends OpMode {
     public void init() {
         driving = new DrivingHandler(hardwareMap, gamepad1);
         sweeper = new SweeperHandler(hardwareMap, gamepad1);
-        lift = new LiftHandler(hardwareMap, gamepad1, gamepad2, telemetry);
+        lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
         bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
         arm = new ArmHandler(hardwareMap, gamepad2);
@@ -114,7 +114,7 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void start() {
         intakeServo.goToPos(IntakeServoHandler.RELEASED);
-//        arm.onStart();
+        arm.onStart();
         runtime.reset();
     }
 

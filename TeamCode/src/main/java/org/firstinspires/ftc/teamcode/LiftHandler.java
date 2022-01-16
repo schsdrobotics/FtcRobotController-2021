@@ -16,8 +16,7 @@ import java.util.function.Predicate;
 public class LiftHandler {
     private final Telemetry telemetry;
     private final MotorWrapper motor;
-    private final Gamepad gamepad1;
-    private final Gamepad gamepad2;
+    private final Gamepad gamepad;
 //    private final TouchSensor magneticSwitchLow;
 //    private final TouchSensor magneticSwitchMiddle;
 //    private final TouchSensor magneticSwitchHigh;
@@ -26,15 +25,14 @@ public class LiftHandler {
     private Position target = Position.LOW;
     public boolean initialized = true;
     public static final int INTAKING = 10;
-    public static final int LOW = 50;
+    public static final int LOW = 20;
     public static final int MIDDLE = 190;
     public static final int HIGH = 310;
 
-    public LiftHandler(HardwareMap map, Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry) {
+    public LiftHandler(HardwareMap map, Gamepad gamepad, Telemetry telemetry) {
         this.telemetry = telemetry;
         motor = MotorWrapper.get("liftMotor", map);
-        this.gamepad1 = gamepad1;
-        this.gamepad2 = gamepad2;
+        this.gamepad = gamepad;
 //        magneticSwitchLow = map.get(TouchSensor.class, "magneticSwitchLow");
 //        magneticSwitchMiddle = map.get(TouchSensor.class, "magneticSwitchMiddle");
 //        magneticSwitchHigh = map.get(TouchSensor.class, "magneticSwitchHigh");
@@ -51,22 +49,16 @@ public class LiftHandler {
     }
 
     public void tick() {
-        if (gamepad1 != null) {
-            if (gamepad1.dpad_up) {
-                motor.setAndUpdate(.5);
-            } else if (gamepad1.dpad_down) {
-                motor.setAndUpdate(-.5);
-            } else {
-                motor.setAndUpdate(0);
-            }
-            if (gamepad2.left_stick_button && gamepad2.right_stick_button &&
-                    gamepad2.left_bumper && gamepad2.right_bumper) {
+        if (gamepad != null) {
+            motor.setAndUpdate(gamepad.left_stick_y);
+            if (gamepad.left_stick_button && gamepad.right_stick_button &&
+                    gamepad.left_bumper && gamepad.right_bumper) {
                 reset();
             }
 
-            boolean x = gamepad2.x;
-            boolean y = gamepad2.y;
-            boolean b = gamepad2.b;
+            boolean x = gamepad.x;
+            boolean y = gamepad.y;
+            boolean b = gamepad.b;
             if (motor.getPower() == 0 && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
                 if (x) {
                     target = Position.LOW;
@@ -103,9 +95,9 @@ public class LiftHandler {
     }
 
     public enum Position implements Predicate<Integer> {
-        LOW(pos -> pos <= 20),
-        MIDDLE(pos -> pos >= 110 && pos <= 145),
-        HIGH(pos -> pos > 300 );
+        LOW(pos -> pos <= 10),
+        MIDDLE(pos -> pos >= 120 && pos <= 155),
+        HIGH(pos -> pos > 300);
 
         private final Predicate<Integer> inRange;
 

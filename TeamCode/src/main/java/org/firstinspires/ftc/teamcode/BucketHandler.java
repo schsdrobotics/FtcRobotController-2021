@@ -27,7 +27,7 @@ public class BucketHandler {
      }
 
      public void backwards() {
-        servo.max();
+        servo.setAndUpdate(0.9);
      }
 
      public void halfway() {

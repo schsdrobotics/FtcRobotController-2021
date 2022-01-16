@@ -99,15 +99,17 @@ public class Remote2 extends LinearOpMode {
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
                 .addTemporalMarker(() -> {
                     //Drop intake
-//                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
+                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
                     //Make bucket stand straight up
                     bucket.halfway();
                     //Raise lift
                     lift.pursueTargetAuto(target);
                 })
-                .lineTo(pos(-30.0459800714513, -58.3670520523976))
-                .lineToSplineHeading(pose(-5, -40, 270))
+                //Go to alliance hub
+                .lineTo(pos(calculatePoint(-35, -62, -5, -39, false, -58), -58))
+                .lineToSplineHeading(pose(-5, -39, 270))
                 .addTemporalMarker(() -> {
+                    //Drop item
                     bucket.forwards();
                 })
                 .waitSeconds(0.5)
@@ -132,7 +134,7 @@ public class Remote2 extends LinearOpMode {
                 })
                 //Go into warehouse
                 .lineToSplineHeading(pose(-20, -57, -5))
-                .splineToConstantHeading(pos(47, -76), -5)
+                .splineToConstantHeading(pos(50, -77), -5)
 //
 //                //Intake on
 //                .UNSTABLE_addDisplacementMarkerOffset(-5, () -> {
@@ -223,6 +225,17 @@ public class Remote2 extends LinearOpMode {
                 //Set the target to middle
                 target = LiftHandler.MIDDLE;
             }
+        }
+    }
+
+    private double calculatePoint(double x1, double y1, double x2, double y2, boolean x, double xory) {
+        if (x) {
+            double slope = ((y2-y1)/(x2-x1));
+            return slope*(xory - x1) + y1;
+        }
+        else {
+            double slope = ((x2 - x1)/(y2-y1));
+            return slope * (xory - y1) + x1;
         }
     }
 }

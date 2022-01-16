@@ -7,6 +7,8 @@ public class ArmHandler {
     private final ServoWrapper vertical;
     private final ServoWrapper horizontal;
     private final Gamepad controller;
+    private boolean init = true;
+    private long startMillis;
     private long lastMillis = System.currentTimeMillis();
 
     public ArmHandler(HardwareMap map, Gamepad controller) {
@@ -16,7 +18,8 @@ public class ArmHandler {
     }
 
     public void onStart() {
-        vertical.setAndUpdate(0.3);
+        vertical.max();
+        startMillis = System.currentTimeMillis();
 //        horizontal.setAndUpdate(0.4);
     }
 
@@ -24,12 +27,12 @@ public class ArmHandler {
         System.out.println("vert: " + vertical.servo.getPosition() + "; hoz: " + horizontal.servo.getPosition());
 
         //Horizontal servo is continuous
-        if (controller.dpad_left) {  // if we want this on a joystick, change the condition to controller.left_stick_x != 0 etc.
+        if (controller.dpad_right) {  // if we want this on a joystick, change the condition to controller.left_stick_x != 0 etc.
 //                horizontal.setPos(horizontal.getPos() - 0.01);
-            horizontal.setPos(0.6);
-        } else if (controller.dpad_right) {
+            horizontal.setPos(0.55);
+        } else if (controller.dpad_left) {
 //                horizontal.setPos(horizontal.getPos() + 0.01);
-            horizontal.setPos(0.4);
+            horizontal.setPos(0.45);
         }
         else {
             horizontal.setPos(0.5);
@@ -37,14 +40,16 @@ public class ArmHandler {
         horizontal.update();
 
         long millis = System.currentTimeMillis();
-        if (millis - lastMillis > 10) {
-            //Vertical servo is positional
-            if (controller.dpad_up) {
-//                vertical.setPos(vertical.getPos() - 0.01);
-                vertical.setPos(vertical.getPos() + 0.01);
-            } else if (controller.dpad_down) {
-//                vertical.setPos(vertical.getPos() + 0.01);
-                vertical.setPos(vertical.getPos() - 0.01);
+        if (millis - lastMillis > 40) {
+            if (init) {
+                if (millis - startMillis > 2000) init = false;
+                horizontal.setAndUpdate(0.4);
+            } else {
+                if (controller.dpad_down) {
+                    vertical.setPos(vertical.getPos() - 0.01);
+                } else if (controller.dpad_up) {
+                    vertical.setPos(vertical.getPos() + 0.01);
+                }
             }
 
             vertical.update();
