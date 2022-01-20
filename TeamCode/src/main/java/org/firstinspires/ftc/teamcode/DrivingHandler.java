@@ -61,7 +61,7 @@ public class DrivingHandler {
         double strength = Math.max(Math.sqrt(x * x + y * y), Math.abs(z));
         forEach(motor -> {
             int[] mults = getMultsForMotor(motor);
-            double finalPower = ((mults[0] * forwardWeight) + (mults[1] * rotWeight) + (mults[2] * strafeWeight)) * strength * (MotorWrapper.PERCENT_OF_MAX/100f);
+            double finalPower = ((mults[0] * forwardWeight) + (mults[1] * rotWeight) + (mults[2] * strafeWeight)) * strength * (MotorWrapper.PERCENT_OF_MAX/100f); // Power limited to 80% to match our motor limits
             motor.setPower(finalPower);
         });
         updateAll();
