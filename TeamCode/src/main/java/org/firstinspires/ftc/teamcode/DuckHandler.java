@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class DuckHandler {
     private final DcMotorEx motor;
     private final Gamepad controller;
@@ -15,7 +17,10 @@ public class DuckHandler {
     private boolean on = false;
     private static final double MOTOR_TICKS_PER_REV = 28;
     private static final double MOTOR_GEAR_RATIO = 16;
-    private static final double MILLIS_FOR_PLATE_REV = 825;
+    public static double MILLIS_FOR_PLATE_REV = 825;
+    public static double RPMSPEED = 300;
+    private double speed = rpmToTicksPerSecond(RPMSPEED) * (reversed ? -1 : 1);
+    public boolean fast = false;
 
     public DuckHandler(HardwareMap map, Gamepad controller) {
         motor = map.get(DcMotorEx.class, "duckMotor");
@@ -26,6 +31,8 @@ public class DuckHandler {
 
     public void tick() {
         long millis = System.currentTimeMillis();
+        speed = rpmToTicksPerSecond(RPMSPEED) * (reversed ? -1 : 1);
+        fast = false;
         if (controller != null) {
             on = controller.guide;
             // reversing
@@ -36,19 +43,49 @@ public class DuckHandler {
             }
         }
         if (on) {
-            double speed = rpmToTicksPerSecond(175) * (reversed ? -1 : 1);
-
             // ramping up speed
             long milliDiff = millis - lastMillis;
             milliTimer += milliDiff;
-            if (milliTimer > MILLIS_FOR_PLATE_REV) {
-                speed = rpmToTicksPerSecond(400) * (reversed ? -1 : 1);
+            if (milliTimer <= MILLIS_FOR_PLATE_REV) {
+                motor.setVelocity(speed);
             }
-            motor.setVelocity(speed);
+            if (milliTimer > MILLIS_FOR_PLATE_REV) {
+                double power = (reversed ? -1 : 1);
+                fast = true;
+                motor.setPower(power);
+            }
         } else {
             if (milliTimer > 0) milliTimer = 0;
             motor.setPower(0);
         }
+//        if (controller.dpad_up) {
+//            long milliDiff = millis - lastMillis;
+//            milliTimer += milliDiff;
+//            if (milliTimer > 10) {
+//                RPMSPEED++;
+//            }
+//        }
+//        else if (controller.dpad_down) {
+//            long milliDiff = millis - lastMillis;
+//            milliTimer += milliDiff;
+//            if (milliTimer > 10) {
+//                RPMSPEED--;
+//            }
+//        }
+//        else if (controller.dpad_left) {
+//            long milliDiff = millis - lastMillis;
+//            milliTimer += milliDiff;
+//            if (milliTimer > 10) {
+//                MILLIS_FOR_PLATE_REV--;
+//            }
+//        }
+//        else if (controller.dpad_right) {
+//            long milliDiff = millis - lastMillis;
+//            milliTimer += milliDiff;
+//            if (milliTimer > 10) {
+//                MILLIS_FOR_PLATE_REV++;
+//            }
+//        }
         lastMillis = millis;
     }
 
