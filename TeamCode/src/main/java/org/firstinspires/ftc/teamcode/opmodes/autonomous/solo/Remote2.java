@@ -148,7 +148,7 @@ public class Remote2 extends OpMode {
         // Make bucket stand straight up
         bucket.halfway();
         // Raise lift
-        lift.pursueTargetAuto(target);
+        lift.pursueTarget(target);
         // Go to alliance hub
         drive.followTrajectoryAsync(traj1);
     }
@@ -195,7 +195,7 @@ public class Remote2 extends OpMode {
                     currentState = State.DELIVER_DUCKS;
 
                     // Lower lift
-                    lift.pursueTargetAuto(LiftHandler.INTAKING);
+                    lift.pursueTarget(LiftHandler.INTAKING);
                     // Run duck spinner for 2.5 seconds
                     double startTime = getRuntime();
                     while (getRuntime() - startTime < 1.5) {

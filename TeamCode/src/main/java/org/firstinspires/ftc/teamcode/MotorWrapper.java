@@ -18,10 +18,7 @@ public class MotorWrapper {
     }
 
     public void setPower(double power) {
-        double maxMin = PERCENT_OF_MAX / 100f;
-        if (power > maxMin) power = maxMin;
-        if (power < -maxMin) power = -maxMin;
-        this.power = power;
+        this.power = clampPower(power);
     }
 
     public double getPower() {
@@ -42,8 +39,16 @@ public class MotorWrapper {
     }
 
     public void goToPosition(int pos, double power) {
+        power = clampPower(power);
         motor.setTargetPosition(pos);
         setPower(power);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public static double clampPower(double original) {
+        double maxMin = PERCENT_OF_MAX / 100f;
+        if (original > maxMin) original = maxMin;
+        else if (original < -maxMin) original = -maxMin;
+        return original;
     }
 }
