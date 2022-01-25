@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
+import org.firstinspires.ftc.teamcode.CycleHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
@@ -83,6 +84,7 @@ public class ControlledOpMode extends OpMode {
     private BucketHandler bucket;
     private DuckHandler duck;
     private ArmHandler arm;
+    private CycleHandler cycles;
     private IntakeServoHandler intakeServo;
 
     /**
@@ -96,6 +98,7 @@ public class ControlledOpMode extends OpMode {
         bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
         arm = new ArmHandler(hardwareMap, gamepad2);
+        cycles = new CycleHandler(sweeper, bucket, lift, gamepad1);
         intakeServo = new IntakeServoHandler(hardwareMap);
         intakeServo.goToPos(IntakeServoHandler.HOOKED);
         telemetry.addData("Status", "Initialized");
@@ -129,6 +132,7 @@ public class ControlledOpMode extends OpMode {
         bucket.tick();
         duck.tick();
         arm.tick();
+        cycles.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
 //        telemetry.addData("Initial speed", DuckHandler.RPMSPEED);
 //        telemetry.addData("Time to speed up (ms)", DuckHandler.MILLIS_FOR_PLATE_REV);
