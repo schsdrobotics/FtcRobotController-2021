@@ -44,22 +44,22 @@ public class LiftHandler {
                 reset();
             }
 
-            boolean x = gamepad.x;
-            boolean y = gamepad.y;
-            boolean b = gamepad.b;
-            if (!isBusy() && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed and motor stopped
-                Position target;
-                if (x) {
-                    target = Position.LOW;
-                } else if (y) {
-                    target = Position.MIDDLE;
-                } else if (b) {
-                    target = Position.HIGH;
-                } else {
-                    throw new IllegalArgumentException("Impossible target");
-                }
-                pursueTarget(target);
-            }
+//            boolean x = gamepad.x;
+//            boolean y = gamepad.y;
+//            boolean b = gamepad.b;
+//            if (!isBusy() && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed and motor stopped
+//                Position target;
+//                if (x) {
+//                    target = Position.LOW;
+//                } else if (y) {
+//                    target = Position.MIDDLE;
+//                } else if (b) {
+//                    target = Position.HIGH;
+//                } else {
+//                    throw new IllegalArgumentException("Impossible target");
+//                }
+//                pursueTarget(target);
+//            }
         }
     }
 

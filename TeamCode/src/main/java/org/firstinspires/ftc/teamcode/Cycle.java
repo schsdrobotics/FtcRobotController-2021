@@ -4,6 +4,9 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LiftHandler.Position;
 
 import java.util.concurrent.CompletableFuture;
@@ -16,12 +19,13 @@ import java.util.function.Supplier;
 
 /**
  * Represents a cycle of:
- * - pickup
- * - drop extra objects
- * - tilt bucket
- * - lift... lift
- * - drop item
- * - retract lift
+ * <br>- pickup
+ * <br>- drop extra objects
+ * <br>- tilt bucket
+ * <br>- lift... lift
+ * <br>- drop item
+ * <br>- retract lift
+ * @see CycleHandler
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class Cycle {
@@ -30,14 +34,16 @@ public class Cycle {
     private final BucketHandler bucket;
     private final LiftHandler lift;
     private final Position targetPosition;
-    private volatile boolean busy = false;
+    private final DistanceSensor distanceSensor;
+    public volatile Stage stage = Stage.WAITING;
 
-    public Cycle(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift, // todo add object sensor
-                 Position targetPosition) {
+    public Cycle(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
+                 Position targetPosition, DistanceSensor distanceSensor) {
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
         this.targetPosition = targetPosition;
+        this.distanceSensor = distanceSensor;
     }
 
     /**
@@ -46,15 +52,44 @@ public class Cycle {
      */
     public Future<Boolean> start() {
         return executor.submit(() -> {
-            busy = true;
-            // todo pickup - object sensor, timeout backup
-            boolean objectPickedUp = false;
+            stage = Stage.IN_START;
+            sweeper.forwards(1);
+
+            long startTime = System.currentTimeMillis();
+            long lastTime = startTime;
+            double distanceCm = 0;
+            long bucketFilledFor = 0;
+            long runtime = 0;
+
+            // give 2 seconds for object to enter bucket
+            while (runtime < 2000) {
+                distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
+                runtime = System.currentTimeMillis() - startTime;
+
+                if (distanceCm < 5) { // if item in bucket
+
+                    // keep track of how long an item is in the bucket to prevent
+                    // stuff bouncing out but still triggering loop exit
+                    long deltaMillis = System.currentTimeMillis() - lastTime;
+                    bucketFilledFor += deltaMillis;
+
+                } else bucketFilledFor = 0; // reset timer if item has exited
+
+                // if bucket has consistently held an item for 300 millis, consider it secure
+                if (bucketFilledFor > 300) break;
+
+                lastTime = System.currentTimeMillis();
+                waitFor(20);
+            }
+
+            boolean objectPickedUp = distanceCm < 5;
             if (objectPickedUp) {
                 bucket.halfway();
-                waitFor(500); // give bucket time to rotate
+                waitFor(500); // give bucket time to rotate // TODO adjust bucket to only hold 1 item
                 lift.pursueTarget(targetPosition.pos);
+                sweeper.backwards(1); // spit out extras
             }
-            busy = false;
+            stage = Stage.BETWEEN;
             return objectPickedUp;
         });
     }
@@ -65,23 +100,48 @@ public class Cycle {
      */
     public Future<Boolean> finish() {
         return executor.submit(() -> {
-            busy = true;
+            stage = Stage.IN_FINISH;
             bucket.forwards();
-            // todo object sensor - make sure it's dropped
-            boolean dropped = true;
-            waitFor(1000);
-            bucket.backwards();
-            waitFor(500);
+
+            double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
+            long startTime = System.currentTimeMillis();
+
+            // give 1 second to drop
+            while (distanceCm < 5 && System.currentTimeMillis() - startTime < 1000) {
+                waitFor(20);
+                // shake out items
+                for (int i = 0; i < 5; i++) {
+                    bucket.halfway();
+                    waitFor(10);
+                    bucket.forwards();
+                    waitFor(10);
+                }
+                distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
+            }
+
+            boolean dropped = distanceCm > 7;
+            if (dropped) {
+                bucket.backwards();
+            }
+
             lift.pursueTarget(Position.LOW);
-            busy = false;
+            while (lift.isBusy()) {
+                waitFor(20);
+            }
+
+            stage = Stage.COMPLETE;
             return dropped;
         });
     }
 
-    public void await() {
-        while (busy) {
+    /**
+     * @return true if COMPLETE, false if BETWEEN or WAITING
+     */
+    public boolean await() {
+        while (stage == Stage.IN_START || stage == Stage.IN_FINISH) {
             waitFor(20);
         }
+        return stage == Stage.COMPLETE;
     }
 
     private void waitFor(long millis) {
@@ -90,5 +150,13 @@ public class Cycle {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public enum Stage {
+        WAITING,
+        IN_START,
+        BETWEEN,
+        IN_FINISH,
+        COMPLETE
     }
 }

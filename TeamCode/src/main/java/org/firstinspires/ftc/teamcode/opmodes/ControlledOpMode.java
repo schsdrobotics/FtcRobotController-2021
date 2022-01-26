@@ -36,6 +36,7 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
@@ -98,7 +99,8 @@ public class ControlledOpMode extends OpMode {
         bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
         arm = new ArmHandler(hardwareMap, gamepad2);
-        cycles = new CycleHandler(sweeper, bucket, lift, gamepad1);
+        cycles = new CycleHandler(sweeper, bucket, lift, gamepad1,
+                hardwareMap.get(DistanceSensor.class, "distanceSensor"));
         intakeServo = new IntakeServoHandler(hardwareMap);
         intakeServo.goToPos(IntakeServoHandler.HOOKED);
         telemetry.addData("Status", "Initialized");

@@ -4,6 +4,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.LiftHandler.Position;
@@ -17,42 +18,58 @@ public class CycleHandler {
     private final BucketHandler bucket;
     private final LiftHandler lift;
     private final Gamepad controller;
-    private Position targetPosition = null;
+    private final DistanceSensor distanceSensor;
+    private Position targetPosition = Position.LOW;
     private Cycle currentCycle = null;
     private Future<Boolean> currentAwaitingResult = null;
 
     public CycleHandler(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
-                        Gamepad controller) {
+                        Gamepad controller, DistanceSensor distanceSensor) {
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
         this.controller = controller;
+        this.distanceSensor = distanceSensor;
     }
 
     public void tick() {
         // first handle current cycle
         if (currentAwaitingResult != null) {
             if (currentAwaitingResult.isDone()) {
-                try {
-                    boolean out = currentAwaitingResult.get();
-                    if (!out) {
-                        // todo error handling - did not get an object
-                    }
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                    // todo error handling - exception during execution, probably should assume failed to pickup
-                }
-                currentCycle = null;
-                currentAwaitingResult = null;
+                handleCurrentCycleFinishStage();
             }
+            // else handle controller inputs
         } else if (controller != null) {
             findTarget();
+            handleController();
+        }
+    }
 
-            if (controller.a && targetPosition != null) {
-                if (currentCycle != null) {
-
+    private void handleCurrentCycleFinishStage() {
+        try {
+            boolean success = currentAwaitingResult.get();
+            if (!success) {
+                controller.rumble(300);
+                // todo error handling
+            } else {
+                if (currentCycle.stage == Cycle.Stage.COMPLETE) {
+                    currentCycle = null;
                 }
-                currentCycle = new Cycle(sweeper, bucket, lift, targetPosition);
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            controller.rumble(300);
+            // todo error handling - exception during execution, probably should assume failed
+        }
+        currentAwaitingResult = null;
+    }
+
+    private void handleController() {
+        if (controller.a) {
+            if (currentCycle != null) {
+                currentAwaitingResult = currentCycle.finish();
+            } else {
+                currentCycle = new Cycle(sweeper, bucket, lift, targetPosition, distanceSensor);
                 currentAwaitingResult = currentCycle.start();
             }
         }
