@@ -189,9 +189,10 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineToSplineHeading(pose(-41.6355465309012, -54.8542186123605, 250))
             .lineTo(pos(-47,-57))
             .waitSeconds(0)
-            .lineToSplineHeading(pose(-25, -57, 0))
-            .splineToConstantHeading(pos(47, -74), 0)
-//            .forward(30)
+            .lineToSplineHeading(pose(-20, -57, 0))
+            .splineToConstantHeading(pos(-15, -64), rad(270))
+            .strafeRight(5)
+            .forward(55)
             .build())
     ;
 
@@ -234,7 +235,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // Background opacity from 0-1
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(58.5, 58.5, rad(180), rad(180), 9.5)
+                .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
                 .followTrajectorySequence(REMOTE2::apply)
                 .start();
     }

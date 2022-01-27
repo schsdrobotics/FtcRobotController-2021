@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.opmodes.autonomous.solo;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.calculatePoint;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pos;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pose;
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.rad;
 
 import android.os.Build;
 
@@ -73,14 +74,15 @@ public class Remote2Linear extends LinearOpMode {
         TO_HUB_INITIAL,   // Set-up + go to alliance hub
         DROP_AND_RETRACT,   // drop item + retract bucket
         TO_DUCK_SPINNER,         // Go to duck spinner
-        DELIVER_DUCKS,   // Deliver ducks + lower lift
+        DELIVER_DUCKS, // Deliver ducks + lower lift
+        ALIGN, // Align the robot with the wall
         TO_WAREHOUSE_INITIAL, // Go to warehouse; TODO: starts intake cycle
         IDLE            // Our bot will enter the IDLE state when done
     }
 
     // We define the current state we're on
     // Default to IDLE
-    private State currentState = State.TO_HUB_INITIAL;
+    private State currentState = State.IDLE;
 
     private final Pose2d startPose = pose(-35, -62, 90);
 
@@ -105,17 +107,22 @@ public class Remote2Linear extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .lineTo(pos(calculatePoint(-35, -62, -5, -39, false, -58), -58))
-                .lineToSplineHeading(pose(-5, -39, 270))
+                .lineTo(pos(calculatePoint(-35, -62, -7, -39, false, -58), -58))
+                .lineToSplineHeading(pose(-7, -39, 270))
                 .build();
 
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToLinearHeading(pose(-59,-51, 245))
+                .lineToLinearHeading(pose(-61,-51, 245))
                 .build();
 
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .lineToSplineHeading(pose(-20, -57, -5))
-                .splineToConstantHeading(pos(50, -77), -5)
+                .lineToSplineHeading(pose(-20, -57, 0))
+                .splineToConstantHeading(pos(-15, -64), rad(270))
+                .strafeRight(5)
+                .build();
+
+        Trajectory traj4 = drive.trajectoryBuilder(pose(traj3.end().getX(), -65.25, 0))
+                .forward(60)
                 .build();
 
         while (!opModeIsActive() && !isStopRequested()) {
@@ -124,8 +131,9 @@ public class Remote2Linear extends LinearOpMode {
             if (camera.mostConfident != null) {
                 xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight())/2;
                 telemetry.addData("xCenter", xCenter);
-                telemetry.update();
             }
+            telemetry.addData("Ready!", ";ohifae;oihfew");
+            telemetry.update();
         }
 
         //Run once when started
@@ -138,11 +146,11 @@ public class Remote2Linear extends LinearOpMode {
         currentState = State.TO_HUB_INITIAL;
 
         // Drop intake
-        intakeServo.goToPos(IntakeServoHandler.RELEASED);
+//        intakeServo.goToPos(IntakeServoHandler.RELEASED);
         // Make bucket stand straight up
-        bucket.halfway();
+//        bucket.halfway();
         // Raise lift
-        lift.pursueTarget(target);
+//        lift.pursueTarget(target);
         // Go to alliance hub
         drive.followTrajectoryAsync(traj1);
 
@@ -163,11 +171,11 @@ public class Remote2Linear extends LinearOpMode {
                         currentState = State.DROP_AND_RETRACT;
 
                         // Drop item
-                        bucket.forwards();
+//                        bucket.forwards();
                         double startTime = getRuntime();
                         while (getRuntime() - startTime < 1.0) {} // Wait 1s
                         // Retract bucket
-                        bucket.backwards();
+//                        bucket.backwards();
                     }
                     break;
                 case DROP_AND_RETRACT:
@@ -183,24 +191,34 @@ public class Remote2Linear extends LinearOpMode {
                         currentState = State.DELIVER_DUCKS;
 
                         // Lower lift
-                        lift.pursueTarget(LiftHandler.INTAKING);
+//                        lift.pursueTarget(LiftHandler.INTAKING);
                         // Run duck spinner for 2.5 seconds
                         double startTime = getRuntime();
                         while (getRuntime() - startTime < 1.5) {
-                            duck.tick();
-                            duck.start(); // red does not need reversing
+//                            duck.tick();
+//                            duck.start(); // red does not need reversing
                         }
                         // Stop duck motor
-                        duck.stop();
-                        duck.tick();
+//                        duck.stop();
+//                        duck.tick();
                     }
                     break;
                 case DELIVER_DUCKS:
                     if (!drive.isBusy()) {
+                        currentState = State.ALIGN;
+
+                        // Align
+                        drive.followTrajectoryAsync(traj3);
+                    }
+                    break;
+                case ALIGN:
+                    if (!drive.isBusy()) {
                         currentState = State.TO_WAREHOUSE_INITIAL;
 
+                        // Make pose estimate against the wall
+                        drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -65.25, 0));
                         // Go into warehouse
-                        drive.followTrajectoryAsync(traj3);
+                        drive.followTrajectoryAsync(traj4);
                     }
                     break;
                 case TO_WAREHOUSE_INITIAL:

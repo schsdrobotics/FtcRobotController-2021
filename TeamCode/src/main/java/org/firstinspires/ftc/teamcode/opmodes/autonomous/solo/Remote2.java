@@ -78,7 +78,7 @@ public class Remote2 extends OpMode {
 
     // We define the current state we're on
     // Default to IDLE
-    private State currentState = State.TO_HUB_INITIAL;
+    private State currentState = State.IDLE;
 
     private final Pose2d startPose = pose(-35, -62, 90);
     private Trajectory traj1;
