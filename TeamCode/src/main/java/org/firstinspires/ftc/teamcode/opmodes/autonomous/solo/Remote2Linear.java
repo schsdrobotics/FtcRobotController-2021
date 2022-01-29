@@ -131,6 +131,7 @@ public class Remote2Linear extends LinearOpMode {
             if (camera.mostConfident != null) {
                 xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight())/2;
                 telemetry.addData("xCenter", xCenter);
+                System.out.println(camera.mostConfident.getConfidence());
             }
             telemetry.addData("Ready!", ";ohifae;oihfew");
             telemetry.update();

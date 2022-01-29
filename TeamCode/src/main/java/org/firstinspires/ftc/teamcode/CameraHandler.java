@@ -62,7 +62,7 @@ public class CameraHandler {
    *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
    *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
    */
-    private static final String TFOD_MODEL_ASSET = "yellow-cone.tflite";
+    private static final String TFOD_MODEL_ASSET = "yellow-cone-2.tflite";
     private static final String[] LABELS = {
       "Team Marker"
     };
@@ -140,7 +140,7 @@ public class CameraHandler {
                     //Get the most confident cone
                     for (Recognition recognition : updatedRecognitions) {
                         float confidence = recognition.getConfidence();
-                        if (confidence < maximumConfidence) {
+                        if (confidence > maximumConfidence) {
                             maximumConfidence = confidence;
                             index = i;
                         }
@@ -181,7 +181,7 @@ public class CameraHandler {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
             "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-       tfodParameters.minResultConfidence = 0.85f;
+       tfodParameters.minResultConfidence = 0.7f;
        tfodParameters.isModelTensorFlow2 = true;
        tfodParameters.inputSize = 320;
        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
