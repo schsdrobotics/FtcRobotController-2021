@@ -86,8 +86,8 @@ public class Cycle {
             boolean objectPickedUp = distanceCm < 5;
             if (objectPickedUp) {
                 bucket.halfway();
-                waitFor(500); // give bucket time to rotate // TODO adjust bucket to only hold 1 item
-                lift.pursueTarget(targetPosition.pos);
+                waitFor(300); // give bucket time to rotate
+                lift.pursueTarget(targetPosition);
                 sweeper.backwards(1); // spit out extras
             }
             stage = Stage.BETWEEN;
@@ -105,26 +105,15 @@ public class Cycle {
             stage = Stage.IN_FINISH;
             bucket.forwards();
 
-            double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-            long startTime = System.currentTimeMillis();
-
-            // give 1 second to drop
-            while (distanceCm < 5 && System.currentTimeMillis() - startTime < 1000) {
-                waitFor(20);
-                // shake out items
-                for (int i = 0; i < 5; i++) {
-                    bucket.halfway();
-                    waitFor(10);
-                    bucket.forwards();
-                    waitFor(10);
-                }
-                distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
+            // wiggle bucket to encourage item to drop
+            for (int i = 0; i < 5; i++) {
+                bucket.halfway();
+                waitFor(10);
+                bucket.forwards();
+                waitFor(10);
             }
 
-            boolean dropped = distanceCm > 7;
-            if (dropped) {
-                bucket.backwards();
-            }
+            bucket.backwards();
 
             lift.pursueTarget(Position.LOW);
             while (lift.isBusy()) {
@@ -132,8 +121,7 @@ public class Cycle {
             }
 
             stage = Stage.COMPLETE;
-            if (!dropped) errorMessage = "failed to drop object; detected distance: " + distanceCm;
-            return dropped;
+            return true; // todo feedback? can't check if dropped because sensor location
         });
     }
 

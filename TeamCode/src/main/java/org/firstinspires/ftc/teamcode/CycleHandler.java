@@ -59,8 +59,8 @@ public class CycleHandler {
 
     private void handleCurrentCycleFinishStage() {
         try {
-            boolean success = currentAwaitingResult.get();
-            if (!success) {
+            boolean failed = !currentAwaitingResult.get();
+            if (failed) {
                 controller.rumble(300);
                 telemetry.addData("Cycle error: ", currentCycle.errorMessage);
             }
@@ -68,10 +68,10 @@ public class CycleHandler {
             if (currentCycle.stage == Cycle.Stage.COMPLETE) {
                 currentCycle = null;
             }
-            telemetry.addData("Last cycle result successful: ", success);
+            telemetry.addData("Last cycle result successful: ", !failed);
         } catch (ExecutionException | InterruptedException e) {
             controller.rumble(300);
-            telemetry.addData("Cycle error: exception", e);
+            telemetry.addData("Cycle exception!", e);
             e.printStackTrace();
         }
         currentAwaitingResult = null;
