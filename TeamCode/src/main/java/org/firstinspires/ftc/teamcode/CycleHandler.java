@@ -7,6 +7,8 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LiftHandler.Position;
 
 import java.util.concurrent.ExecutionException;
@@ -14,6 +16,7 @@ import java.util.concurrent.Future;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class CycleHandler {
+    private final Telemetry telemetry;
     private final SweeperHandler sweeper;
     private final BucketHandler bucket;
     private final LiftHandler lift;
@@ -24,7 +27,8 @@ public class CycleHandler {
     private Future<Boolean> currentAwaitingResult = null;
 
     public CycleHandler(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
-                        Gamepad controller, DistanceSensor distanceSensor) {
+                        Gamepad controller, DistanceSensor distanceSensor, Telemetry telemetry) {
+        this.telemetry = telemetry;
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
@@ -33,6 +37,7 @@ public class CycleHandler {
     }
 
     public void tick() {
+        handleTelemetry();
         // first handle current cycle
         if (currentAwaitingResult != null) {
             if (currentAwaitingResult.isDone()) {
@@ -41,8 +46,15 @@ public class CycleHandler {
             // else handle controller inputs
         } else if (controller != null) {
             findTarget();
-            handleController();
+            handleCycleStatus();
         }
+    }
+
+    private void handleTelemetry() {
+        telemetry.addData("Cycle active: ", currentCycle != null);
+        telemetry.addData("Awaiting result: ", currentAwaitingResult != null);
+        telemetry.addData("Target: ", targetPosition);
+        telemetry.addData("Current detected distance (cm): ", distanceSensor.getDistance(DistanceUnit.CM));
     }
 
     private void handleCurrentCycleFinishStage() {
@@ -50,21 +62,22 @@ public class CycleHandler {
             boolean success = currentAwaitingResult.get();
             if (!success) {
                 controller.rumble(300);
-                // todo error handling
-            } else {
-                if (currentCycle.stage == Cycle.Stage.COMPLETE) {
-                    currentCycle = null;
-                }
+                telemetry.addData("Cycle error: ", currentCycle.errorMessage);
             }
+
+            if (currentCycle.stage == Cycle.Stage.COMPLETE) {
+                currentCycle = null;
+            }
+            telemetry.addData("Last cycle result successful: ", success);
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
             controller.rumble(300);
-            // todo error handling - exception during execution, probably should assume failed
+            telemetry.addData("Cycle error: exception", e);
+            e.printStackTrace();
         }
         currentAwaitingResult = null;
     }
 
-    private void handleController() {
+    private void handleCycleStatus() {
         if (controller.a) {
             if (currentCycle != null) {
                 currentAwaitingResult = currentCycle.finish();
@@ -79,7 +92,7 @@ public class CycleHandler {
         boolean x = controller.x;
         boolean y = controller.y;
         boolean b = controller.b;
-        if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed and motor stopped
+        if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
             if (x) {
                 targetPosition = Position.LOW;
             } else if (y) {

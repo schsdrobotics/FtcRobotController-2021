@@ -36,6 +36,7 @@ public class Cycle {
     private final Position targetPosition;
     private final DistanceSensor distanceSensor;
     public volatile Stage stage = Stage.WAITING;
+    public volatile String errorMessage = "error setting error message???";
 
     public Cycle(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
                  Position targetPosition, DistanceSensor distanceSensor) {
@@ -90,6 +91,7 @@ public class Cycle {
                 sweeper.backwards(1); // spit out extras
             }
             stage = Stage.BETWEEN;
+            if (!objectPickedUp) errorMessage = "Failed to pickup object; detected distance: " + distanceCm;
             return objectPickedUp;
         });
     }
@@ -130,6 +132,7 @@ public class Cycle {
             }
 
             stage = Stage.COMPLETE;
+            if (!dropped) errorMessage = "failed to drop object; detected distance: " + distanceCm;
             return dropped;
         });
     }
