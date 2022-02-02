@@ -36,7 +36,7 @@ public class Cycle {
     private final Position targetPosition;
     private final DistanceSensor distanceSensor;
     public volatile Stage stage = Stage.WAITING;
-    public volatile String errorMessage = "error setting error message???";
+    public volatile String errorMessage = "";
 
     public Cycle(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
                  Position targetPosition, DistanceSensor distanceSensor) {
@@ -49,10 +49,9 @@ public class Cycle {
 
     /**
      * Begin process: intake, lift
-     * @return Future holding a boolean - true if successfully stored an object
      */
-    public Future<Boolean> start() {
-        return executor.submit(() -> {
+    public void start() {
+        executor.submit(() -> {
             stage = Stage.IN_START;
             sweeper.forwards(1);
 
@@ -98,10 +97,9 @@ public class Cycle {
 
     /**
      * finish process: dump, retract
-     * @return Future holding a boolean - true if successfully dropped an object
      */
-    public Future<Boolean> finish() {
-        return executor.submit(() -> {
+    public void finish() {
+        executor.submit(() -> {
             stage = Stage.IN_FINISH;
             bucket.forwards();
 
@@ -136,11 +134,8 @@ public class Cycle {
     }
 
     private void waitFor(long millis) {
-        try {
-            wait(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        long endTime = System.currentTimeMillis() + millis;
+        while (System.currentTimeMillis() < endTime);
     }
 
     public enum Stage {
@@ -148,6 +143,10 @@ public class Cycle {
         IN_START,
         BETWEEN,
         IN_FINISH,
-        COMPLETE
+        COMPLETE;
+
+        public boolean isBusy() {
+            return this == IN_START || this == IN_FINISH;
+        }
     }
 }

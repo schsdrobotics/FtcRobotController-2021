@@ -47,16 +47,16 @@ public class LiftHandler {
             boolean x = gamepad.x;
             boolean y = gamepad.y;
             boolean b = gamepad.b;
-            if (!isBusy() && (x || y || b) && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed and motor stopped
-                Position target;
+            if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed and motor stopped
+                Position target = null;
                 if (x) {
                     target = Position.LOW;
                 } else if (y) {
                     target = Position.MIDDLE;
-                } else {
+                } else if (b) {
                     target = Position.HIGH;
                 }
-                pursueTarget(target);
+                if (target != null) pursueTarget(target);
             }
         }
     }

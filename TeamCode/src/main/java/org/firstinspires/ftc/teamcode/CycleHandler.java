@@ -24,7 +24,6 @@ public class CycleHandler {
     private final DistanceSensor distanceSensor;
     private Position targetPosition = Position.LOW;
     private Cycle currentCycle = null;
-    private Future<Boolean> currentAwaitingResult = null;
 
     public CycleHandler(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
                         Gamepad controller, DistanceSensor distanceSensor, Telemetry telemetry) {
@@ -39,12 +38,13 @@ public class CycleHandler {
     public void tick() {
         handleTelemetry();
         // first handle current cycle
-        if (currentAwaitingResult != null) {
-            if (currentAwaitingResult.isDone()) {
+        if (currentCycle != null) {
+            if (!currentCycle.stage.isBusy()) {
                 handleCurrentCycleFinishStage();
             }
-            // else handle controller inputs
-        } else if (controller != null) {
+        }
+
+        if (controller != null) {
             findTarget();
             handleCycleStatus();
         }
@@ -59,7 +59,7 @@ public class CycleHandler {
 
     private void handleCurrentCycleFinishStage() {
         try {
-            boolean failed = !currentAwaitingResult.get();
+            boolean failed = !currentCycle.errorMessage.isEmpty();
             if (failed) {
                 controller.rumble(300);
                 telemetry.addData("Cycle error: ", currentCycle.errorMessage);
@@ -79,11 +79,11 @@ public class CycleHandler {
 
     private void handleCycleStatus() {
         if (controller.a) {
-            if (currentCycle != null) {
-                currentAwaitingResult = currentCycle.finish();
-            } else {
+            if (currentCycle != null && currentCycle.stage == Cycle.Stage.BETWEEN) {
+                currentCycle.finish();
+            } else if (currentCycle == null) {
                 currentCycle = new Cycle(sweeper, bucket, lift, targetPosition, distanceSensor);
-                currentAwaitingResult = currentCycle.start();
+                currentCycle.start();
             }
         }
     }
@@ -92,12 +92,12 @@ public class CycleHandler {
         boolean x = controller.x;
         boolean y = controller.y;
         boolean b = controller.b;
-        if ((x || y || b) && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
+        if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
             if (x) {
                 targetPosition = Position.LOW;
             } else if (y) {
                 targetPosition = Position.MIDDLE;
-            } else {
+            } else if (b) {
                 targetPosition = Position.HIGH;
             }
         }
