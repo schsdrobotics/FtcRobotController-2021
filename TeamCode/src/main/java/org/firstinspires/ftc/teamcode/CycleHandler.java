@@ -92,15 +92,13 @@ public class CycleHandler {
         boolean x = controller.x;
         boolean y = controller.y;
         boolean b = controller.b;
-        if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
+        if ((x || y || b) && (!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
             if (x) {
                 targetPosition = Position.LOW;
             } else if (y) {
                 targetPosition = Position.MIDDLE;
-            } else if (b) {
-                targetPosition = Position.HIGH;
             } else {
-                throw new IllegalArgumentException("Impossible target");
+                targetPosition = Position.HIGH;
             }
         }
     }
