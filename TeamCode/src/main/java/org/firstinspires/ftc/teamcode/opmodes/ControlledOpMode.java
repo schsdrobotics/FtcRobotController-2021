@@ -46,6 +46,7 @@ import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
+import org.firstinspires.ftc.teamcode.LightHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 
 /*
@@ -87,6 +88,7 @@ public class ControlledOpMode extends OpMode {
     private ArmHandler arm;
     private CycleHandler cycles;
     private IntakeServoHandler intakeServo;
+    private LightHandler light;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -99,6 +101,7 @@ public class ControlledOpMode extends OpMode {
         bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
         arm = new ArmHandler(hardwareMap, gamepad2);
+        light = new LightHandler(hardwareMap);
         cycles = new CycleHandler(
                 sweeper, 
                 bucket, 
@@ -107,7 +110,8 @@ public class ControlledOpMode extends OpMode {
                 hardwareMap.get(
                         DistanceSensor.class, 
                         "distanceSensor"
-                ), 
+                ),
+                light,
                 telemetry
         );
         intakeServo = new IntakeServoHandler(hardwareMap);

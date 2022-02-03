@@ -43,11 +43,13 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.CameraHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
+import org.firstinspires.ftc.teamcode.LightHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
@@ -63,10 +65,12 @@ public class Remote2Linear extends LinearOpMode {
     CameraHandler camera;
     SampleMecanumDrive drive;
     DuckHandler duck;
+    ArmHandler arm;
     LiftHandler lift;
     BucketHandler bucket;
     SweeperHandler sweeper;
     IntakeServoHandler intakeServo;
+    LightHandler light;
 
     // This enum defines our "state"
     // This essentially just defines the possible steps our program will take
@@ -93,12 +97,14 @@ public class Remote2Linear extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         drive = new SampleMecanumDrive(hardwareMap);
         duck = new DuckHandler(hardwareMap, null);
+        arm = new ArmHandler(hardwareMap, null);
         lift = new LiftHandler(hardwareMap, null, telemetry);
         bucket = new BucketHandler(hardwareMap, null);
         sweeper = new SweeperHandler(hardwareMap, null);
         intakeServo = new IntakeServoHandler(hardwareMap);
         camera = new CameraHandler(hardwareMap);
-
+        light = new LightHandler(hardwareMap);
+        light.setColor(LightHandler.Color.YELLOW);
         telemetry.addData("Status", "Initialized");
 
         // Assume intakeServo is close to up position
@@ -134,6 +140,7 @@ public class Remote2Linear extends LinearOpMode {
                 System.out.println(camera.mostConfident.getConfidence());
             }
             telemetry.addData("Ready!", ";ohifae;oihfew");
+            light.setColor(LightHandler.Color.GREEN);
             telemetry.update();
         }
 
@@ -146,12 +153,14 @@ public class Remote2Linear extends LinearOpMode {
         // Otherwise it will be blocking and pause the program here until the trajectory finishes
         currentState = State.TO_HUB_INITIAL;
 
+        // Raise arm
+        arm.onStart();
         // Drop intake
-//        intakeServo.release();
+        intakeServo.release();
         // Make bucket stand straight up
-//        bucket.halfway();
+        bucket.halfway();
         // Raise lift
-//        lift.pursueTarget(target);
+        lift.pursueTarget(target);
         // Go to alliance hub
         drive.followTrajectoryAsync(toHubInitial);
 
@@ -172,11 +181,11 @@ public class Remote2Linear extends LinearOpMode {
                         currentState = State.DROP_AND_RETRACT;
 
                         // Drop item
-//                        bucket.forwards();
+                        bucket.forwards();
                         double startTime = getRuntime();
                         while (getRuntime() - startTime < 1.0) {} // Wait 1s
                         // Retract bucket
-//                        bucket.backwards();
+                        bucket.backwards();
                     }
                     break;
                 case DROP_AND_RETRACT:
@@ -192,16 +201,16 @@ public class Remote2Linear extends LinearOpMode {
                         currentState = State.DELIVER_DUCKS;
 
                         // Lower lift
-//                        lift.pursueTarget(LiftHandler.INTAKING);
+                        lift.pursueTarget(LiftHandler.INTAKING);
                         // Run duck spinner for 2.5 seconds
                         double startTime = getRuntime();
                         while (getRuntime() - startTime < 1.5) {
-//                            duck.tick();
-//                            duck.start(); // red does not need reversing
+                            duck.tick();
+                            duck.start(); // red does not need reversing
                         }
                         // Stop duck motor
-//                        duck.stop();
-//                        duck.tick();
+                        duck.stop();
+                        duck.tick();
                     }
                     break;
                 case DELIVER_DUCKS:
@@ -231,6 +240,7 @@ public class Remote2Linear extends LinearOpMode {
                     // Do nothing in IDLE
                     // currentState does not change once in IDLE
                     // This concludes the autonomous program
+                    light.setColor(LightHandler.Color.OFF);
                     break;
             }
 
@@ -239,6 +249,14 @@ public class Remote2Linear extends LinearOpMode {
             telemetry.addData("State", currentState);
 
             // Distance sensor background loop
+
+//            //Blink robopandas in morse code
+//            switch (getRuntime()) {
+//                case between(0, 20, getRuntime())
+//            if (getRuntime() >= 0 && getRuntime() <= 0.2) {
+//                light.setColor(LightHandler.Color.GREEN);
+//            }
+
         }
     }
 
@@ -256,4 +274,13 @@ public class Remote2Linear extends LinearOpMode {
             }
         }
     }
+
+//    private boolean between(double lower, double upper, double var) {
+//        if (var >= lower && var < upper) {
+//            return true;
+//        }
+//        else {
+//            return false;
+//        }
+//    }
 }

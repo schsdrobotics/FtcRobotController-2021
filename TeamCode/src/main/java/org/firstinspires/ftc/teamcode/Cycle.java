@@ -35,16 +35,18 @@ public class Cycle {
     private final LiftHandler lift;
     private final Position targetPosition;
     private final DistanceSensor distanceSensor;
+    private final LightHandler light;
     public volatile Stage stage = Stage.WAITING;
     public volatile String errorMessage = "";
 
     public Cycle(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
-                 Position targetPosition, DistanceSensor distanceSensor) {
+                 Position targetPosition, DistanceSensor distanceSensor, LightHandler light) {
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
         this.targetPosition = targetPosition;
         this.distanceSensor = distanceSensor;
+        this.light = light;
     }
 
     /**

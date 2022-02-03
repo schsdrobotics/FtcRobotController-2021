@@ -20,19 +20,22 @@ public class CycleHandler {
     private final SweeperHandler sweeper;
     private final BucketHandler bucket;
     private final LiftHandler lift;
+    private final LightHandler light;
     private final Gamepad controller;
     private final DistanceSensor distanceSensor;
     private Position targetPosition = Position.LOW;
     private Cycle currentCycle = null;
 
     public CycleHandler(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
-                        Gamepad controller, DistanceSensor distanceSensor, Telemetry telemetry) {
+                        Gamepad controller, DistanceSensor distanceSensor,
+                        LightHandler light, Telemetry telemetry) {
         this.telemetry = telemetry;
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
         this.controller = controller;
         this.distanceSensor = distanceSensor;
+        this.light = light;
     }
 
     public void tick() {
@@ -64,10 +67,14 @@ public class CycleHandler {
         if (failed) {
             controller.rumble(300);
             telemetry.addData("Cycle error", currentCycle.errorMessage);
+            light.setColor(LightHandler.Color.RED);
         }
 
         if (currentCycle.stage == Cycle.Stage.COMPLETE) {
             currentCycle = null;
+            light.setColor(LightHandler.Color.OFF);
+        } else if (!failed) {
+            light.setColor(LightHandler.Color.YELLOW);
         }
         telemetry.addData("Last cycle result successful", !failed);
     }
@@ -76,9 +83,11 @@ public class CycleHandler {
         if (controller.a) {
             if (currentCycle != null && currentCycle.stage == Cycle.Stage.BETWEEN) {
                 currentCycle.finish();
+                light.setColor(LightHandler.Color.GREEN);
             } else if (currentCycle == null) {
-                currentCycle = new Cycle(sweeper, bucket, lift, targetPosition, distanceSensor);
+                currentCycle = new Cycle(sweeper, bucket, lift, targetPosition, distanceSensor, light);
                 currentCycle.start();
+                light.setColor(LightHandler.Color.GREEN);
             }
         }
     }
