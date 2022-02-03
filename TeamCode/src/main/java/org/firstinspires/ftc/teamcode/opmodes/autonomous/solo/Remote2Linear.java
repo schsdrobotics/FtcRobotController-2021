@@ -84,6 +84,8 @@ public class Remote2Linear extends LinearOpMode {
         IDLE            // Our bot will enter the IDLE state when done
     }
 
+    private boolean isLettersBusy = false;
+
     // We define the current state we're on
     // Default to IDLE
     private State currentState = State.IDLE;
@@ -250,13 +252,14 @@ public class Remote2Linear extends LinearOpMode {
 
             // Distance sensor background loop
 
-//            //Blink robopandas in morse code
-//            switch (getRuntime()) {
-//                case between(0, 20, getRuntime())
-//            if (getRuntime() >= 0 && getRuntime() <= 0.2) {
-//                light.setColor(LightHandler.Color.GREEN);
-//            }
-
+            // Blink robopandas in morse code
+            // R
+            if (between(getRuntime(),0, 0.2)) {
+                light.setColor(LightHandler.Color.GREEN);
+            }
+            else if (between(getRuntime(),0.2, 0.4)) {
+                light.setColor(LightHandler.Color.OFF);
+            }
         }
     }
 
@@ -275,12 +278,12 @@ public class Remote2Linear extends LinearOpMode {
         }
     }
 
-//    private boolean between(double lower, double upper, double var) {
-//        if (var >= lower && var < upper) {
-//            return true;
-//        }
-//        else {
-//            return false;
-//        }
-//    }
+    private boolean between(double var, double lower, double upper) {
+        if (var >= lower && var < upper) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }
