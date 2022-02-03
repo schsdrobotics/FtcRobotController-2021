@@ -99,11 +99,21 @@ public class ControlledOpMode extends OpMode {
         bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
         arm = new ArmHandler(hardwareMap, gamepad2);
-        cycles = new CycleHandler(sweeper, bucket, lift, gamepad1,
-                hardwareMap.get(DistanceSensor.class, "distanceSensor"), telemetry);
+        cycles = new CycleHandler(
+                sweeper, 
+                bucket, 
+                lift, 
+                gamepad1,
+                hardwareMap.get(
+                        DistanceSensor.class, 
+                        "distanceSensor"
+                ), 
+                telemetry
+        );
         intakeServo = new IntakeServoHandler(hardwareMap);
-        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+        intakeServo.hook();
         telemetry.addData("Status", "Initialized");
+        telemetry.setAutoClear(false);
     }
 
     /**
@@ -118,7 +128,7 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void start() {
-        intakeServo.goToPos(IntakeServoHandler.RELEASED);
+        intakeServo.release();
         arm.onStart();
         runtime.reset();
     }
@@ -135,11 +145,8 @@ public class ControlledOpMode extends OpMode {
         duck.tick();
         arm.tick();
         cycles.tick();
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.update();
-//        telemetry.addData("Initial speed", DuckHandler.RPMSPEED);
-//        telemetry.addData("Time to speed up (ms)", DuckHandler.MILLIS_FOR_PLATE_REV);
-//        telemetry.addData("Fast", duck.fast);
     }
 
     /**

@@ -73,14 +73,14 @@
 //        IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
 //
 //        //Assume intakeServo is close to up position
-//        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+//        intakeServo.hook();
 //
 //        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
 //                .addDisplacementMarker(() -> {
 //                    //Raise lift
 //                    lift.pursueTargetAuto(LiftHandler.HIGH);
 //                    //Drop intake
-//                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
+//                    intakeServo.release();
 //                })
 //                //Go to alliance hub
 //                .lineTo(pos(-12, -45))

@@ -76,12 +76,12 @@
 //        IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
 //
 //        //Assume intakeServo is close to up position
-//        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+//        intakeServo.hook();
 //
 //        TrajectorySequence seq = drive.trajectorySequenceBuilder(pose(12, -62, 90))
 //                .addTemporalMarker(() -> {
 //                    //Drop intake
-//                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
+//                    intakeServo.release();
 //                })
 //                //Go out a little bit
 //                .lineToLinearHeading(pose(0, -56, 135))

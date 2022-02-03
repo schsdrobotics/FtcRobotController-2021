@@ -101,7 +101,7 @@ public class Remote2 extends OpMode {
         telemetry.addData("Status", "Initialized");
 
         // Assume intakeServo is close to up position
-        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+        intakeServo.hook();
 
         drive.setPoseEstimate(startPose);
     }
@@ -144,7 +144,7 @@ public class Remote2 extends OpMode {
 
         currentState = State.TO_HUB_INITIAL;
         // Drop intake
-        intakeServo.goToPos(IntakeServoHandler.RELEASED);
+        intakeServo.release();
         // Make bucket stand straight up
         bucket.halfway();
         // Raise lift

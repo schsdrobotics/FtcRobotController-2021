@@ -81,7 +81,7 @@
 //        runtime.reset();
 //
 //        //Assume intakeServo is close to up position
-//        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+//        intakeServo.hook();
 //
 //        while (!opModeIsActive()) {
 //            camera.tick();
@@ -99,7 +99,7 @@
 //        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(-35, -62, 90))
 //                .addTemporalMarker(() -> {
 //                    //Drop intake
-////                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
+////                    intakeServo.release();
 //                    //Make bucket stand straight up
 //                    bucket.halfway();
 //                })

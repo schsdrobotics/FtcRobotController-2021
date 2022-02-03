@@ -73,7 +73,7 @@
 //        IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
 //
 //        //Assume intakeServo is close to up position
-//        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+//        intakeServo.hook();
 //
 //        //This is a faster autonomous than the one below
 //        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(pose(12, 62, 270))
@@ -81,7 +81,7 @@
 //                    //Raise lift
 //                    lift.pursueTargetAuto(LiftHandler.HIGH);
 //                    //Drop intake
-//                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
+//                    intakeServo.release();
 //                })
 //                //Go to alliance hub
 //                .lineToLinearHeading(pose(-5, 42, -100))

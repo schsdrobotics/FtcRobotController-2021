@@ -75,7 +75,7 @@
 //        runtime.reset();
 //
 //        //Assume intakeServo is close to up position
-//        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+//        intakeServo.hook();
 //
 //        while (!opModeIsActive()) {
 //            camera.tick();
@@ -93,7 +93,7 @@
 //                    //Raise lift
 //                    lift.pursueTargetAuto(target);
 //                    //Drop intake
-//                    intakeServo.goToPos(IntakeServoHandler.RELEASED);
+//                    intakeServo.release();
 //                })
 //                //Go to alliance hub
 //                .lineTo(pos(-12, 45))

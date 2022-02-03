@@ -102,26 +102,26 @@ public class Remote2Linear extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
 
         // Assume intakeServo is close to up position
-        intakeServo.goToPos(IntakeServoHandler.HOOKED);
+        intakeServo.hook();
 
         drive.setPoseEstimate(startPose);
 
-        Trajectory traj1 = drive.trajectoryBuilder(startPose)
+        Trajectory toHubInitial = drive.trajectoryBuilder(startPose)
                 .lineTo(pos(calculatePoint(-35, -62, -7, -39, false, -58), -58))
                 .lineToSplineHeading(pose(-7, -39, 270))
                 .build();
 
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
+        Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
                 .lineToLinearHeading(pose(-61,-51, 245))
                 .build();
 
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
+        Trajectory align = drive.trajectoryBuilder(toDuckSpinner.end())
                 .lineToSplineHeading(pose(-20, -57, 0))
                 .splineToConstantHeading(pos(-15, -64), rad(270))
                 .strafeRight(5)
                 .build();
 
-        Trajectory traj4 = drive.trajectoryBuilder(pose(traj3.end().getX(), -65.25, 0))
+        Trajectory toWarehouseInitial = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))
                 .forward(60)
                 .build();
 
@@ -129,7 +129,7 @@ public class Remote2Linear extends LinearOpMode {
             camera.tick();
             // Get x-coordinate of center of box
             if (camera.mostConfident != null) {
-                xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight())/2;
+                xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight()) / 2;
                 telemetry.addData("xCenter", xCenter);
                 System.out.println(camera.mostConfident.getConfidence());
             }
@@ -147,13 +147,13 @@ public class Remote2Linear extends LinearOpMode {
         currentState = State.TO_HUB_INITIAL;
 
         // Drop intake
-//        intakeServo.goToPos(IntakeServoHandler.RELEASED);
+//        intakeServo.release();
         // Make bucket stand straight up
 //        bucket.halfway();
         // Raise lift
 //        lift.pursueTarget(target);
         // Go to alliance hub
-        drive.followTrajectoryAsync(traj1);
+        drive.followTrajectoryAsync(toHubInitial);
 
         while (opModeIsActive() && !isStopRequested()) {
             // Our state machine logic
@@ -184,7 +184,7 @@ public class Remote2Linear extends LinearOpMode {
                         currentState = State.TO_DUCK_SPINNER;
 
                         // Go to duck spinner
-                        drive.followTrajectoryAsync(traj2);
+                        drive.followTrajectoryAsync(toDuckSpinner);
                     }
                     break;
                 case TO_DUCK_SPINNER:
@@ -209,7 +209,7 @@ public class Remote2Linear extends LinearOpMode {
                         currentState = State.ALIGN;
 
                         // Align
-                        drive.followTrajectoryAsync(traj3);
+                        drive.followTrajectoryAsync(align);
                     }
                     break;
                 case ALIGN:
@@ -219,7 +219,7 @@ public class Remote2Linear extends LinearOpMode {
                         // Make pose estimate against the wall
                         drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -65.25, 0));
                         // Go into warehouse
-                        drive.followTrajectoryAsync(traj4);
+                        drive.followTrajectoryAsync(toWarehouseInitial);
                     }
                     break;
                 case TO_WAREHOUSE_INITIAL:

@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class IntakeServoHandler {
     public final ServoWrapper servo;
-    private long lastMillis = System.currentTimeMillis();
     public static final double HOOKED = 0.3;
     public static final double RELEASED = 0.5;
 
@@ -22,5 +21,13 @@ public class IntakeServoHandler {
             servo.setPos(pos);
         }
         servo.update();
+    }
+
+    public void hook() {
+        goToPos(HOOKED);
+    }
+
+    public void release() {
+        goToPos(RELEASED);
     }
 }
