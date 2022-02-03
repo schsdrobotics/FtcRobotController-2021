@@ -53,6 +53,7 @@ public class Cycle {
     public void start() {
         executor.submit(() -> {
             stage = Stage.IN_START;
+            holdValues(true);
             sweeper.forwards(1);
 
             long startTime = System.currentTimeMillis();
@@ -88,9 +89,17 @@ public class Cycle {
                 waitFor(300); // give bucket time to rotate
                 lift.pursueTarget(targetPosition);
                 sweeper.backwards(1); // spit out extras
+                waitFor(500);
+                sweeper.stop();
             }
-            stage = Stage.BETWEEN;
-            if (!objectPickedUp) errorMessage = "Failed to pickup object; detected distance: " + distanceCm;
+
+            if (!objectPickedUp) {
+                holdValues(false);
+                stage = Stage.COMPLETE; // finish early to allow for new cycle
+                errorMessage = "Failed to pickup object; detected distance: " + distanceCm;
+            } else {
+                stage = Stage.BETWEEN;
+            }
             return objectPickedUp;
         });
     }
@@ -114,10 +123,9 @@ public class Cycle {
             bucket.backwards();
 
             lift.pursueTarget(Position.LOW);
-            while (lift.isBusy()) {
-                waitFor(20);
-            }
+            waitFor(targetPosition.pos * 10L);
 
+            holdValues(false);
             stage = Stage.COMPLETE;
             return true; // todo feedback? can't check if dropped because sensor location
         });
@@ -136,6 +144,12 @@ public class Cycle {
     private void waitFor(long millis) {
         long endTime = System.currentTimeMillis() + millis;
         while (System.currentTimeMillis() < endTime);
+    }
+
+    private void holdValues(boolean value) {
+        lift.shouldHoldPos = value;
+        bucket.shouldHoldPos = value;
+        sweeper.shouldHoldSpeed = value;
     }
 
     public enum Stage {

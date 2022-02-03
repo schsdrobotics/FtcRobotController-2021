@@ -136,6 +136,7 @@ public class ControlledOpMode extends OpMode {
         arm.tick();
         cycles.tick();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.update();
 //        telemetry.addData("Initial speed", DuckHandler.RPMSPEED);
 //        telemetry.addData("Time to speed up (ms)", DuckHandler.MILLIS_FOR_PLATE_REV);
 //        telemetry.addData("Fast", duck.fast);

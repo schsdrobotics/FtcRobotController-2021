@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class SweeperHandler {
     private final MotorWrapper motor;
     private final Gamepad controller;
+    public boolean shouldHoldSpeed = false;
 
     public SweeperHandler(HardwareMap map, Gamepad controller) {
         motor = MotorWrapper.get("sweeperMotor", map);
@@ -13,7 +14,7 @@ public class SweeperHandler {
     }
 
     public void tick() {
-        if (controller != null) {
+        if (controller != null && !shouldHoldSpeed) {
             motor.setPower(0);
             float rt = controller.right_trigger;
             float lt = controller.left_trigger;

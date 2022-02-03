@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class BucketHandler {
     private final ServoWrapper servo;
     private final Gamepad controller;
+    public boolean shouldHoldPos = false;
 
     public BucketHandler(HardwareMap map, Gamepad controller) {
         this.controller = controller;
@@ -13,7 +14,7 @@ public class BucketHandler {
     }
 
      public void tick() {
-        if (controller != null) {
+        if (controller != null && shouldHoldPos) {
             if (controller.right_trigger <= 0.1) backwards();
             else {
                 if (controller.left_trigger <= 0.1) halfway();

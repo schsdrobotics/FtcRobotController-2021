@@ -18,6 +18,7 @@ public class LiftHandler {
     private final MotorWrapper motor;
     private final Gamepad gamepad;
     public boolean initialized = true;
+    public boolean shouldHoldPos = false;
     public static final int INTAKING = 10;
     public static final int LOW = 20;
     public static final int MIDDLE = 190;
@@ -37,7 +38,7 @@ public class LiftHandler {
     }
 
     public void tick() {
-        if (gamepad != null) {
+        if (gamepad != null && !shouldHoldPos) {
             motor.setAndUpdate(gamepad.left_stick_y);
             if (gamepad.left_stick_button && gamepad.right_stick_button &&
                     gamepad.left_bumper && gamepad.right_bumper) {
@@ -69,10 +70,6 @@ public class LiftHandler {
 
     public void pursueTarget(Position position) {
         pursueTarget(position.pos);
-    }
-
-    public boolean isBusy() {
-        return motor.motor.isBusy();
     }
 
     public enum Position {

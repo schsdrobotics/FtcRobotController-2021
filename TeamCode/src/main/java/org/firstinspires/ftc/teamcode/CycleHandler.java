@@ -51,30 +51,25 @@ public class CycleHandler {
     }
 
     private void handleTelemetry() {
-        telemetry.addData("Cycle active: ", currentCycle != null);
-        telemetry.addData("Awaiting result: ", currentAwaitingResult != null);
-        telemetry.addData("Target: ", targetPosition);
-        telemetry.addData("Current detected distance (cm): ", distanceSensor.getDistance(DistanceUnit.CM));
+        telemetry.addData("Cycle active", currentCycle != null);
+        if (currentCycle != null) {
+            telemetry.addData("Stage", currentCycle.stage);
+        }
+        telemetry.addData("Target", targetPosition);
+        telemetry.addData("Current detected distance (cm)", distanceSensor.getDistance(DistanceUnit.CM));
     }
 
     private void handleCurrentCycleFinishStage() {
-        try {
-            boolean failed = !currentCycle.errorMessage.isEmpty();
-            if (failed) {
-                controller.rumble(300);
-                telemetry.addData("Cycle error: ", currentCycle.errorMessage);
-            }
-
-            if (currentCycle.stage == Cycle.Stage.COMPLETE) {
-                currentCycle = null;
-            }
-            telemetry.addData("Last cycle result successful: ", !failed);
-        } catch (ExecutionException | InterruptedException e) {
+        boolean failed = !currentCycle.errorMessage.isEmpty();
+        if (failed) {
             controller.rumble(300);
-            telemetry.addData("Cycle exception!", e);
-            e.printStackTrace();
+            telemetry.addData("Cycle error", currentCycle.errorMessage);
         }
-        currentAwaitingResult = null;
+
+        if (currentCycle.stage == Cycle.Stage.COMPLETE) {
+            currentCycle = null;
+        }
+        telemetry.addData("Last cycle result successful", !failed);
     }
 
     private void handleCycleStatus() {
