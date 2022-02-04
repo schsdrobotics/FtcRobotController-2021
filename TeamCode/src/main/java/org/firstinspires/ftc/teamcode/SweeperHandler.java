@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class SweeperHandler {
     private final MotorWrapper motor;
     private final Gamepad controller;
-    public boolean shouldHoldSpeed = false;
+    public volatile boolean shouldHoldSpeed = false;
 
     public SweeperHandler(HardwareMap map, Gamepad controller) {
         motor = MotorWrapper.get("sweeperMotor", map);

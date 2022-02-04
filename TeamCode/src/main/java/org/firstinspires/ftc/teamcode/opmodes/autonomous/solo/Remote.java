@@ -60,17 +60,17 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @Autonomous(name="Remote", group="Remote")
 public class Remote extends LinearOpMode {
     // Declare OpMode members.
-    float xCenter;
-    int target = LiftHandler.HIGH;
-    CameraHandler camera;
-    SampleMecanumDrive drive;
-    DuckHandler duck;
-    ArmHandler arm;
-    LiftHandler lift;
-    BucketHandler bucket;
-    SweeperHandler sweeper;
-    IntakeServoHandler intakeServo;
-    LightHandler light;
+    private float xCenter;
+    private int target = LiftHandler.HIGH;
+    private CameraHandler camera;
+    private SampleMecanumDrive drive;
+    private DuckHandler duck;
+    private ArmHandler arm;
+    private LiftHandler lift;
+    private BucketHandler bucket;
+    private SweeperHandler sweeper;
+    private IntakeServoHandler intakeServo;
+    private LightHandler light;
 
     // This enum defines our "state"
     // This essentially just defines the possible steps our program will take
@@ -236,7 +236,8 @@ public class Remote extends LinearOpMode {
                         // Drop item
                         bucket.forwards();
                         double startTime = getRuntime();
-                        while (getRuntime() - startTime < 1.0) {} // Wait 1s
+                        while (getRuntime() - startTime < 0.350); // Wait 350 ms
+                        bucket.wiggleUntil(() -> getRuntime() - startTime < 1); // wiggle for 1 sec at most
                         // Retract bucket
                         bucket.backwards();
                     }

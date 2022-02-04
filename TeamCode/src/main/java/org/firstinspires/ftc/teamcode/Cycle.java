@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /**
@@ -56,33 +57,36 @@ public class Cycle {
         executor.submit(() -> {
             stage = Stage.IN_START;
             holdValues(true);
-            sweeper.forwards(1);
+            double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
+            boolean preFilled = distanceCm < 5;
+            if (!preFilled) {
+                sweeper.forwards(1);
 
-            long startTime = System.currentTimeMillis();
-            long lastTime = startTime;
-            double distanceCm = 0;
-            long bucketFilledFor = 0;
-            long runtime = 0;
+                long startTime = System.currentTimeMillis();
+                long lastTime = startTime;
+                long bucketFilledFor = 0;
+                long runtime = 0;
 
-            // give 2 seconds for object to enter bucket
-            while (runtime < 2000) {
-                distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-                runtime = System.currentTimeMillis() - startTime;
+                // give 2 seconds for object to enter bucket
+                while (runtime < 4000) {
+                    distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
+                    runtime = System.currentTimeMillis() - startTime;
 
-                if (distanceCm < 5) { // if item in bucket
+                    if (distanceCm < 5) { // if item in bucket
 
-                    // keep track of how long an item is in the bucket to prevent
-                    // stuff bouncing out but still triggering loop exit
-                    long deltaMillis = System.currentTimeMillis() - lastTime;
-                    bucketFilledFor += deltaMillis;
+                        // keep track of how long an item is in the bucket to prevent
+                        // stuff bouncing out but still triggering loop exit
+                        long deltaMillis = System.currentTimeMillis() - lastTime;
+                        bucketFilledFor += deltaMillis;
 
-                } else bucketFilledFor = 0; // reset timer if item has exited
+                    } else bucketFilledFor = 0; // reset timer if item has exited
 
-                // if bucket has consistently held an item for 300 millis, consider it secure
-                if (bucketFilledFor > 300) break;
+                    // if bucket has consistently held an item for 300 millis, consider it secure
+                    if (bucketFilledFor > 300) break;
 
-                lastTime = System.currentTimeMillis();
-                waitFor(20);
+                    lastTime = System.currentTimeMillis();
+                    waitFor(20);
+                }
             }
 
             boolean objectPickedUp = distanceCm < 5;
@@ -93,14 +97,11 @@ public class Cycle {
                 sweeper.backwards(1); // spit out extras
                 waitFor(500);
                 sweeper.stop();
-            }
-
-            if (!objectPickedUp) {
+                stage = Stage.BETWEEN;
+            } else {
                 holdValues(false);
                 stage = Stage.COMPLETE; // finish early to allow for new cycle
                 errorMessage = "Failed to pickup object; detected distance: " + distanceCm;
-            } else {
-                stage = Stage.BETWEEN;
             }
             return objectPickedUp;
         });
@@ -114,21 +115,18 @@ public class Cycle {
             stage = Stage.IN_FINISH;
             errorMessage = "";
             bucket.forwards();
+            waitFor(350);
 
             // wiggle bucket to encourage item to drop
             double distanceCm = Double.MIN_VALUE;
-            boolean dropped = false;
-            for (int i = 0; i < 10; i++) {
-                bucket.halfway();
-                waitFor(10);
-                bucket.forwards();
-                waitFor(10);
-                distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-                if (distanceCm > 12) {
-                    dropped = true;
-                    break;
+            AtomicBoolean dropped = new AtomicBoolean(false);
+            bucket.wiggleUntil(() -> {
+                boolean shouldStop = distanceSensor.getDistance(DistanceUnit.CM) > 12;
+                if (shouldStop) {
+                    dropped.set(true);
                 }
-            }
+                return shouldStop;
+            });
 
             bucket.backwards();
 
@@ -137,10 +135,10 @@ public class Cycle {
 
             holdValues(false);
             stage = Stage.COMPLETE;
-            if (!dropped) {
+            if (!dropped.get()) {
                 errorMessage = "Failed to drop item - detected distance: " + distanceCm;
             }
-            return dropped;
+            return dropped.get();
         });
     }
 

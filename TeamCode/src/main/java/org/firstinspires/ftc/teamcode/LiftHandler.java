@@ -18,7 +18,7 @@ public class LiftHandler {
     private final MotorWrapper motor;
     private final Gamepad gamepad;
     public boolean initialized = true;
-    public boolean shouldHoldPos = false;
+    public volatile boolean shouldHoldPos = false;
     public static final int INTAKING = 10;
     public static final int LOW = 20;
     public static final int MIDDLE = 190;
