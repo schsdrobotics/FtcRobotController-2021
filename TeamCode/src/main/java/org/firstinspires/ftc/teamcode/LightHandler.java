@@ -11,7 +11,7 @@ public class LightHandler {
     private final DigitalChannel red;
     private final DigitalChannel green;
     private long startTime = System.currentTimeMillis();
-    private List<State> instructions = new ArrayList<State>();
+    private final List<State> instructions = new ArrayList<>();
     private int currentIndex = 0;
     public static final long unit = 200;
 
