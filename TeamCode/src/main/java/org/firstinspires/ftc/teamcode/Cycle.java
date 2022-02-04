@@ -112,14 +112,22 @@ public class Cycle {
     public void finish() {
         executor.submit(() -> {
             stage = Stage.IN_FINISH;
+            errorMessage = "";
             bucket.forwards();
 
             // wiggle bucket to encourage item to drop
-            for (int i = 0; i < 5; i++) {
+            double distanceCm = Double.MIN_VALUE;
+            boolean dropped = false;
+            for (int i = 0; i < 10; i++) {
                 bucket.halfway();
                 waitFor(10);
                 bucket.forwards();
                 waitFor(10);
+                distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
+                if (distanceCm > 12) {
+                    dropped = true;
+                    break;
+                }
             }
 
             bucket.backwards();
@@ -129,7 +137,10 @@ public class Cycle {
 
             holdValues(false);
             stage = Stage.COMPLETE;
-            return true; // todo feedback? can't check if dropped because sensor location
+            if (!dropped) {
+                errorMessage = "Failed to drop item - detected distance: " + distanceCm;
+            }
+            return dropped;
         });
     }
 
