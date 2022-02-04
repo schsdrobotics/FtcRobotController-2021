@@ -122,9 +122,8 @@ public class Remote extends LinearOpMode {
                 .build();
 
         Trajectory align = drive.trajectoryBuilder(toDuckSpinner.end())
-                .lineToSplineHeading(pose(-20, -57, 0))
+                .lineToSplineHeading(pose(-20, -53, 0))
                 .splineToConstantHeading(pos(-15, -64), rad(270))
-                .strafeRight(5)
                 .build();
 
         Trajectory toWarehouseInitial = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))

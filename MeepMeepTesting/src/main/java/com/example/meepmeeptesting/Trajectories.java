@@ -147,52 +147,13 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .forward(1)
             .build()),
     REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-            .waitSeconds(30)
-            .splineTo(pos(-38, -55), rad(180))
-            .splineTo(pos(-58, -55.5), rad(270))
-            .addTemporalMarker(() -> {
-                //do duck stuff
-            })
-            .lineToLinearHeading(pose(-12, -45, 270))
-            .addTemporalMarker(() -> {
-                //deposit thing
-            })
-            .waitSeconds(0)
-            .splineTo(pos(12, -62), rad(0))
-            .forward(30)
-            .addTemporalMarker(() -> {
-                //pick up stuff
-            })
-
-//            .setReversed(true)
-//            .forward(-30)
-//            .splineTo(pos(-5, -42), rad(110))
-//            //deposit thing
-//            .waitSeconds(0)
-//            .setReversed(false)
-//            .splineTo(pos(12, -62), rad(0))
-//            .forward(30)
-//            //pick up stuff
-//            .setReversed(true)
-//            .forward(-30)
-//            .splineTo(pos(-5, -42), rad(110))
-//            //deposit thing
-//            .waitSeconds(0)
-//            .setReversed(false)
-//            .splineTo(pos(12, -62), rad(0))
-//            .forward(30)
-            .build()),
-    REMOTE2(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-            .lineTo(pos(-32.4173060719665, -59.8664702333637))
-            .lineToSplineHeading(pose(-12, -43, 270))
-            //Deposit item
-            .lineToSplineHeading(pose(-41.6355465309012, -54.8542186123605, 250))
-            .lineTo(pos(-47,-57))
-            .waitSeconds(0)
-            .lineToSplineHeading(pose(-20, -57, 0))
+            .lineTo(pos(calculatePoint(-35, -62, -7, -39, false, -58), -58))
+            .lineToSplineHeading(pose(-7, -39, 270))
+            .lineToLinearHeading(pose(-61,-51, 245))
+            .lineToSplineHeading(pose(-20, -53, 0))
             .splineToConstantHeading(pos(-15, -64), rad(270))
-            .strafeRight(5)
-            .forward(55)
+//            .strafeRight(5)
+            .forward(60)
             .build())
     ;
 
@@ -224,6 +185,17 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
         return new Pose2d(x, y, rad(deg));
     }
 
+    public static double calculatePoint(double x1, double y1, double x2, double y2, boolean x, double xory) {
+        if (x) {
+            double slope = ((y2-y1)/(x2-x1));
+            return slope*(xory - x1) + y1;
+        }
+        else {
+            double slope = ((x2 - x1)/(y2-y1));
+            return slope * (xory - y1) + x1;
+        }
+    }
+
     public static void main(String[] args) {
         // Declare a MeepMeep instance
         // With a field size of 800 pixels
@@ -236,7 +208,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
-                .followTrajectorySequence(REMOTE2::apply)
+                .followTrajectorySequence(REMOTE::apply)
                 .start();
     }
 }
