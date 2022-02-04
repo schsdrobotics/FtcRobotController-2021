@@ -2,10 +2,18 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Light;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LightHandler {
     private final DigitalChannel red;
     private final DigitalChannel green;
+    private long startTime = System.currentTimeMillis();
+    private List<State> instructions = new ArrayList<State>();
+    private int currentIndex = 0;
+    public static final long unit = 200;
 
     public LightHandler(HardwareMap map) {
         red = map.get(DigitalChannel.class, "red");
@@ -17,6 +25,56 @@ public class LightHandler {
     public void setColor(Color color) {
         red.setState(color.red);
         green.setState(color.green);
+    }
+
+    public LightHandler dot() {
+        instructions.add(State.DOT);
+        return this;
+    }
+
+    public LightHandler dash() {
+        instructions.add(State.DASH);
+        return this;
+    }
+
+    public LightHandler pause() {
+        instructions.add(State.PAUSE);
+        return this;
+    }
+
+    public void resetTimer() {
+        startTime = System.currentTimeMillis();
+    }
+
+    public void run() {
+        if (System.currentTimeMillis() - startTime < instructions.get(currentIndex).on) {
+            setColor(Color.GREEN);
+        }
+        else if (System.currentTimeMillis() - startTime < instructions.get(currentIndex).off) {
+            setColor(Color.OFF);
+        }
+        else if (currentIndex < instructions.size()-1) {
+            currentIndex++;
+            resetTimer();
+        }
+        else {
+            setColor(Color.OFF);
+        }
+    }
+
+    public enum State {
+        DOT(LightHandler.unit, LightHandler.unit*2),
+        DASH(LightHandler.unit*3, LightHandler.unit*4),
+        PAUSE(0, LightHandler.unit*2);
+
+        // Time on / off in milliseconds
+        public final long on;
+        public final long off;
+
+        State(long on, long off) {
+            this.on = on;
+            this.off = off;
+        }
     }
 
     public enum Color {

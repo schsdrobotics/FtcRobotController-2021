@@ -84,8 +84,6 @@ public class Remote2Linear extends LinearOpMode {
         IDLE            // Our bot will enter the IDLE state when done
     }
 
-    private boolean isLettersBusy = false;
-
     // We define the current state we're on
     // Default to IDLE
     private State currentState = State.IDLE;
@@ -149,6 +147,58 @@ public class Remote2Linear extends LinearOpMode {
         //Run once when started
         determineTarget();
 
+        // Set up to blink robopandas in morse code
+        light
+                .pause()
+                //R
+                .dot()
+                .dash()
+                .dot()
+                .pause()
+                //O
+                .dash()
+                .dash()
+                .dash()
+                .pause()
+                //B
+                .dash()
+                .dot()
+                .dot()
+                .dot()
+                .pause()
+                //O
+                .dash()
+                .dash()
+                .dash()
+                .pause()
+                //P
+                .dot()
+                .dash()
+                .dash()
+                .dot()
+                .pause()
+                //A
+                .dot()
+                .dash()
+                .pause()
+                //N
+                .dash()
+                .dot()
+                .pause()
+                //D
+                .dash()
+                .dot()
+                .dot()
+                .pause()
+                //A
+                .dot()
+                .dash()
+                .pause()
+                //S
+                .dot()
+                .dot()
+                .dot();
+
         // Set the current state to TO_HUB_INITIAL, our first step
         // Then have it follow that trajectory
         // Make sure you use the async version of the commands
@@ -165,6 +215,8 @@ public class Remote2Linear extends LinearOpMode {
         lift.pursueTarget(target);
         // Go to alliance hub
         drive.followTrajectoryAsync(toHubInitial);
+
+        light.resetTimer();
 
         while (opModeIsActive() && !isStopRequested()) {
             // Our state machine logic
@@ -252,14 +304,8 @@ public class Remote2Linear extends LinearOpMode {
 
             // Distance sensor background loop
 
-            // Blink robopandas in morse code
-            // R
-            if (between(getRuntime(),0, 0.2)) {
-                light.setColor(LightHandler.Color.GREEN);
-            }
-            else if (between(getRuntime(),0.2, 0.4)) {
-                light.setColor(LightHandler.Color.OFF);
-            }
+            // Blink robopandas
+            light.run();
         }
     }
 
@@ -275,15 +321,6 @@ public class Remote2Linear extends LinearOpMode {
                 //Set the target to middle
                 target = LiftHandler.MIDDLE;
             }
-        }
-    }
-
-    private boolean between(double var, double lower, double upper) {
-        if (var >= lower && var < upper) {
-            return true;
-        }
-        else {
-            return false;
         }
     }
 }
