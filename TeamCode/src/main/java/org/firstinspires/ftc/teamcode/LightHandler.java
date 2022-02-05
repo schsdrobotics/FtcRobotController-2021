@@ -46,7 +46,7 @@ public class LightHandler {
         startTime = System.currentTimeMillis();
     }
 
-    public void run() {
+    public void tick() {
         if (System.currentTimeMillis() - startTime < instructions.get(currentIndex).on) {
             setColor(Color.GREEN);
         }

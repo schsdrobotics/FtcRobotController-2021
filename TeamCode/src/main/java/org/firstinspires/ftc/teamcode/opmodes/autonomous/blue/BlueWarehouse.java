@@ -50,7 +50,8 @@
 //import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 //
 ///**
-// * The OpMode that runs when the robot is automatically controlled.
+// * Main for warehouse side
+// * Warehouse side -> Preload -> intake cycles -> park in warehouse(?)
 // */
 //@RequiresApi(api = Build.VERSION_CODES.N)
 //@Autonomous(name="BlueWarehouse", group="Blue")

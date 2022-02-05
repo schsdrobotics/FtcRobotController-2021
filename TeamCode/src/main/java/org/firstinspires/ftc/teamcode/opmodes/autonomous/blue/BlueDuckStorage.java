@@ -49,7 +49,8 @@
 //import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 //
 ///**
-// * The OpMode that runs when the robot is automatically controlled.
+// * Backup for duck side
+// * Duck side -> Preload -> duck -> park in storage
 // */
 //@RequiresApi(api = Build.VERSION_CODES.N)
 //@Autonomous(name="BlueDuckStorage", group="Blue")

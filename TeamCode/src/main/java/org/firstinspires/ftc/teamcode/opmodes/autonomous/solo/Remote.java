@@ -80,7 +80,7 @@ public class Remote extends LinearOpMode {
         TO_DUCK_SPINNER,         // Go to duck spinner
         DELIVER_DUCKS, // Deliver ducks + lower lift
         ALIGN, // Align the robot with the wall
-        TO_WAREHOUSE_INITIAL, // Go to warehouse; TODO: starts intake cycle
+        TO_WAREHOUSE_INITIAL, // Go to warehouse
         PARK, //Strafes left a little
         IDLE            // Our bot will enter the IDLE state when done
     }
@@ -215,10 +215,10 @@ public class Remote extends LinearOpMode {
                         bucket.forwards();
                         double startTime = getRuntime();
                         while (getRuntime() - startTime < 0.350) { // Wait 350 ms
-                            light.run();
+                            light.tick();
                         }
                         bucket.wiggleUntil(() -> {
-                            light.run();
+                            light.tick();
                             return getRuntime() - startTime > 1; // wiggle for 1 sec at most
                         });
                         // Retract bucket
@@ -244,7 +244,7 @@ public class Remote extends LinearOpMode {
                         while (getRuntime() - startTime < 1.5) {
                             duck.tick();
                             duck.start(); // red does not need reversing
-                            light.run();
+                            light.tick();
                         }
                         // Stop duck motor
                         duck.stop();
@@ -252,7 +252,6 @@ public class Remote extends LinearOpMode {
                     }
                     break;
                 case DELIVER_DUCKS:
-
                     if (!drive.isBusy()) {
                         currentState = State.ALIGN;
 
@@ -296,7 +295,7 @@ public class Remote extends LinearOpMode {
             // Distance sensor background loop
 
             // Blink robopandas
-            light.run();
+            light.tick();
         }
         light.setColor(LightHandler.Color.OFF);
     }

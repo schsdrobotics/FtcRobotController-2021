@@ -209,8 +209,12 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void followTrajectory(Trajectory trajectory) {
+        followTrajectory(trajectory, () -> {});
+    }
+
+    public void followTrajectory(Trajectory trajectory, Runnable onWait) {
         followTrajectoryAsync(trajectory);
-        waitForIdle();
+        waitForIdle(onWait);
     }
 
     public void cancelFollowing() {
@@ -317,8 +321,13 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void waitForIdle() {
+        waitForIdle(() -> {});
+    }
+
+    public void waitForIdle(Runnable onWait) {
         while (!Thread.currentThread().isInterrupted() && isBusy()) {
             update();
+            onWait.run();
         }
     }
 

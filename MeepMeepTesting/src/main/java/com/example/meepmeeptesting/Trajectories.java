@@ -2,6 +2,7 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
 import com.noahbres.meepmeep.roadrunner.DriveShim;
@@ -13,13 +14,11 @@ import java.util.function.Function;
 
 public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
     RED_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-            .lineTo(pos(-12, -45))
-            .lineToLinearHeading(pose(-60, -60, 90))
-            .addTemporalMarker(() -> {
-                // add duck motor here
-            })
-            .waitSeconds(2.5)
-            .lineTo(pos(-60, -36))
+            .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
+            .lineToSplineHeading(pose(-7, -40, 270))
+            .lineToLinearHeading(pose(-61,-51, 245))
+            .lineToLinearHeading(pose(-71,-51, 270))
+            .forward(-15)
             .build()),
     RED_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(-12, -45))
@@ -33,29 +32,29 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .forward(30)
             .build()),
     RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
-            .lineToLinearHeading(pose(-5, -42, 100))
+            .lineToLinearHeading(pose(-5, -42, 280))
             .addTemporalMarker(() -> {
                 // drop initial cube
             })
             //.waitSeconds(2)
-            .setReversed(true)
             .splineTo(pos(12, -62), rad(0))
-            .forward(-30)
+            .forward(30)
             .addTemporalMarker(() -> {
                 // grab
             })
             //.waitSeconds(2)
-            .forward(30)
+            .setReversed(true)
+            .lineTo(pos(12, -62))
             .splineTo(pos(-5, -42), rad(100))
             .addTemporalMarker(() -> {
                 // drop
             })
             //.waitSeconds(2)
-            .setReversed(true)
+            .setReversed(false)
             .splineTo(pos(12, -62), rad(0))
-            .forward(-26)
-            .strafeRight(24)
-            .lineToLinearHeading(pose(60, -38, 90))
+            .forward(30)
+            .strafeLeft(24)
+            .lineToLinearHeading(pose(60, -38, 270))
             .build()),
     RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
             .lineToLinearHeading(pose(0, -56, 135))
@@ -208,7 +207,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
-                .followTrajectorySequence(REMOTE::apply)
+                .followTrajectorySequence(RED_WAREHOUSE::apply)
                 .start();
     }
 }
