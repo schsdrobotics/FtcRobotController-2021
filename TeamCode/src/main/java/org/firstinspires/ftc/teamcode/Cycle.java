@@ -95,7 +95,7 @@ public class Cycle {
                 waitFor(300); // give bucket time to rotate
                 lift.pursueTarget(targetPosition);
                 sweeper.backwards(1); // spit out extras
-                waitFor(500);
+                while (lift.motor.motor.getCurrentPosition() < targetPosition.pos);
                 sweeper.stop();
                 stage = Stage.BETWEEN;
             } else {
@@ -131,7 +131,7 @@ public class Cycle {
             bucket.backwards();
 
             lift.pursueTarget(Position.LOW);
-            waitFor(targetPosition.pos * 5L);
+            while (lift.motor.motor.getCurrentPosition() > Position.LOW.pos); // wait for it to reach the bottom
 
             holdValues(false);
             stage = Stage.COMPLETE;

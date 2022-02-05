@@ -15,11 +15,10 @@ import java.util.function.Predicate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class LiftHandler {
     private final Telemetry telemetry;
-    private final MotorWrapper motor;
+    public final MotorWrapper motor;
     private final Gamepad gamepad;
     public boolean initialized = true;
     public volatile boolean shouldHoldPos = false;
-    private Position lastPos = null;
 
     public LiftHandler(HardwareMap map, Gamepad gamepad, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -35,8 +34,6 @@ public class LiftHandler {
     }
 
     public void tick() {
-        if (lastPos != null) telemetry.addData("last lift pos", lastPos);
-        telemetry.addData("should hold", shouldHoldPos);
         if (gamepad != null && !shouldHoldPos) {
             motor.setAndUpdate(gamepad.left_stick_y);
             if (gamepad.left_stick_button && gamepad.right_stick_button &&
@@ -59,9 +56,6 @@ public class LiftHandler {
                 if (target != null) pursueTarget(target);
             }
         }
-        if (lastPos != null) {
-            pursueTarget(lastPos);
-        }
     }
 
     private void pursueTarget(int pos) {
@@ -71,7 +65,6 @@ public class LiftHandler {
 
     public void pursueTarget(Position position) {
         pursueTarget(position.pos);
-        lastPos = position;
     }
 
     public enum Position {
