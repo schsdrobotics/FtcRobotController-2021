@@ -19,10 +19,7 @@ public class LiftHandler {
     private final Gamepad gamepad;
     public boolean initialized = true;
     public volatile boolean shouldHoldPos = false;
-    public static final int INTAKING = 10;
-    public static final int LOW = 20;
-    public static final int MIDDLE = 190;
-    public static final int HIGH = 310;
+    private Position lastPos = null;
 
     public LiftHandler(HardwareMap map, Gamepad gamepad, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -38,6 +35,8 @@ public class LiftHandler {
     }
 
     public void tick() {
+        if (lastPos != null) telemetry.addData("last lift pos", lastPos);
+        telemetry.addData("should hold", shouldHoldPos);
         if (gamepad != null && !shouldHoldPos) {
             motor.setAndUpdate(gamepad.left_stick_y);
             if (gamepad.left_stick_button && gamepad.right_stick_button &&
@@ -60,16 +59,19 @@ public class LiftHandler {
                 if (target != null) pursueTarget(target);
             }
         }
+        if (lastPos != null) {
+            pursueTarget(lastPos);
+        }
     }
 
-    public void pursueTarget(int pos) {
+    private void pursueTarget(int pos) {
         // goToPosition will make RunMode RUN_TO_POSITION
         motor.goToPosition(pos, 1);
-        motor.update();
     }
 
     public void pursueTarget(Position position) {
         pursueTarget(position.pos);
+        lastPos = position;
     }
 
     public enum Position {

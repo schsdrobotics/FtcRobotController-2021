@@ -61,7 +61,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 public class Remote extends LinearOpMode {
     // Declare OpMode members.
     private float xCenter;
-    private int target = LiftHandler.HIGH;
+    private LiftHandler.Position target = LiftHandler.Position.HIGH;
     private CameraHandler camera;
     private SampleMecanumDrive drive;
     private DuckHandler duck;
@@ -81,6 +81,7 @@ public class Remote extends LinearOpMode {
         DELIVER_DUCKS, // Deliver ducks + lower lift
         ALIGN, // Align the robot with the wall
         TO_WAREHOUSE_INITIAL, // Go to warehouse; TODO: starts intake cycle
+        PARK, //Strafes left a little
         IDLE            // Our bot will enter the IDLE state when done
     }
 
@@ -113,8 +114,8 @@ public class Remote extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         Trajectory toHubInitial = drive.trajectoryBuilder(startPose)
-                .lineTo(pos(calculatePoint(-35, -62, -7, -39, false, -58), -58))
-                .lineToSplineHeading(pose(-7, -39, 270))
+                .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
+                .lineToSplineHeading(pose(-7, -40, 270))
                 .build();
 
         Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
@@ -122,12 +123,17 @@ public class Remote extends LinearOpMode {
                 .build();
 
         Trajectory align = drive.trajectoryBuilder(toDuckSpinner.end())
-                .lineToSplineHeading(pose(-20, -53, 0))
+                .lineToSplineHeading(pose(-55, -48, 0))
                 .splineToConstantHeading(pos(-15, -64), rad(270))
+                .strafeRight(7)
                 .build();
 
         Trajectory toWarehouseInitial = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))
                 .forward(60)
+                .build();
+
+        Trajectory park = drive.trajectoryBuilder(toWarehouseInitial.end())
+                .strafeLeft(15)
                 .build();
 
         while (!opModeIsActive() && !isStopRequested()) {
@@ -150,53 +156,25 @@ public class Remote extends LinearOpMode {
         light
                 .pause()
                 //R
-                .dot()
-                .dash()
-                .dot()
-                .pause()
+                .dot().dash().dot().pause()
                 //O
-                .dash()
-                .dash()
-                .dash()
-                .pause()
+                .dash().dash().dash().pause()
                 //B
-                .dash()
-                .dot()
-                .dot()
-                .dot()
-                .pause()
+                .dash().dot().dot().dot().pause()
                 //O
-                .dash()
-                .dash()
-                .dash()
-                .pause()
+                .dash().dash().dash().pause()
                 //P
-                .dot()
-                .dash()
-                .dash()
-                .dot()
-                .pause()
+                .dot().dash().dash().dot().pause()
                 //A
-                .dot()
-                .dash()
-                .pause()
+                .dot().dash().pause()
                 //N
-                .dash()
-                .dot()
-                .pause()
+                .dash().dot().pause()
                 //D
-                .dash()
-                .dot()
-                .dot()
-                .pause()
+                .dash().dot().dot().pause()
                 //A
-                .dot()
-                .dash()
-                .pause()
+                .dot().dash().pause()
                 //S
-                .dot()
-                .dot()
-                .dot();
+                .dot().dot().dot();
 
         // Set the current state to TO_HUB_INITIAL, our first step
         // Then have it follow that trajectory
@@ -236,8 +214,13 @@ public class Remote extends LinearOpMode {
                         // Drop item
                         bucket.forwards();
                         double startTime = getRuntime();
-                        while (getRuntime() - startTime < 0.350); // Wait 350 ms
-                        bucket.wiggleUntil(() -> getRuntime() - startTime < 1); // wiggle for 1 sec at most
+                        while (getRuntime() - startTime < 0.350) { // Wait 350 ms
+                            light.run();
+                        }
+                        bucket.wiggleUntil(() -> {
+                            light.run();
+                            return getRuntime() - startTime > 1; // wiggle for 1 sec at most
+                        });
                         // Retract bucket
                         bucket.backwards();
                     }
@@ -255,12 +238,13 @@ public class Remote extends LinearOpMode {
                         currentState = State.DELIVER_DUCKS;
 
                         // Lower lift
-                        lift.pursueTarget(LiftHandler.INTAKING);
+                        lift.pursueTarget(LiftHandler.Position.LOW);
                         // Run duck spinner for 2.5 seconds
                         double startTime = getRuntime();
                         while (getRuntime() - startTime < 1.5) {
                             duck.tick();
                             duck.start(); // red does not need reversing
+                            light.run();
                         }
                         // Stop duck motor
                         duck.stop();
@@ -268,6 +252,7 @@ public class Remote extends LinearOpMode {
                     }
                     break;
                 case DELIVER_DUCKS:
+
                     if (!drive.isBusy()) {
                         currentState = State.ALIGN;
 
@@ -286,6 +271,13 @@ public class Remote extends LinearOpMode {
                     }
                     break;
                 case TO_WAREHOUSE_INITIAL:
+                    if (!drive.isBusy()) {
+                        currentState = State.PARK;
+
+                        drive.followTrajectoryAsync(park);
+                    }
+                    break;
+                case PARK:
                     if (!drive.isBusy()) {
                         currentState = State.IDLE;
                     }
@@ -314,11 +306,11 @@ public class Remote extends LinearOpMode {
         if (camera.mostConfident != null) {
             if (xCenter < 300) {
                 //Set the target to low
-                target = LiftHandler.LOW;
+                target = LiftHandler.Position.LOW;
             }
             else if (xCenter < 600) {
                 //Set the target to middle
-                target = LiftHandler.MIDDLE;
+                target = LiftHandler.Position.MIDDLE;
             }
         }
     }

@@ -40,9 +40,13 @@ public class MotorWrapper {
 
     public void goToPosition(int pos, double power) {
         power = clampPower(power);
+        setAndUpdate(power);
         motor.setTargetPosition(pos);
-        setPower(power);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // conflicting javadocs - just in case
+        setAndUpdate(power);
+        motor.setTargetPosition(pos);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public static double clampPower(double original) {

@@ -58,7 +58,7 @@ public class Cycle {
             stage = Stage.IN_START;
             holdValues(true);
             double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-            boolean preFilled = distanceCm < 5;
+            boolean preFilled = distanceCm < 7;
             if (!preFilled) {
                 sweeper.forwards(1);
 
@@ -72,7 +72,7 @@ public class Cycle {
                     distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
                     runtime = System.currentTimeMillis() - startTime;
 
-                    if (distanceCm < 5) { // if item in bucket
+                    if (distanceCm < 7) { // if item in bucket
 
                         // keep track of how long an item is in the bucket to prevent
                         // stuff bouncing out but still triggering loop exit
@@ -89,7 +89,7 @@ public class Cycle {
                 }
             }
 
-            boolean objectPickedUp = distanceCm < 5;
+            boolean objectPickedUp = distanceCm < 7;
             if (objectPickedUp) {
                 bucket.halfway();
                 waitFor(300); // give bucket time to rotate
@@ -131,7 +131,7 @@ public class Cycle {
             bucket.backwards();
 
             lift.pursueTarget(Position.LOW);
-            waitFor(targetPosition.pos * 10L);
+            waitFor(targetPosition.pos * 5L);
 
             holdValues(false);
             stage = Stage.COMPLETE;

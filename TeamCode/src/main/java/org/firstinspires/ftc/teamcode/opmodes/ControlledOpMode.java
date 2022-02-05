@@ -117,7 +117,6 @@ public class ControlledOpMode extends OpMode {
         intakeServo = new IntakeServoHandler(hardwareMap);
         intakeServo.hook();
         telemetry.addData("Status", "Initialized");
-        telemetry.setAutoClear(false);
     }
 
     /**
@@ -150,7 +149,6 @@ public class ControlledOpMode extends OpMode {
         arm.tick();
         cycles.tick();
         telemetry.addData("Status", "Run Time: " + runtime);
-        telemetry.update();
     }
 
     /**

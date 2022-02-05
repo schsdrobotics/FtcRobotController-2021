@@ -48,9 +48,9 @@ public class BucketHandler {
     public void wiggleUntil(Supplier<Boolean> test) {
          for (int i = 0; i < 15; i++) {
              halfway();
-             waitFor(30);
+             waitFor(25);
              forwards();
-             waitFor(30);
+             waitFor(25);
              if (test.get()) return;
          }
      }

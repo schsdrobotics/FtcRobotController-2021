@@ -23,8 +23,9 @@ public class CycleHandler {
     private final LightHandler light;
     private final Gamepad controller;
     private final DistanceSensor distanceSensor;
-    private Position targetPosition = Position.LOW;
+    private Position targetPosition = Position.HIGH;
     private Cycle currentCycle = null;
+    private String cycleData = "";
 
     public CycleHandler(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
                         Gamepad controller, DistanceSensor distanceSensor,
@@ -60,13 +61,16 @@ public class CycleHandler {
         }
         telemetry.addData("Target", targetPosition);
         telemetry.addData("Current detected distance (cm)", distanceSensor.getDistance(DistanceUnit.CM));
+        if (!cycleData.isEmpty()) {
+            telemetry.addData("Cycle data", cycleData);
+        }
     }
 
     private void handleCurrentCycleFinishStage() {
         boolean failed = !currentCycle.errorMessage.isEmpty();
         if (failed) {
             controller.rumble(300);
-            telemetry.addData("Cycle error", currentCycle.errorMessage);
+            cycleData = "Cycle error: " + currentCycle.errorMessage;
             light.setColor(LightHandler.Color.RED);
         }
 
@@ -75,7 +79,9 @@ public class CycleHandler {
             light.setColor(LightHandler.Color.OFF);
         } else if (!failed) {
             light.setColor(LightHandler.Color.YELLOW);
+            cycleData = "";
         }
+        if (cycleData.isEmpty()) cycleData += " | last result success: " + !failed;
         telemetry.addData("Last cycle result successful", !failed);
     }
 

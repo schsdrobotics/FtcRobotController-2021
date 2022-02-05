@@ -18,7 +18,7 @@ public class ArmHandler {
     }
 
     public void onStart() {
-        vertical.max();
+        vertical.setAndUpdate(.8);
         startMillis = System.currentTimeMillis();
 //        horizontal.setAndUpdate(0.4);
     }

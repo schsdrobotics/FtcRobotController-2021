@@ -147,10 +147,10 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .forward(1)
             .build()),
     REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-            .lineTo(pos(calculatePoint(-35, -62, -7, -39, false, -58), -58))
-            .lineToSplineHeading(pose(-7, -39, 270))
+            .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
+            .lineToSplineHeading(pose(-7, -40, 270))
             .lineToLinearHeading(pose(-61,-51, 245))
-            .lineToSplineHeading(pose(-20, -53, 0))
+            .lineToSplineHeading(pose(-55, -48, 0))
             .splineToConstantHeading(pos(-15, -64), rad(270))
 //            .strafeRight(5)
             .forward(60)
