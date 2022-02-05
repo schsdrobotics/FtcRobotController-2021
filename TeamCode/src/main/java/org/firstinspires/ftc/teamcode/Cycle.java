@@ -82,7 +82,10 @@ public class Cycle {
                     } else bucketFilledFor = 0; // reset timer if item has exited
 
                     // if bucket has consistently held an item for 300 millis, consider it secure
-                    if (bucketFilledFor > 300) break;
+                    if (bucketFilledFor > 300) {
+                        sweeper.stop();
+                        break;
+                    }
 
                     lastTime = System.currentTimeMillis();
                     waitFor(20);
@@ -95,14 +98,16 @@ public class Cycle {
                 waitFor(300); // give bucket time to rotate
                 lift.pursueTarget(targetPosition);
                 sweeper.backwards(1); // spit out extras
-                while (lift.motor.motor.getCurrentPosition() < targetPosition.pos);
-                sweeper.stop();
+                waitFor(500);
+
                 stage = Stage.BETWEEN;
             } else {
                 holdValues(false);
                 stage = Stage.COMPLETE; // finish early to allow for new cycle
-                errorMessage = "Failed to pickup object; detected distance: " + distanceCm;
+                errorMessage = "Failed to pick up object; detected distance: " + distanceCm;
             }
+            sweeper.stop();
+            sweeper.shouldHoldSpeed = false;
             return objectPickedUp;
         });
     }
@@ -131,7 +136,7 @@ public class Cycle {
             bucket.backwards();
 
             lift.pursueTarget(Position.LOW);
-            while (lift.motor.motor.getCurrentPosition() > Position.LOW.pos); // wait for it to reach the bottom
+            waitFor(targetPosition.pos * 5L);
 
             holdValues(false);
             stage = Stage.COMPLETE;
