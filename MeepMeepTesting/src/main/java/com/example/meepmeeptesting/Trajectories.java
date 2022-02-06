@@ -57,12 +57,10 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineToLinearHeading(pose(60, -38, 270))
             .build()),
     RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
-            .lineToLinearHeading(pose(0, -56, 135))
-            .setReversed(true)
-            .splineTo(pos(12, -62), rad(0)) // now in storage
-            .forward(-26)
-            .strafeRight(24)
-            .lineToLinearHeading(pose(60, -38, 90))
+            .turn(rad(-90))
+            .forward(30)
+            .strafeLeft(24)
+            .lineToLinearHeading(pose(60, -38, 270))
             .build()),
     BLUE_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
             .lineTo(pos(-12, 45))
@@ -198,7 +196,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
     public static void main(String[] args) {
         // Declare a MeepMeep instance
         // With a field size of 800 pixels
-        MeepMeep mm = new MeepMeep(750)
+        MeepMeep mm = new MeepMeep(680)
                 // Set field image
                 .setBackground(MeepMeep.Background.FIELD_FREIGHT_FRENZY)
                 // Set theme
@@ -207,7 +205,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
-                .followTrajectorySequence(RED_WAREHOUSE::apply)
+                .followTrajectorySequence(RED_WAREHOUSE_PARK::apply)
                 .start();
     }
 }

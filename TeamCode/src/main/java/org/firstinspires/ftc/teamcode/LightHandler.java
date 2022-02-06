@@ -1,13 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Light;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LightHandler {
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final DigitalChannel red;
     private final DigitalChannel green;
     private long startTime = System.currentTimeMillis();
@@ -44,6 +47,38 @@ public class LightHandler {
 
     public void resetTimer() {
         startTime = System.currentTimeMillis();
+    }
+
+    public void runAuto(LinearOpMode opMode) {
+        executor.submit(() -> {
+            // Set up to blink robopandas in morse code
+            this
+                .pause()
+                //R
+                .dot().dash().dot().pause()
+                //O
+                .dash().dash().dash().pause()
+                //B
+                .dash().dot().dot().dot().pause()
+                //O
+                .dash().dash().dash().pause()
+                //P
+                .dot().dash().dash().dot().pause()
+                //A
+                .dot().dash().pause()
+                //N
+                .dash().dot().pause()
+                //D
+                .dash().dot().dot().pause()
+                //A
+                .dot().dash().pause()
+                //S
+                .dot().dot().dot();
+            opMode.waitForStart();
+            resetTimer();
+            while (opMode.opModeIsActive() && !opMode.isStopRequested()) tick();
+            setColor(Color.OFF);
+        });
     }
 
     public void tick() {

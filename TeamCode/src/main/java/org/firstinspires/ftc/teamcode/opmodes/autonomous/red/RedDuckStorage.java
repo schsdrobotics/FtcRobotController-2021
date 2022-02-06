@@ -130,6 +130,8 @@ public class RedDuckStorage extends LinearOpMode {
                 .forward(-15)
                 .build();
 
+        light.runAuto(this);
+
         while (!opModeIsActive() && !isStopRequested()) {
             camera.tick();
             // Get x-coordinate of center of box
@@ -145,30 +147,6 @@ public class RedDuckStorage extends LinearOpMode {
 
         //Run once when started
         target = determineTarget(camera, xCenter);
-
-        // Set up to blink robopandas in morse code
-        light
-                .pause()
-                //R
-                .dot().dash().dot().pause()
-                //O
-                .dash().dash().dash().pause()
-                //B
-                .dash().dot().dot().dot().pause()
-                //O
-                .dash().dash().dash().pause()
-                //P
-                .dot().dash().dash().dot().pause()
-                //A
-                .dot().dash().pause()
-                //N
-                .dash().dot().pause()
-                //D
-                .dash().dot().dot().pause()
-                //A
-                .dot().dash().pause()
-                //S
-                .dot().dot().dot();
 
         // Set the current state to TO_HUB_INITIAL, our first step
         // Then have it follow that trajectory
@@ -201,8 +179,6 @@ public class RedDuckStorage extends LinearOpMode {
                         // Go to alliance hub
                         drive.followTrajectoryAsync(toHubInitial);
 
-                        light.resetTimer();
-
                         currentState = State.DROP_AND_RETRACT;
                     }
                     break;
@@ -211,11 +187,8 @@ public class RedDuckStorage extends LinearOpMode {
                         // Drop item
                         bucket.forwards();
                         double startTime = getRuntime();
-                        while (getRuntime() - startTime < 0.350) { // Wait 350 ms
-                            light.tick();
-                        }
+                        while (getRuntime() - startTime < 0.350); // Wait 350 ms
                         bucket.wiggleUntil(() -> {
-                            light.tick();
                             return getRuntime() - startTime > 1; // wiggle for 1 sec at most
                         });
                         // Retract bucket
@@ -241,12 +214,10 @@ public class RedDuckStorage extends LinearOpMode {
                         while (getRuntime() - startTime < 1.5) {
                             duck.tick();
                             duck.start(); // red does not need reversing
-                            light.tick();
                         }
                         // Stop duck motor
                         duck.stop();
                         duck.tick();
-
                         currentState = State.ALIGN;
                     }
                     break;
@@ -276,12 +247,6 @@ public class RedDuckStorage extends LinearOpMode {
             // Anything outside of the switch statement will run independent of the currentState
             drive.update();
             telemetry.addData("State", currentState);
-
-            // Distance sensor background loop
-
-            // Blink robopandas
-            light.tick();
         }
-        light.setColor(LightHandler.Color.OFF);
     }
 }

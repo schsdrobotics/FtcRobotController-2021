@@ -55,6 +55,8 @@ import org.firstinspires.ftc.teamcode.LightHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+import java.util.concurrent.Executors;
+
 /**
  * Main for warehouse side
  * Warehouse side -> Preload -> intake cycles -> park in warehouse(?)
@@ -136,6 +138,8 @@ public class RedWarehouse extends LinearOpMode {
                 .lineToLinearHeading(pose(60, -38, 270))
                 .build();
 
+        light.runAuto(this);
+
         while (!opModeIsActive() && !isStopRequested()) {
             camera.tick();
             // Get x-coordinate of center of box
@@ -151,30 +155,6 @@ public class RedWarehouse extends LinearOpMode {
 
         //Run once when started
         target = determineTarget(camera, xCenter);
-
-        // Set up to blink robopandas in morse code
-        light
-                .pause()
-                //R
-                .dot().dash().dot().pause()
-                //O
-                .dash().dash().dash().pause()
-                //B
-                .dash().dot().dot().dot().pause()
-                //O
-                .dash().dash().dash().pause()
-                //P
-                .dot().dash().dash().dot().pause()
-                //A
-                .dot().dash().pause()
-                //N
-                .dash().dot().pause()
-                //D
-                .dash().dot().dot().pause()
-                //A
-                .dot().dash().pause()
-                //S
-                .dot().dot().dot();
 
         // Set the current state to TO_HUB_INITIAL, our first step
         // Then have it follow that trajectory
@@ -207,8 +187,6 @@ public class RedWarehouse extends LinearOpMode {
                         // Go to alliance hub
                         drive.followTrajectoryAsync(toHubInitial);
 
-                        light.resetTimer();
-
                         currentState = State.DROP_AND_RETRACT;
                     }
                     break;
@@ -217,11 +195,8 @@ public class RedWarehouse extends LinearOpMode {
                         // Drop item
                         bucket.forwards();
                         double startTime = getRuntime();
-                        while (getRuntime() - startTime < 0.350) { // Wait 350 ms
-                            light.tick();
-                        }
+                        while (getRuntime() - startTime < 0.350); // Wait 350 ms
                         bucket.wiggleUntil(() -> {
-                            light.tick();
                             return getRuntime() - startTime > 1; // wiggle for 1 sec at most
                         });
                         // Retract bucket
@@ -232,13 +207,23 @@ public class RedWarehouse extends LinearOpMode {
                     break;
                 case TO_WAREHOUSE:
                     if (!drive.isBusy()) {
-                        drive.followTrajectory(toWarehouse1, () -> {light.tick();});
+                        drive.followTrajectory(toWarehouse1);
                         cycles++;
                         if (cycles < 3) {
                             currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"), light);
                             drive.followTrajectoryAsync(toWarehouse2);
                             currentCycle.start();
-                            currentState = State.TO_HUB;
+                            // wait for the cycle to finish before running the check for failure once
+                            if (currentCycle.await()) {
+                                // Assume that Cycle is working properly (i.e. the state will not be WAITING), and that there is only one possible error message
+                                if (!currentCycle.errorMessage.isEmpty()) telemetry.addData("Failed to pick up an item", "Parking now");
+                                else telemetry.addData("How did this happen?", "Are y'all okay?");
+                                currentState = State.PARK;
+                                telemetry.update();
+                            } else {
+                                drive.cancelFollowing();
+                                currentState = State.TO_HUB;
+                            }
                         } else {
                             drive.followTrajectoryAsync(toWarehouse2);
                             currentState = State.PARK;
@@ -247,7 +232,7 @@ public class RedWarehouse extends LinearOpMode {
                     break;
                 case TO_HUB:
                     if (!drive.isBusy()) {
-                        drive.followTrajectory(buildHubTrajectory(), () -> {light.tick();});
+                        drive.followTrajectory(buildHubTrajectory());
                         currentCycle.finish();
                         currentCycle.await();
                         currentCycle = null;
@@ -270,11 +255,7 @@ public class RedWarehouse extends LinearOpMode {
             // Anything outside of the switch statement will run independent of the currentState
             drive.update();
             telemetry.addData("State", currentState);
-
-            // Blink robopandas
-            light.tick();
         }
-        light.setColor(LightHandler.Color.OFF);
     }
 
     private Trajectory buildHubTrajectory() {
