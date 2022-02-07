@@ -31,30 +31,32 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineTo(pos(12, -62), rad(0))
             .forward(30)
             .build()),
-    RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
+    RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -61, 90))
             .lineToLinearHeading(pose(-5, -42, 280))
             .addTemporalMarker(() -> {
                 // drop initial cube
             })
             //.waitSeconds(2)
-            .splineTo(pos(12, -62), rad(0))
-            .forward(30)
+            .splineTo(pos(12, -64), rad(0))
+            .forward(40)
+            .waitSeconds(30)
+//            .strafeLeft(100)
             .addTemporalMarker(() -> {
                 // grab
             })
             //.waitSeconds(2)
             .setReversed(true)
-            .lineTo(pos(12, -62))
-            .splineTo(pos(-5, -42), rad(100))
+            .lineTo(pos(12, -64))
+            .splineToSplineHeading(pose(-5, -42, 280), rad(100))
             .addTemporalMarker(() -> {
                 // drop
             })
             //.waitSeconds(2)
             .setReversed(false)
-            .splineTo(pos(12, -62), rad(0))
-            .forward(30)
-            .strafeLeft(24)
-            .lineToLinearHeading(pose(60, -38, 270))
+            .splineTo(pos(12, -64), rad(0))
+            .forward(40)
+            .splineToConstantHeading(pos(42, -38), rad(0))
+            .lineToSplineHeading(pose(60, -38, 270))
             .build()),
     RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
             .turn(rad(-90))
@@ -205,7 +207,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
-                .followTrajectorySequence(RED_WAREHOUSE_PARK::apply)
+                .followTrajectorySequence(RED_WAREHOUSE::apply)
                 .start();
     }
 }

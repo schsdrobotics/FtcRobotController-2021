@@ -92,7 +92,7 @@ public class RedWarehouse extends LinearOpMode {
     // Default to IDLE
     private State currentState = State.IDLE;
 
-    private final Pose2d startPose = pose(12, -62, 90);
+    private final Pose2d startPose = pose(12, -61, 90);
 
     private final int MAX_CYCLES = 3;
 
@@ -126,16 +126,16 @@ public class RedWarehouse extends LinearOpMode {
                 .build();
 
         Trajectory toWarehouse1 = drive.trajectoryBuilder(toHubInitial.end(), false)
-                .splineTo(pos(12, -62), rad(0))
+                .splineTo(pos(12, -64), rad(0))
                 .build();
 
         Trajectory toWarehouse2 = drive.trajectoryBuilder(toWarehouse1.end(), false)
-                .forward(30)
+                .forward(40)
                 .build();
 
         Trajectory park = drive.trajectoryBuilder(toWarehouse1.end(), false)
-                .strafeLeft(24)
-                .lineToLinearHeading(pose(60, -38, 270))
+                .splineToConstantHeading(pos(42, -38), rad(0))
+                .lineToSplineHeading(pose(60, -38, 270))
                 .build();
 
         light.runAuto(this);
@@ -209,7 +209,7 @@ public class RedWarehouse extends LinearOpMode {
                     if (!drive.isBusy()) {
                         drive.followTrajectory(toWarehouse1);
                         cycles++;
-                        if (cycles < 3) {
+                        if (cycles < MAX_CYCLES) {
                             currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"), light);
                             drive.followTrajectoryAsync(toWarehouse2);
                             currentCycle.start();
@@ -260,8 +260,8 @@ public class RedWarehouse extends LinearOpMode {
 
     private Trajectory buildHubTrajectory() {
         return drive.trajectoryBuilder(drive.getPoseEstimate(), true)
-                .lineTo(pos(12, -62))
-                .splineTo(pos(-5, -42), rad(100))
+                .lineTo(pos(12, -64))
+                .splineToSplineHeading(pose(-5, -42, 280), rad(100))
                 .build();
     }
 }
