@@ -133,7 +133,8 @@ public class RedWarehouse extends LinearOpMode {
                 .forward(40)
                 .build();
 
-        Trajectory park = drive.trajectoryBuilder(toWarehouse1.end(), false)
+        Trajectory park = drive.trajectoryBuilder(toWarehouse2.end(), false)
+                .forward(-6)
                 .splineToConstantHeading(pos(42, -38), rad(0))
                 .lineToSplineHeading(pose(60, -38, 270))
                 .build();
@@ -208,13 +209,13 @@ public class RedWarehouse extends LinearOpMode {
                 case TO_WAREHOUSE:
                     if (!drive.isBusy()) {
                         drive.followTrajectory(toWarehouse1);
-                        cycles++;
+                        cycles++; // Cycles are counted by how mamy times we reach the warehouse, and this is close enough
                         if (cycles < MAX_CYCLES) {
                             currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"), light);
                             drive.followTrajectoryAsync(toWarehouse2);
                             currentCycle.start();
                             // wait for the cycle to finish before running the check for failure once
-                            if (currentCycle.await()) {
+                            if (currentCycle.await()) { // If this is true, we did NOT pick anything up
                                 // Assume that Cycle is working properly (i.e. the state will not be WAITING), and that there is only one possible error message
                                 if (!currentCycle.errorMessage.isEmpty()) telemetry.addData("Failed to pick up an item", "Parking now");
                                 else telemetry.addData("How did this happen?", "Are y'all okay?");
@@ -232,6 +233,7 @@ public class RedWarehouse extends LinearOpMode {
                     break;
                 case TO_HUB:
                     if (!drive.isBusy()) {
+                        // Since we cancel our following, we need to get our start psoition for this trajecotry on the fly
                         drive.followTrajectory(buildHubTrajectory());
                         currentCycle.finish();
                         currentCycle.await();

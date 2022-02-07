@@ -55,14 +55,19 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .setReversed(false)
             .splineTo(pos(12, -64), rad(0))
             .forward(40)
+            .forward(-8)
             .splineToConstantHeading(pos(42, -38), rad(0))
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
-    RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -62, 90))
+    RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -61, 90))
+            // FIXME change this so we don't bonk the barrier
+            .forward(10)
             .turn(rad(-90))
-            .forward(30)
-            .strafeLeft(24)
-            .lineToLinearHeading(pose(60, -38, 270))
+            .strafeRight(17)
+            .forward(18)
+            .addTemporalMarker(() -> drive.setPoseEstimate(pose(12, -65.25, 0)))
+            .splineToConstantHeading(pos(42, -38), rad(0))
+            .lineToSplineHeading(pose(60, -38, 270))
             .build()),
     BLUE_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
             .lineTo(pos(-12, 45))
@@ -207,7 +212,8 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
-                .followTrajectorySequence(RED_WAREHOUSE::apply)
+                .setBotDimensions(11, 18) // TODO: tune this
+                .followTrajectorySequence(RED_WAREHOUSE_PARK::apply)
                 .start();
     }
 }

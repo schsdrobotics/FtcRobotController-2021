@@ -89,7 +89,7 @@ public class RedWarehousePark extends LinearOpMode {
     // Default to IDLE
     private State currentState = State.IDLE;
 
-    private final Pose2d startPose = pose(12, -62, 90);
+    private final Pose2d startPose = pose(12, -61, 90);
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -150,7 +150,7 @@ public class RedWarehousePark extends LinearOpMode {
 
             // We essentially define the flow of the state machine through this switch statement
             switch (currentState) {
-                case ALIGN: // FIXME do we need to move forward first before turning (so we don't bump into the wall)?
+                case ALIGN: // TODO copy the trajectories from MeepMeep (after fixing them)
                     if (!drive.isBusy()) {
                         drive.turnAsync(rad(-90));
 

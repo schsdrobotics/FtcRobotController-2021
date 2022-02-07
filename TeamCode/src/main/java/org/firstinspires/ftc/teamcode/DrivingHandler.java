@@ -55,9 +55,11 @@ public class DrivingHandler {
             stop();
             return;
         }
+        // Normalize inputs
         double forwardWeight = y / total;
         double strafeWeight = x / total;
         double rotWeight = z / total;
+        // Account for the amount that the joystick is pushed
         double strength = Math.max(Math.sqrt(x * x + y * y), Math.abs(z));
         forEach(motor -> {
             int[] mults = getMultsForMotor(motor);

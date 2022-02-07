@@ -67,7 +67,7 @@ public class Cycle {
                 long bucketFilledFor = 0;
                 long runtime = 0;
 
-                // give 2 seconds for object to enter bucket
+                // give 4 seconds for object to enter bucket
                 while (runtime < 4000) {
                     distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
                     runtime = System.currentTimeMillis() - startTime;
