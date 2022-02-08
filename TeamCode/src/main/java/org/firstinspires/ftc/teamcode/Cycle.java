@@ -97,8 +97,10 @@ public class Cycle {
                 bucket.halfway();
                 waitFor(300); // give bucket time to rotate
                 lift.pursueTarget(targetPosition);
-                sweeper.backwards(1); // spit out extras
-                waitFor(500);
+                if (!preFilled) {
+                    sweeper.backwards(1); // spit out extras
+                    waitFor(500);
+                }
 
                 stage = Stage.BETWEEN;
             } else {
@@ -147,11 +149,17 @@ public class Cycle {
         });
     }
 
+    public boolean isBusy() {
+        return stage == Stage.IN_START || stage == Stage.IN_FINISH;
+    }
+
     /**
      * @return true if COMPLETE, false if BETWEEN or WAITING
      */
-    public boolean await() {
-        while (stage == Stage.IN_START || stage == Stage.IN_FINISH) {
+    public boolean await(Runnable loop) {
+        waitFor(100);
+        while (isBusy()) {
+            loop.run();
             waitFor(20);
         }
         return stage == Stage.COMPLETE;

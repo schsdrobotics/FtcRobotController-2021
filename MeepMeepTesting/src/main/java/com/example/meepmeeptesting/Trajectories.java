@@ -33,28 +33,15 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .build()),
     RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -61.375, 90))
             .lineToLinearHeading(pose(-5, -42, 280))
-            .addTemporalMarker(() -> {
-                // drop initial cube
-            })
-            //.waitSeconds(2)
             .splineTo(pos(12, -64), rad(0))
             .forward(40)
-//            .strafeLeft(100)
-            .addTemporalMarker(() -> {
-                // grab
-            })
-            //.waitSeconds(2)
             .setReversed(true)
             .lineTo(pos(12, -64))
             .splineToSplineHeading(pose(-5, -42, 280), rad(100))
-            .addTemporalMarker(() -> {
-                // drop
-            })
-            //.waitSeconds(2)
             .setReversed(false)
             .splineTo(pos(12, -64), rad(0))
             .forward(40)
-            .forward(-8)
+            .forward(-6)
             .splineToConstantHeading(pos(42, -38), rad(0))
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
@@ -212,7 +199,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
                 .setBotDimensions(13.25, 17.25)
-                .followTrajectorySequence(RED_WAREHOUSE_PARK::apply)
+                .followTrajectorySequence(RED_WAREHOUSE::apply)
                 .start();
     }
 }
