@@ -31,7 +31,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineTo(pos(12, -62), rad(0))
             .forward(30)
             .build()),
-    RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -61, 90))
+    RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -61.375, 90))
             .lineToLinearHeading(pose(-5, -42, 280))
             .addTemporalMarker(() -> {
                 // drop initial cube
@@ -39,7 +39,6 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             //.waitSeconds(2)
             .splineTo(pos(12, -64), rad(0))
             .forward(40)
-            .waitSeconds(30)
 //            .strafeLeft(100)
             .addTemporalMarker(() -> {
                 // grab
@@ -59,13 +58,13 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineToConstantHeading(pos(42, -38), rad(0))
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
-    RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -61, 90))
+    RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -61.375, 90))
             // FIXME change this so we don't bonk the barrier
             .forward(10)
             .turn(rad(-90))
             .strafeRight(17)
             .forward(18)
-            .addTemporalMarker(() -> drive.setPoseEstimate(pose(12, -65.25, 0)))
+            .addTemporalMarker(() -> drive.setPoseEstimate(pose(12, -63.375, 0)))
             .splineToConstantHeading(pos(42, -38), rad(0))
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
@@ -203,7 +202,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
     public static void main(String[] args) {
         // Declare a MeepMeep instance
         // With a field size of 800 pixels
-        MeepMeep mm = new MeepMeep(680)
+        MeepMeep mm = new MeepMeep(750)
                 // Set field image
                 .setBackground(MeepMeep.Background.FIELD_FREIGHT_FRENZY)
                 // Set theme
@@ -212,7 +211,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
-                .setBotDimensions(11, 18) // TODO: tune this
+                .setBotDimensions(13.25, 17.25)
                 .followTrajectorySequence(RED_WAREHOUSE_PARK::apply)
                 .start();
     }
