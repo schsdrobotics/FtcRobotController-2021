@@ -91,7 +91,7 @@ public class CycleHandler {
                 currentCycle.finish();
                 light.setColor(LightHandler.Color.GREEN);
             } else if (currentCycle == null) {
-                currentCycle = new Cycle(sweeper, bucket, lift, targetPosition, distanceSensor, light);
+                currentCycle = new Cycle(sweeper, bucket, lift, targetPosition, distanceSensor);
                 currentCycle.start();
                 light.setColor(LightHandler.Color.GREEN);
             }

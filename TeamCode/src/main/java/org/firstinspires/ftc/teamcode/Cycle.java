@@ -36,18 +36,16 @@ public class Cycle {
     private final LiftHandler lift;
     private final Position targetPosition;
     private final DistanceSensor distanceSensor;
-    private final LightHandler light;
     public volatile Stage stage = Stage.WAITING;
     public volatile String errorMessage = "";
 
     public Cycle(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
-                 Position targetPosition, DistanceSensor distanceSensor, LightHandler light) {
+                 Position targetPosition, DistanceSensor distanceSensor) {
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
         this.targetPosition = targetPosition;
         this.distanceSensor = distanceSensor;
-        this.light = light;
     }
 
     /**
@@ -150,16 +148,15 @@ public class Cycle {
     }
 
     public boolean isBusy() {
-        return stage == Stage.IN_START || stage == Stage.IN_FINISH;
+        return stage.isBusy();
     }
 
     /**
      * @return true if COMPLETE, false if BETWEEN or WAITING
      */
-    public boolean await(Runnable loop) {
-        waitFor(100);
+    public boolean await() {
+        waitFor(100); // Make sure that the other thread has a chance to set the state
         while (isBusy()) {
-            loop.run();
             waitFor(20);
         }
         return stage == Stage.COMPLETE;

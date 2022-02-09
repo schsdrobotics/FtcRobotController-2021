@@ -33,6 +33,7 @@ import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pos;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pose;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.rad;
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.backgroundLoop;
 
 import android.os.Build;
 
@@ -139,7 +140,7 @@ public class RedWarehouse extends LinearOpMode {
                 .lineToSplineHeading(pose(60, -38, 270))
                 .build();
 
-        light.runAuto(this);
+        backgroundLoop(this, drive, light);
 
         while (!opModeIsActive() && !isStopRequested()) {
             camera.tick();
@@ -157,7 +158,7 @@ public class RedWarehouse extends LinearOpMode {
         // Run once when started
         target = determineTarget(camera, xCenter);
 
-        currentCycle = new Cycle(sweeper, bucket, lift, target, hardwareMap.get(DistanceSensor.class, "distanceSensor"), light);
+        currentCycle = new Cycle(sweeper, bucket, lift, target, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
 
         // Set the current state to TO_HUB_INITIAL, our first step
         // Then have it follow that trajectory
@@ -196,7 +197,7 @@ public class RedWarehouse extends LinearOpMode {
                 case DROP_AND_RETRACT:
                     if (!drive.isBusy()) {
                         currentCycle.finish();
-                        currentCycle.await(drive::update);
+                        currentCycle.await();
 
                         currentState = State.TO_WAREHOUSE;
                     }
@@ -206,14 +207,13 @@ public class RedWarehouse extends LinearOpMode {
                         drive.followTrajectory(toWarehouse1);
                         cycles++; // Cycles are counted by how many times we reach the warehouse, and this is close enough
                         if (cycles <= MAX_CYCLES) {
-                            currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"), light);
+                            currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
                             drive.followTrajectoryAsync(toWarehouse2);
-                            drive.update();
                             System.out.println("following toWarehouse2");
                             currentCycle.start();
                             System.out.println("cycle started");
                             // wait for the cycle to finish before running the check for failure once
-                            if (currentCycle.await(drive::update)) { // If this is true, we did NOT pick anything up
+                            if (currentCycle.await()) { // If this is true, we did NOT pick anything up
                                 // Assume that Cycle is working properly (i.e. the state will not be WAITING), and that there is only one possible error message
                                 if (!currentCycle.errorMessage.isEmpty()) System.out.println("Failed to pick up an item; parking now");
                                 else System.out.println("Cycle is not working properly.");
@@ -228,7 +228,6 @@ public class RedWarehouse extends LinearOpMode {
                             System.out.println("Cycle limit reached; parking");
                             currentState = State.PARK;
                         }
-                        drive.update();
                     }
                     break;
                 case TO_HUB:
@@ -237,7 +236,7 @@ public class RedWarehouse extends LinearOpMode {
                         drive.followTrajectory(buildHubTrajectory());
                         System.out.println("Finished following hub trajectory");
                         currentCycle.finish();
-                        currentCycle.await(drive::update);
+                        currentCycle.await();
                         currentCycle = null;
                         currentState = State.TO_WAREHOUSE;
                     }
@@ -256,13 +255,12 @@ public class RedWarehouse extends LinearOpMode {
             }
 
             // Anything outside of the switch statement will run independent of the currentState
-            drive.update();
             telemetry.addData("State", currentState);
-            telemetry.update();
         }
     }
 
     private Trajectory buildHubTrajectory() {
+        drive.update(); // just to be absolutely sure that this updates
         return drive.trajectoryBuilder(drive.getPoseEstimate(), true)
                 .lineTo(pos(12, -64))
                 .splineToSplineHeading(pose(-5, -42, 280), rad(100))

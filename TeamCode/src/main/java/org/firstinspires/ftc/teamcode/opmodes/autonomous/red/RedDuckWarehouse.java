@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.red;
 
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.backgroundLoop;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.calculatePoint;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.determineTarget;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pos;
@@ -43,10 +44,12 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.CameraHandler;
+import org.firstinspires.ftc.teamcode.Cycle;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
@@ -138,7 +141,7 @@ public class RedDuckWarehouse extends LinearOpMode {
                 .strafeLeft(15)
                 .build();
 
-        light.runAuto(this);
+        backgroundLoop(this, drive, light);
 
         while (!opModeIsActive() && !isStopRequested()) {
             camera.tick();
@@ -192,15 +195,9 @@ public class RedDuckWarehouse extends LinearOpMode {
                     break;
                 case DROP_AND_RETRACT:
                     if (!drive.isBusy()) {
-                        // Drop item
-                        bucket.forwards();
-                        double startTime = getRuntime();
-                        while (getRuntime() - startTime < 0.350); // Wait 350 ms
-                        bucket.wiggleUntil(() -> {
-                            return getRuntime() - startTime > 1; // wiggle for 1 sec at most
-                        });
-                        // Retract bucket
-                        bucket.backwards();
+                        Cycle dropAndRetract = new Cycle(sweeper, bucket, lift, target, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
+                        dropAndRetract.finish();
+                        dropAndRetract.await();
 
                         currentState = State.TO_DUCK_SPINNER;
                     }
@@ -264,7 +261,6 @@ public class RedDuckWarehouse extends LinearOpMode {
             }
 
             // Anything outside of the switch statement will run independent of the currentState
-            drive.update();
             telemetry.addData("State", currentState);
         }
     }

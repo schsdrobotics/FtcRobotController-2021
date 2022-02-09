@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.red;
 
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.backgroundLoop;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.determineTarget;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pos;
 import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pose;
@@ -119,7 +120,7 @@ public class RedWarehousePark extends LinearOpMode {
                 .lineToLinearHeading(pose(60, -38, 270))
                 .build();
 
-        light.runAuto(this);
+        backgroundLoop(this, drive, light);
 
         while (!opModeIsActive() && !isStopRequested()) {
             camera.tick();
@@ -171,7 +172,6 @@ public class RedWarehousePark extends LinearOpMode {
             }
 
             // Anything outside of the switch statement will run independent of the currentState
-            drive.update();
             telemetry.addData("State", currentState);
         }
     }
