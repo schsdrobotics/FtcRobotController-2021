@@ -199,7 +199,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
                 .setBotDimensions(13.25, 17.25)
-                .followTrajectorySequence(RED_WAREHOUSE::apply)
+                .followTrajectorySequence(REMOTE::apply)
                 .start();
     }
 }

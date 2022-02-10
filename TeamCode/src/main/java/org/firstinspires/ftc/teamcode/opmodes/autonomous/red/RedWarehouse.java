@@ -123,15 +123,15 @@ public class RedWarehouse extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         Trajectory toHubInitial = drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(pose(-5, -42, 280))
+                .lineToLinearHeading(pose(-5, -38, 280))
                 .build();
 
         Trajectory toWarehouse1 = drive.trajectoryBuilder(toHubInitial.end(), false)
-                .splineTo(pos(12, -64), rad(0))
+                .splineTo(pos(12, -61), 0)
                 .build();
 
         Trajectory toWarehouse2 = drive.trajectoryBuilder(toWarehouse1.end(), false)
-                .forward(40)
+                .forward(48)
                 .build();
 
         Trajectory park = drive.trajectoryBuilder(toWarehouse2.end(), false)
@@ -139,8 +139,6 @@ public class RedWarehouse extends LinearOpMode {
                 .splineToConstantHeading(pos(42, -38), rad(0))
                 .lineToSplineHeading(pose(60, -38, 270))
                 .build();
-
-        backgroundLoop(this, drive, light);
 
         while (!opModeIsActive() && !isStopRequested()) {
             camera.tick();
@@ -154,7 +152,8 @@ public class RedWarehouse extends LinearOpMode {
             light.setColor(LightHandler.Color.GREEN);
             telemetry.update();
         }
-
+        // light and drive.update()
+        backgroundLoop(this, drive, light);
         // Run once when started
         target = determineTarget(camera, xCenter);
 
@@ -165,8 +164,9 @@ public class RedWarehouse extends LinearOpMode {
         // Make sure you use the async version of the commands
         // Otherwise it will be blocking and pause the program here until the trajectory finishes
         currentState = State.TO_HUB_INITIAL;
-
+        State last;
         while (opModeIsActive() && !isStopRequested()) {
+            last = currentState;
             // Our state machine logic
             // You can have multiple switch statements running together for multiple state machines
             // in parallel. This is the basic idea for subsystems and commands.
@@ -209,9 +209,7 @@ public class RedWarehouse extends LinearOpMode {
                         if (cycles <= MAX_CYCLES) {
                             currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
                             drive.followTrajectoryAsync(toWarehouse2);
-                            System.out.println("following toWarehouse2");
                             currentCycle.start();
-                            System.out.println("cycle started");
                             // wait for the cycle to finish before running the check for failure once
                             if (currentCycle.await()) { // If this is true, we did NOT pick anything up
                                 // Assume that Cycle is working properly (i.e. the state will not be WAITING), and that there is only one possible error message
@@ -220,12 +218,11 @@ public class RedWarehouse extends LinearOpMode {
                                 currentState = State.PARK;
                             } else {
                                 drive.cancelFollowing();
-                                System.out.println("Cancelled following");
+                                drive.setDrivePower(new Pose2d());
                                 currentState = State.TO_HUB;
                             }
                         } else {
                             drive.followTrajectoryAsync(toWarehouse2);
-                            System.out.println("Cycle limit reached; parking");
                             currentState = State.PARK;
                         }
                     }
@@ -234,12 +231,12 @@ public class RedWarehouse extends LinearOpMode {
                     if (!drive.isBusy()) {
                         // Since we cancel our following, we need to get our start psoition for this trajecotry on the fly
                         drive.followTrajectory(buildHubTrajectory());
-                        System.out.println("Finished following hub trajectory");
                         currentCycle.finish();
                         currentCycle.await();
                         currentCycle = null;
-                        currentState = State.TO_WAREHOUSE;
+                        currentState = State./*TO_WAREHOUSE*/IDLE;
                     }
+                    break;
                 case PARK:
                     if (!drive.isBusy()) {
                         drive.followTrajectoryAsync(park);
@@ -260,10 +257,9 @@ public class RedWarehouse extends LinearOpMode {
     }
 
     private Trajectory buildHubTrajectory() {
-        drive.update(); // just to be absolutely sure that this updates
         return drive.trajectoryBuilder(drive.getPoseEstimate(), true)
-                .lineTo(pos(12, -64))
-                .splineToSplineHeading(pose(-5, -42, 280), rad(100))
+                .lineToLinearHeading(pose(12, -62, 0))
+                .splineToSplineHeading(pose(-5, -38, 280), rad(100))
                 .build();
     }
 }

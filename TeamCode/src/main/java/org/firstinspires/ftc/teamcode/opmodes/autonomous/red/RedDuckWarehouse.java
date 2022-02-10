@@ -141,8 +141,6 @@ public class RedDuckWarehouse extends LinearOpMode {
                 .strafeLeft(15)
                 .build();
 
-        backgroundLoop(this, drive, light);
-
         while (!opModeIsActive() && !isStopRequested()) {
             camera.tick();
             // Get x-coordinate of center of box
@@ -155,7 +153,8 @@ public class RedDuckWarehouse extends LinearOpMode {
             light.setColor(LightHandler.Color.GREEN);
             telemetry.update();
         }
-
+        // light and drive.update()
+        backgroundLoop(this, drive, light);
         //Run once when started
         target = determineTarget(camera, xCenter);
 
