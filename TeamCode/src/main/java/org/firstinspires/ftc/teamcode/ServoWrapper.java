@@ -34,16 +34,6 @@ public class ServoWrapper {
         update();
     }
 
-    public void max() {
-//        servo.setPosition(1);
-        setAndUpdate(LIMIT / 100f);
-    }
-
-    public void min() {
-        servo.setPosition(0);
-//        setAndUpdate(1 - (LIMIT / 100f));
-    }
-
     public static ServoWrapper get(HardwareMap map, String name) {
         return new ServoWrapper(map.get(Servo.class, name), name);
     }

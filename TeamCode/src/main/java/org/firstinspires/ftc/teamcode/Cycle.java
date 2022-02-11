@@ -92,20 +92,20 @@ public class Cycle {
 
             boolean objectPickedUp = distanceCm < 7;
             if (objectPickedUp) {
-                bucket.halfway();
-                waitFor(300); // give bucket time to rotate
-                lift.pursueTarget(targetPosition);
                 if (!preFilled) {
                     sweeper.backwards(1); // spit out extras
-                    waitFor(500);
+                    waitFor(300);
                 }
-
+                bucket.halfway();
+                waitFor(100); // give bucket time to rotate
+                lift.pursueTarget(targetPosition);
                 stage = Stage.BETWEEN;
             } else {
                 holdValues(false);
                 stage = Stage.COMPLETE; // finish early to allow for new cycle
                 errorMessage = "Failed to pick up object; detected distance: " + distanceCm;
             }
+            waitFor(600);
             sweeper.stop();
             sweeper.shouldHoldSpeed = false;
             return objectPickedUp;
