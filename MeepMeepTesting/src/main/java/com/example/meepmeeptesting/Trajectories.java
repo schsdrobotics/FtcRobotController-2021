@@ -13,23 +13,30 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 
 public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
-    RED_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-            .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
-            .lineToSplineHeading(pose(-7, -40, 270))
-            .lineToLinearHeading(pose(-61,-51, 245))
-            .lineToLinearHeading(pose(-71,-51, 270))
+    RED_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, -61.375, 90))
+            .splineToConstantHeading(pos(-57,-38), rad(90))
+            .lineToConstantHeading(pos(-57, -28))
+            .splineToSplineHeading(pose(-30, -24, 180), 0)
+            .waitSeconds(0)
+            .splineToSplineHeading(pose(-50, -22, 270), rad(180))
+            .splineToConstantHeading(pos(-63.375, -35), rad(270))
+            .forward(15)
+            .waitSeconds(1.5)
             .forward(-15)
             .build()),
-    RED_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
-            .lineTo(pos(-12, -45))
-            .lineToLinearHeading(pose(-60, -60, 90))
-            .addTemporalMarker(() -> {
-                // add duck motor here
-            })
-            .waitSeconds(2.5)
-            .splineTo(pos(-20, -60), rad(-10))
-            .splineTo(pos(12, -62), rad(0))
-            .forward(30)
+    RED_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, -61.375, 90))
+            .splineToConstantHeading(pos(-57,-38), rad(90))
+            .lineToConstantHeading(pos(-57, -28))
+            .splineToSplineHeading(pose(-30, -24, 180), 0)
+            .waitSeconds(0)
+            .splineToSplineHeading(pose(-50, -22, 270), rad(180))
+            .splineToConstantHeading(pos(-63.375, -35), rad(270))
+            .forward(15)
+//            .waitSeconds(1.5)
+            .lineToSplineHeading(pose(-55, -48, 0))
+            .splineToConstantHeading(pos(-15, -64), rad(270))
+            .strafeRight(7)
+            .forward(60)
             .build()),
     RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -61.375, 90))
             .lineToLinearHeading(pose(-5, -42, 280))
@@ -186,6 +193,8 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
         }
     }
 
+    public static double stupid = 1e4;
+
     public static void main(String[] args) {
         // Declare a MeepMeep instance
         // With a field size of 800 pixels
@@ -197,9 +206,9 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // Background opacity from 0-1
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(58.5, 58.5, rad(180), rad(180), 13.7)
+                .setConstraints(45*stupid, 45*stupid, rad(180)*stupid, rad(180)*stupid, 13.7)
                 .setBotDimensions(13.25, 17.25)
-                .followTrajectorySequence(REMOTE::apply)
+                .followTrajectorySequence(RED_DUCK_WAREHOUSE::apply)
                 .start();
     }
 }
