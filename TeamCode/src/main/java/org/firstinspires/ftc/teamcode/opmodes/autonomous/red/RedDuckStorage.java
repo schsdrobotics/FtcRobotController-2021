@@ -29,12 +29,6 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.red;
 
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.backgroundLoop;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.calculatePoint;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.determineTarget;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pos;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pose;
-
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
@@ -42,19 +36,9 @@ import androidx.annotation.RequiresApi;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 
-import org.firstinspires.ftc.teamcode.ArmHandler;
-import org.firstinspires.ftc.teamcode.BucketHandler;
-import org.firstinspires.ftc.teamcode.CameraHandler;
-import org.firstinspires.ftc.teamcode.Cycle;
-import org.firstinspires.ftc.teamcode.DuckHandler;
-import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
-import org.firstinspires.ftc.teamcode.LightHandler;
-import org.firstinspires.ftc.teamcode.SweeperHandler;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
 /**
  * Backup for duck side
@@ -62,187 +46,49 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedDuckStorage", group="Red")
-public class RedDuckStorage extends LinearOpMode {
-    // Declare OpMode members.
-    private float xCenter;
-    private LiftHandler.Position target = LiftHandler.Position.HIGH;
-    private CameraHandler camera;
-    private SampleMecanumDrive drive;
-    private DuckHandler duck;
-    private ArmHandler arm;
-    private LiftHandler lift;
-    private BucketHandler bucket;
-    private SweeperHandler sweeper;
-    private IntakeServoHandler intakeServo;
-    private LightHandler light;
-
-    // This enum defines our "state"
-    // This essentially just defines the possible steps our program will take
-    private enum State {
-        TO_HUB_INITIAL,   // Set-up + go to alliance hub
-        DROP_AND_RETRACT,   // drop item + retract bucket
-        TO_DUCK_SPINNER,         // Go to duck spinner
-        DELIVER_DUCKS, // Deliver ducks + lower lift
-        ALIGN, // Align the robot with the wall
-        PARK, // Park in storage area
-        IDLE            // Our bot will enter the IDLE state when done
+public class RedDuckStorage extends AutonomousTemplate {
+    @Override
+    protected Pose2d startPose() {
+        return pose(-35, -61.375, 90);
     }
 
-    // We define the current state we're on
-    // Default to IDLE
-    private State currentState = State.IDLE;
+    Trajectory toHubInitial = drive.trajectoryBuilder(startPose())
+            .splineToConstantHeading(pos(-57,-38), rad(90))
+            .lineToConstantHeading(pos(-57, -28))
+            .splineToSplineHeading(pose(-30, -24, 180), 0)
+            .build();
 
-    private final Pose2d startPose = pose(-35, -62, 90);
+    Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
+            .splineToSplineHeading(pose(-50, -22, 270), rad(180))
+            .splineToConstantHeading(pos(-63.375, -35), rad(270))
+            .forward(15)
+            .build();
 
-    /**
-     * Code to run ONCE when the driver hits INIT
-     */
+    Trajectory park = drive.trajectoryBuilder(toDuckSpinner.end())
+            .forward(-15)
+            .build();
+
     @Override
-    public void runOpMode() throws InterruptedException {
-        drive = new SampleMecanumDrive(hardwareMap);
-        duck = new DuckHandler(hardwareMap, null);
-        arm = new ArmHandler(hardwareMap, null);
-        lift = new LiftHandler(hardwareMap, null, telemetry);
-        bucket = new BucketHandler(hardwareMap, null);
-        sweeper = new SweeperHandler(hardwareMap, null);
-        intakeServo = new IntakeServoHandler(hardwareMap);
-        camera = new CameraHandler(hardwareMap);
-        light = new LightHandler(hardwareMap);
-        light.setColor(LightHandler.Color.YELLOW);
-        telemetry.addData("Status", "Initialized");
-
-        // Assume intakeServo is close to up position
-        intakeServo.hook();
-
-        drive.setPoseEstimate(startPose);
-
-        Trajectory toHubInitial = drive.trajectoryBuilder(startPose)
-                .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
-                .lineToSplineHeading(pose(-7, -40, 270))
-                .build();
-
-        Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
-                .lineToLinearHeading(pose(-61,-51, 245))
-                .build();
-
-        Trajectory align = drive.trajectoryBuilder(toDuckSpinner.end())
-                .lineToLinearHeading(pose(-71,-51, 270))
-                .build();
-
-        Trajectory park = drive.trajectoryBuilder(pose(-64.25, align.end().getY(), 270))
-                .forward(-15)
-                .build();
-
-        while (!opModeIsActive() && !isStopRequested()) {
-            camera.tick();
-            // Get x-coordinate of center of box
-            if (camera.mostConfident != null) {
-                xCenter = (camera.mostConfident.getLeft() + camera.mostConfident.getRight()) / 2;
-                telemetry.addData("xCenter", xCenter);
-                System.out.println(camera.mostConfident.getConfidence());
-            }
-            telemetry.addData("Ready!", "ough nough; what will we dough");
-            light.setColor(LightHandler.Color.GREEN);
-            telemetry.update();
+    public void main() {
+        // Go to alliance hub
+        drive.followTrajectory(toHubInitial);
+        // Drop and retract
+        currentCycle.finish();
+        currentCycle.await();
+        // Go to duck spinner
+        drive.followTrajectory(toDuckSpinner);
+        // Lower lift
+        lift.pursueTarget(LiftHandler.Position.LOW);
+        // Run duck spinner for 1.5 seconds
+        double startTime = getRuntime();
+        while (getRuntime() - startTime < 1.5) {
+            duck.tick();
+            duck.start(); // red does not need reversing
         }
-        // light and drive.update()
-        backgroundLoop(this, drive, light);
-        //Run once when started
-        target = determineTarget(camera, xCenter);
-
-        // Set the current state to TO_HUB_INITIAL, our first step
-        // Then have it follow that trajectory
-        // Make sure you use the async version of the commands
-        // Otherwise it will be blocking and pause the program here until the trajectory finishes
-        currentState = State.TO_HUB_INITIAL;
-
-        while (opModeIsActive() && !isStopRequested()) {
-            // Our state machine logic
-            // You can have multiple switch statements running together for multiple state machines
-            // in parallel. This is the basic idea for subsystems and commands.
-
-            // We essentially define the flow of the state machine through this switch statement
-            switch (currentState) {
-                case TO_HUB_INITIAL:
-                    // Check if the drive class isn't busy
-                    // `isBusy() == true` while it's following the trajectory
-                    // Once `isBusy() == false`, the trajectory follower signals that it is finished
-                    // We move on to the next state
-                    // Make sure we use the async follow function
-                    if (!drive.isBusy()) {
-                        // Raise arm
-                        arm.onStart();
-                        // Drop intake
-                        intakeServo.release();
-                        // Make bucket stand straight up
-                        bucket.halfway();
-                        // Raise lift
-                        lift.pursueTarget(target);
-                        // Go to alliance hub
-                        drive.followTrajectoryAsync(toHubInitial);
-
-                        currentState = State.DROP_AND_RETRACT;
-                    }
-                    break;
-                case DROP_AND_RETRACT:
-                    if (!drive.isBusy()) {
-                        Cycle dropAndRetract = new Cycle(sweeper, bucket, lift, target, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
-                        dropAndRetract.finish();
-                        dropAndRetract.await();
-
-                        currentState = State.TO_DUCK_SPINNER;
-                    }
-                    break;
-                case TO_DUCK_SPINNER:
-                    if (!drive.isBusy()) {
-                        // Go to duck spinner
-                        drive.followTrajectoryAsync(toDuckSpinner);
-
-                        currentState = State.DELIVER_DUCKS;
-                    }
-                    break;
-                case DELIVER_DUCKS:
-                    if (!drive.isBusy()) {
-                        // Lower lift
-                        lift.pursueTarget(LiftHandler.Position.LOW);
-                        // Run duck spinner for 2.5 seconds
-                        double startTime = getRuntime();
-                        while (getRuntime() - startTime < 1.5) {
-                            duck.tick();
-                            duck.start(); // red does not need reversing
-                        }
-                        // Stop duck motor
-                        duck.stop();
-                        duck.tick();
-                        currentState = State.ALIGN;
-                    }
-                    break;
-                case ALIGN:
-                    if (!drive.isBusy()) {
-                        // Align
-                        drive.followTrajectoryAsync(align);
-
-                        currentState = State.PARK;
-                    }
-                    break;
-                case PARK:
-                    if (!drive.isBusy()) {
-                        // Park
-                        drive.followTrajectoryAsync(park);
-
-                        currentState = State.IDLE;
-                    }
-                    break;
-                case IDLE:
-                    // Do nothing in IDLE
-                    // currentState does not change once in IDLE
-                    // This concludes the autonomous program
-                    break;
-            }
-
-            // Anything outside of the switch statement will run independent of the currentState
-            drive.update();
-            telemetry.addData("State", currentState);
-        }
+        // Stop duck motor
+        duck.stop();
+        duck.tick();
+        // Park
+        drive.followTrajectory(park);
     }
 }
