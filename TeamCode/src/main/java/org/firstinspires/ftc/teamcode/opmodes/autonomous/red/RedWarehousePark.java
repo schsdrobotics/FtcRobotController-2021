@@ -53,7 +53,7 @@ public class RedWarehousePark extends AutonomousTemplate {
     }
 
     @Override
-    public void setup() {}
+    public void setup() { target = LiftHandler.Position.LOW; }
 
     @Override
     public void main() {

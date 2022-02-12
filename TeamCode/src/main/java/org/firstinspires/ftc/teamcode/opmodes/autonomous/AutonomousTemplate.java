@@ -63,10 +63,10 @@ public abstract class AutonomousTemplate extends LinearOpMode {
 
         setup();
 
-        // Raise arm
-        arm.onStart();
-        // Drop intake
-        intakeServo.release();
+        // Make bucket stand straight up
+        bucket.halfway();
+        // Raise lift
+        lift.pursueTarget(target);
 
         main();
     }
@@ -171,10 +171,10 @@ public abstract class AutonomousTemplate extends LinearOpMode {
 
         currentCycle = new Cycle(sweeper, bucket, lift, target, distanceSensor);
 
-        // Make bucket stand straight up
-        bucket.halfway();
-        // Raise lift
-        lift.pursueTarget(target);
+        // Raise arm
+        arm.onStart();
+        // Drop intake
+        intakeServo.release();
     }
 
     /**
