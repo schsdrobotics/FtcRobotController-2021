@@ -53,13 +53,11 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
     RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -61.375, 90))
-            // FIXME change this so we don't bonk the barrier
-            .forward(10)
-            .turn(rad(-90))
-            .strafeRight(17)
-            .forward(18)
-            .addTemporalMarker(() -> drive.setPoseEstimate(pose(12, -63.375, 0)))
-            .splineToConstantHeading(pos(42, -38), rad(0))
+            .splineToLinearHeading(pose(6, -55, 0), rad(270))
+            .strafeRight(14)
+            .addTemporalMarker(() -> drive.setPoseEstimate(pose(6, -63.375, 0)))
+            .forward(27)
+            .splineToConstantHeading(pos(44, -38), rad(0))
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
     BLUE_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
@@ -208,7 +206,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(45*stupid, 45*stupid, rad(180)*stupid, rad(180)*stupid, 13.7)
                 .setBotDimensions(13.25, 17.25)
-                .followTrajectorySequence(RED_DUCK_WAREHOUSE::apply)
+                .followTrajectorySequence(RED_WAREHOUSE_PARK::apply)
                 .start();
     }
 }

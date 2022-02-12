@@ -47,9 +47,28 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedWarehousePark", group="Red")
 public class RedWarehousePark extends AutonomousTemplate {
+    Trajectory out;
+    Trajectory align;
+    Trajectory park;
+
     @Override
     protected Pose2d startPose() {
         return pose(12, -61.375, 90);
+    }
+
+    @Override
+    public void initializeTrajectories() {
+        out = drive.trajectoryBuilder(startPose())
+                .splineToLinearHeading(pose(6, -55, 0), rad(270))
+                .build();
+        align = drive.trajectoryBuilder(out.end())
+                .strafeRight(14)
+                .build();
+        park = drive.trajectoryBuilder(pose(align.end().getX(), -63.375, 0))
+                .forward(27)
+                .splineToConstantHeading(pos(44, -38), rad(0))
+                .lineToSplineHeading(pose(60, -38, 270))
+                .build();
     }
 
     @Override
@@ -57,15 +76,13 @@ public class RedWarehousePark extends AutonomousTemplate {
 
     @Override
     public void main() {
-        Trajectory park = drive.trajectoryBuilder(startPose())
-                .forward(30)
-                .strafeLeft(24)
-                .lineToLinearHeading(pose(60, -38, 270))
-                .build();
-
-        // Align
-        drive.turn(rad(-90));
-        // Park
+        //Go out
+        drive.followTrajectory(out);
+        //Align
+        drive.followTrajectory(align);
+        //Set pose estimate since we just bonked against the wall
+        drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 0));
+        //Park
         drive.followTrajectory(park);
     }
 }

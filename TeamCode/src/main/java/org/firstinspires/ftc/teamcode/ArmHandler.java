@@ -24,7 +24,6 @@ public class ArmHandler {
     }
 
     public void tick() {
-        System.out.println("vert: " + vertical.servo.getPosition() + "; hoz: " + horizontal.servo.getPosition());
         if (controller != null) {
             //Horizontal servo is continuous
             if (controller.dpad_right) {  // if we want this on a joystick, change the condition to controller.left_stick_x != 0 etc.

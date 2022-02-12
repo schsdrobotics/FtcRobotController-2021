@@ -31,11 +31,11 @@ public class BucketHandler {
      }
 
      public void forwards() {
-         servo.min();
+         servo.setAndUpdate(0.15);
      }
 
      public void backwards() {
-        servo.setAndUpdate(0.9);
+        servo.setAndUpdate(0.85);
      }
 
      public void halfway() {
@@ -48,9 +48,9 @@ public class BucketHandler {
     public void wiggleUntil(Supplier<Boolean> test) {
          for (int i = 0; i < 15; i++) {
              halfway();
-             waitFor(25);
+             waitFor(100);
              forwards();
-             waitFor(25);
+             waitFor(100);
              if (test.get()) return;
          }
      }

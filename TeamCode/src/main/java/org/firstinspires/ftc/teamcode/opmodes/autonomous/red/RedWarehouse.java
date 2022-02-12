@@ -55,6 +55,11 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedWarehouse", group="Red")
 public class RedWarehouse extends AutonomousTemplate {
+    Trajectory toHubInitial;
+    Trajectory toWarehouse1;
+    Trajectory toWarehouse2;
+    Trajectory park;
+
     private final int MAX_CYCLES = 3;
 
     @Override
@@ -63,26 +68,28 @@ public class RedWarehouse extends AutonomousTemplate {
     }
 
     @Override
-    public void main() {
-
-        Trajectory toHubInitial = drive.trajectoryBuilder(startPose())
+    public void initializeTrajectories() {
+        toHubInitial = drive.trajectoryBuilder(startPose())
                 .lineToLinearHeading(pose(-5, -38, 280))
                 .build();
 
-        Trajectory toWarehouse1 = drive.trajectoryBuilder(toHubInitial.end(), false)
+        toWarehouse1 = drive.trajectoryBuilder(toHubInitial.end(), false)
                 .splineTo(pos(12, -61), 0)
                 .build();
 
-        Trajectory toWarehouse2 = drive.trajectoryBuilder(toWarehouse1.end(), false)
+        toWarehouse2 = drive.trajectoryBuilder(toWarehouse1.end(), false)
                 .forward(48)
                 .build();
 
-        Trajectory park = drive.trajectoryBuilder(toWarehouse2.end(), false)
+        park = drive.trajectoryBuilder(toWarehouse2.end(), false)
                 .forward(-6)
                 .splineToConstantHeading(pos(42, -38), rad(0))
                 .lineToSplineHeading(pose(60, -38, 270))
                 .build();
+    }
 
+    @Override
+    public void main() {
         // Go to alliance hub
         drive.followTrajectory(toHubInitial);
         // Drop and retract

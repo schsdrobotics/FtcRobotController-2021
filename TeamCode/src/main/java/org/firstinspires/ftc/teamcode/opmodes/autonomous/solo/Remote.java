@@ -29,10 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.solo;
 
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.calculatePoint;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pos;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pose;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.rad;
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate.*;
 
 import android.os.Build;
 

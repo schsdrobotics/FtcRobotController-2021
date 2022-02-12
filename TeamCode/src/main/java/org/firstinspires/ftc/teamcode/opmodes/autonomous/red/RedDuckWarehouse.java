@@ -47,36 +47,45 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedDuckWarehouse", group="Red")
 public class RedDuckWarehouse extends AutonomousTemplate {
+    Trajectory toHubInitial;
+    Trajectory toDuckSpinner;
+    Trajectory align;
+    Trajectory toWarehouse;
+    Trajectory park;
+
     @Override
     protected Pose2d startPose() {
         return pose(-35, -61.375, 90);
     }
 
-    Trajectory toHubInitial = drive.trajectoryBuilder(startPose())
-            .splineToConstantHeading(pos(-57,-38), rad(90))
-            .lineToConstantHeading(pos(-57, -28))
-            .splineToSplineHeading(pose(-30, -24, 180), 0)
-            .build();
+    @Override
+    public void initializeTrajectories() {
+        toHubInitial = drive.trajectoryBuilder(startPose())
+                .splineToConstantHeading(pos(-57,-38), rad(90))
+                .lineToConstantHeading(pos(-57, -23))
+                .splineToSplineHeading(pose(-30, -19, 180), 0)
+                .build();
 
-    Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
-            .splineToSplineHeading(pose(-50, -22, 270), rad(180))
-            .splineToConstantHeading(pos(-63.375, -35), rad(270))
-            .forward(15)
-            .build();
+        toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
+                .splineToSplineHeading(pose(-50, -17, 270), rad(180))
+                .splineToConstantHeading(pos(-65, -35), rad(270))
+                .forward(18)
+                .build();
 
-    Trajectory align = drive.trajectoryBuilder(toDuckSpinner.end())
-            .lineToSplineHeading(pose(-55, -48, 0))
-            .splineToConstantHeading(pos(-15, -64), rad(270))
-            .strafeRight(7)
-            .build();
+        align = drive.trajectoryBuilder(toDuckSpinner.end())
+                .lineToSplineHeading(pose(-55, -48, 0))
+                .splineToConstantHeading(pos(-15, -64), rad(270))
+                .strafeRight(7)
+                .build();
 
-    Trajectory toWarehouse = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))
-            .forward(60)
-            .build();
+        toWarehouse = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))
+                .forward(60)
+                .build();
 
-    Trajectory park = drive.trajectoryBuilder(toWarehouse.end())
-            .strafeLeft(15)
-            .build();
+        park = drive.trajectoryBuilder(toWarehouse.end())
+                .strafeLeft(15)
+                .build();
+    }
 
     @Override
     public void main() {

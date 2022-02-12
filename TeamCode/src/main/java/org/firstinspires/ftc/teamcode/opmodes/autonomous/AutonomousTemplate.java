@@ -32,16 +32,16 @@ public abstract class AutonomousTemplate extends LinearOpMode {
     protected LiftHandler.Position target = LiftHandler.Position.HIGH;
 
     // Declare all hardware-related fields
-    protected CameraHandler camera = new CameraHandler(hardwareMap);
-    protected SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-    protected DuckHandler duck = new DuckHandler(hardwareMap, null);
-    protected ArmHandler arm = new ArmHandler(hardwareMap, null);
-    protected LiftHandler lift = new LiftHandler(hardwareMap, null, telemetry);
-    protected BucketHandler bucket = new BucketHandler(hardwareMap, null);
-    protected SweeperHandler sweeper = new SweeperHandler(hardwareMap, null);
-    protected IntakeServoHandler intakeServo = new IntakeServoHandler(hardwareMap);
-    protected LightHandler light = new LightHandler(hardwareMap);
-    protected DistanceSensor distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
+    protected CameraHandler camera;
+    protected SampleMecanumDrive drive;
+    protected DuckHandler duck;
+    protected ArmHandler arm;
+    protected LiftHandler lift;
+    protected BucketHandler bucket;
+    protected SweeperHandler sweeper;
+    protected IntakeServoHandler intakeServo;
+    protected LightHandler light;
+    protected DistanceSensor distanceSensor;
     protected Cycle currentCycle;
     
     protected static final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -50,6 +50,18 @@ public abstract class AutonomousTemplate extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        // Initialize hardware
+        camera = new CameraHandler(hardwareMap);
+        drive = new SampleMecanumDrive(hardwareMap);
+        duck = new DuckHandler(hardwareMap, null);
+        arm = new ArmHandler(hardwareMap, null);
+        lift = new LiftHandler(hardwareMap, null, telemetry);
+        bucket = new BucketHandler(hardwareMap, null);
+        sweeper = new SweeperHandler(hardwareMap, null);
+        intakeServo = new IntakeServoHandler(hardwareMap);
+        light = new LightHandler(hardwareMap);
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
+
         light.setColor(LightHandler.Color.YELLOW);
         telemetry.addData("Status", "Initialized");
 
@@ -61,6 +73,8 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         // light and drive.update()
         backgroundLoop();
 
+        initializeTrajectories();
+
         setup();
 
         // Raise arm + lift bucket halfway
@@ -70,23 +84,23 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         main();
     }
 
-    public double rad(double deg) {
+    public static double rad(double deg) {
         return Math.toRadians(deg);
     }
 
-    public Vector2d pos(double x, double y) {
+    public static Vector2d pos(double x, double y) {
         return new Vector2d(x, y);
     }
 
-    public Vector2d pos(double pos) {
+    public static Vector2d pos(double pos) {
         return pos(pos, pos);
     }
 
-    public Pose2d pose(double x, double y, double deg) {
+    public static Pose2d pose(double x, double y, double deg) {
         return new Pose2d(x, y, rad(deg));
     }
 
-    public double calculatePoint(double x1, double y1, double x2, double y2, boolean x, double xory) {
+    public static double calculatePoint(double x1, double y1, double x2, double y2, boolean x, double xory) {
         if (x) {
             double slope = ((y2-y1)/(x2-x1));
             return slope*(xory - x1) + y1;
@@ -146,6 +160,11 @@ public abstract class AutonomousTemplate extends LinearOpMode {
             light.setColor(LightHandler.Color.OFF);
         });
     }
+
+    /**
+     * Trajectories need to be declared as fields and initialized here.
+     */
+    public abstract void initializeTrajectories();
 
     /**
      * In short, acts like the init() and start() methods combined.
