@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class ServoWrapper {
-    public static final int LIMIT = 95;
+    public static final int LIMIT = 100;
     public final Servo servo;
     public final String name;
     private double pos;

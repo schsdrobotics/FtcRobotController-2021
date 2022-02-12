@@ -32,7 +32,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineToSplineHeading(pose(-50, -22, 270), rad(180))
             .splineToConstantHeading(pos(-63.375, -35), rad(270))
             .forward(15)
-            .waitSeconds(1.5)
+//            .waitSeconds(1.5)
             .lineToSplineHeading(pose(-55, -48, 0))
             .splineToConstantHeading(pos(-15, -64), rad(270))
             .strafeRight(7)
@@ -193,7 +193,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
         }
     }
 
-    public static double stupid = 1;
+    public static double stupid = 1e4;
 
     public static void main(String[] args) {
         // Declare a MeepMeep instance

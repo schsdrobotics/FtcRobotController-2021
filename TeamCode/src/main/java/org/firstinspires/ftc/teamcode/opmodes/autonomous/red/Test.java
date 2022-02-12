@@ -73,32 +73,33 @@ public class Test extends LinearOpMode {
         lift = new LiftHandler(hardwareMap, null, telemetry);
         bucket = new BucketHandler(hardwareMap, null);
         sweeper = new SweeperHandler(hardwareMap, null);
+        waitForStart();
 
-        telemetry.setAutoClear(false);
-        telemetry.addLine("back");
-        telemetry.update();
-        long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < 2000) {
-            bucket.backwards();
-        }
-        telemetry.addData("servoPos", bucket.servo.servo.getPosition());
-        telemetry.addLine("half");
-        telemetry.update();
-        start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < 2000) {
-            bucket.halfway();
-        }
-        telemetry.addData("servoPos", bucket.servo.servo.getPosition());
-        telemetry.addLine("forward");
-        telemetry.update();
-        start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < 2000) {
-            bucket.forwards();
-        }
-        telemetry.addData("servoPos", bucket.servo.servo.getPosition());
-        telemetry.addLine("done");
-        telemetry.update();
-        sleep(10000);
+//        telemetry.setAutoClear(false);
+//        telemetry.addLine("back");
+//        telemetry.update();
+//        long start = System.currentTimeMillis();
+//        while (System.currentTimeMillis() - start < 2000) {
+//            bucket.backwards();
+//        }
+//        telemetry.addData("servoPos", bucket.servo.servo.getPosition());
+//        telemetry.addLine("half");
+//        telemetry.update();
+//        start = System.currentTimeMillis();
+//        while (System.currentTimeMillis() - start < 2000) {
+//            bucket.halfway();
+//        }
+//        telemetry.addData("servoPos", bucket.servo.servo.getPosition());
+//        telemetry.addLine("forward");
+//        telemetry.update();
+//        start = System.currentTimeMillis();
+//        while (System.currentTimeMillis() - start < 2000) {
+//            bucket.forwards();
+//        }
+//        telemetry.addData("servoPos", bucket.servo.servo.getPosition());
+//        telemetry.addLine("done");
+//        telemetry.update();
+
 //        Cycle currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
 //        System.out.println("start");
 //        currentCycle.start();
@@ -109,5 +110,8 @@ public class Test extends LinearOpMode {
 //        currentCycle.finish();
 //        System.out.println("await");
 //        currentCycle.await();
+
+        bucket.forwards();
+        while (opModeIsActive() && !isStopRequested());
     }
 }

@@ -17,34 +17,44 @@ public class BucketHandler {
 
     public BucketHandler(HardwareMap map, Gamepad controller) {
         this.controller = controller;
-        servo = ServoWrapper.get(map, "bucketServo");
+        servo = ServoWrapper.get(map, "test");
+        servo.servo.resetDeviceConfigurationForOpMode();
     }
 
     public void tick() {
+        System.out.println("pos: " + servo.servo.getPosition());
         if (controller != null && !shouldHoldPos) {
-            System.out.println("tick");
-            if (controller.right_trigger <= 0.1) backwards();
+            if (controller.right_trigger <= 0.1) {
+                backwards();
+            }
             else {
-                if (controller.left_trigger <= 0.1) halfway();
-                else forwards();
+                if (controller.left_trigger <= 0.1) {
+                    halfway();
+                }
+                else {
+                    forwards();
+                }
             }
         }
         servo.update();
     }
 
     public void forwards() {
-        servo.setAndUpdate(0);
-        System.out.println("forwards");
+//        servo.setAndUpdate(0.05);
+//        System.out.println("forwards");
+        servo.servo.setPosition(0.1);
     }
 
     public void backwards() {
-        servo.setAndUpdate(0.9);
-        System.out.println("backwards");
+//        servo.setAndUpdate(0.99);
+//        System.out.println("backwards");
+        servo.servo.setPosition(0.9);
     }
 
     public void halfway() {
-        System.out.println("halfway");
-        servo.setAndUpdate(0.5);
+//        System.out.println("halfway");
+//        servo.setAndUpdate(0.5);
+        servo.servo.setPosition(0.5);
     }
 
     /**

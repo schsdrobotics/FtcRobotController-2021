@@ -102,7 +102,6 @@ public class CameraHandler {
 
     public CameraHandler(HardwareMap map) {
         hardwareMap = map;
-        System.out.println(VUFORIA_KEY);
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
