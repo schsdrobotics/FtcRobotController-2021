@@ -49,37 +49,37 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 public class RedDuckWarehouse extends AutonomousTemplate {
     @Override
     protected Pose2d startPose() {
-        return pose(-35, -62, 90);
+        return pose(-35, -61.375, 90);
     }
 
-    /**
-     * Code to run ONCE when the driver hits INIT
-     */
+    Trajectory toHubInitial = drive.trajectoryBuilder(startPose())
+            .splineToConstantHeading(pos(-57,-38), rad(90))
+            .lineToConstantHeading(pos(-57, -28))
+            .splineToSplineHeading(pose(-30, -24, 180), 0)
+            .build();
+
+    Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
+            .splineToSplineHeading(pose(-50, -22, 270), rad(180))
+            .splineToConstantHeading(pos(-63.375, -35), rad(270))
+            .forward(15)
+            .build();
+
+    Trajectory align = drive.trajectoryBuilder(toDuckSpinner.end())
+            .lineToSplineHeading(pose(-55, -48, 0))
+            .splineToConstantHeading(pos(-15, -64), rad(270))
+            .strafeRight(7)
+            .build();
+
+    Trajectory toWarehouse = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))
+            .forward(60)
+            .build();
+
+    Trajectory park = drive.trajectoryBuilder(toWarehouse.end())
+            .strafeLeft(15)
+            .build();
+
     @Override
     public void main() {
-        Trajectory toHubInitial = drive.trajectoryBuilder(startPose())
-                .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
-                .lineToSplineHeading(pose(-7, -40, 270))
-                .build();
-
-        Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
-                .lineToLinearHeading(pose(-61,-51, 245))
-                .build();
-
-        Trajectory align = drive.trajectoryBuilder(toDuckSpinner.end())
-                .lineToSplineHeading(pose(-55, -48, 0))
-                .splineToConstantHeading(pos(-15, -64), rad(270))
-                .strafeRight(7)
-                .build();
-
-        Trajectory toWarehouse = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))
-                .forward(60)
-                .build();
-
-        Trajectory park = drive.trajectoryBuilder(toWarehouse.end())
-                .strafeLeft(15)
-                .build();
-
         // Go to alliance hub
         drive.followTrajectory(toHubInitial);
         // Drop and retract
@@ -98,6 +98,8 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Stop duck motor
         duck.stop();
         duck.tick();
+        //Wait until there's 8 seconds left
+        while (getRuntime() < 22);
         // Align
         drive.followTrajectory(align);
         // Go to warehouse

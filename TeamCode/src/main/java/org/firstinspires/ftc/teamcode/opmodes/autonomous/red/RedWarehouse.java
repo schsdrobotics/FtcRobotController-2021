@@ -29,12 +29,6 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.red;
 
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.backgroundLoop;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.determineTarget;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pos;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pose;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.rad;
-
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;

@@ -49,31 +49,27 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 public class RedDuckStorage extends AutonomousTemplate {
     @Override
     protected Pose2d startPose() {
-        return pose(-35, -62, 90);
+        return pose(-35, -61.375, 90);
     }
 
-    /**
-     * Code to run ONCE when the driver hits INIT
-     */
+    Trajectory toHubInitial = drive.trajectoryBuilder(startPose())
+            .splineToConstantHeading(pos(-57,-38), rad(90))
+            .lineToConstantHeading(pos(-57, -28))
+            .splineToSplineHeading(pose(-30, -24, 180), 0)
+            .build();
+
+    Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
+            .splineToSplineHeading(pose(-50, -22, 270), rad(180))
+            .splineToConstantHeading(pos(-63.375, -35), rad(270))
+            .forward(15)
+            .build();
+
+    Trajectory park = drive.trajectoryBuilder(toDuckSpinner.end())
+            .forward(-15)
+            .build();
+
     @Override
     public void main() {
-        Trajectory toHubInitial = drive.trajectoryBuilder(startPose())
-                .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
-                .lineToSplineHeading(pose(-7, -40, 270))
-                .build();
-
-        Trajectory toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
-                .lineToLinearHeading(pose(-61,-51, 245))
-                .build();
-
-        Trajectory align = drive.trajectoryBuilder(toDuckSpinner.end())
-                .lineToLinearHeading(pose(-71,-51, 270))
-                .build();
-
-        Trajectory park = drive.trajectoryBuilder(pose(-64.25, align.end().getY(), 270))
-                .forward(-15)
-                .build();
-
         // Go to alliance hub
         drive.followTrajectory(toHubInitial);
         // Drop and retract
@@ -83,7 +79,7 @@ public class RedDuckStorage extends AutonomousTemplate {
         drive.followTrajectory(toDuckSpinner);
         // Lower lift
         lift.pursueTarget(LiftHandler.Position.LOW);
-        // Run duck spinner for 2.5 seconds
+        // Run duck spinner for 1.5 seconds
         double startTime = getRuntime();
         while (getRuntime() - startTime < 1.5) {
             duck.tick();
@@ -92,8 +88,6 @@ public class RedDuckStorage extends AutonomousTemplate {
         // Stop duck motor
         duck.stop();
         duck.tick();
-        // Align
-        drive.followTrajectory(align);
         // Park
         drive.followTrajectory(park);
     }
