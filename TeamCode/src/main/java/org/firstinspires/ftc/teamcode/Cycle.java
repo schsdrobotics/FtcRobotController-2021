@@ -4,7 +4,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LiftHandler.Position;
@@ -35,17 +35,17 @@ public class Cycle {
     private final BucketHandler bucket;
     private final LiftHandler lift;
     private final Position targetPosition;
-    private final DistanceSensor distanceSensor;
+    private final ColorSensorHandler colorSensor;
     public volatile Stage stage = Stage.WAITING;
     public volatile String errorMessage = "";
 
     public Cycle(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
-                 Position targetPosition, DistanceSensor distanceSensor) {
+                 Position targetPosition, ColorSensorHandler colorSensor) {
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
         this.targetPosition = targetPosition;
-        this.distanceSensor = distanceSensor;
+        this.colorSensor = colorSensor;
     }
 
     /**
@@ -183,5 +183,9 @@ public class Cycle {
         public boolean isBusy() {
             return this == IN_START || this == IN_FINISH;
         }
+    }
+
+    private boolean detectedFreight() {
+
     }
 }

@@ -7,7 +7,7 @@ import androidx.annotation.RequiresApi;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
@@ -41,7 +41,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
     protected SweeperHandler sweeper;
     protected IntakeServoHandler intakeServo;
     protected LightHandler light;
-    protected DistanceSensor distanceSensor;
+    protected ColorSensor colorSensor;
     protected Cycle currentCycle;
     
     protected static final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -60,7 +60,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         sweeper = new SweeperHandler(hardwareMap, null);
         intakeServo = new IntakeServoHandler(hardwareMap);
         light = new LightHandler(hardwareMap);
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
+        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
 
         light.setColor(LightHandler.Color.YELLOW);
         telemetry.addData("Status", "Initialized");
@@ -78,7 +78,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         setup();
 
         // Raise arm + lift bucket halfway
-        currentCycle = new Cycle(sweeper, bucket, lift, target, distanceSensor);
+        currentCycle = new Cycle(sweeper, bucket, lift, target, colorSensor);
         currentCycle.start();
 
         main();

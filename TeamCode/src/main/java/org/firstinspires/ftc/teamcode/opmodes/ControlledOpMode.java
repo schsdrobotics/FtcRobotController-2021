@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
+import org.firstinspires.ftc.teamcode.ColorSensorHandler;
 import org.firstinspires.ftc.teamcode.CycleHandler;
 import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
@@ -89,6 +90,7 @@ public class ControlledOpMode extends OpMode {
     private CycleHandler cycles;
     private IntakeServoHandler intakeServo;
     private LightHandler light;
+    private ColorSensorHandler colorSensor;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -102,15 +104,13 @@ public class ControlledOpMode extends OpMode {
         duck = new DuckHandler(hardwareMap, gamepad2);
         arm = new ArmHandler(hardwareMap, gamepad2);
         light = new LightHandler(hardwareMap);
+        colorSensor = new ColorSensorHandler(hardwareMap);
         cycles = new CycleHandler(
                 sweeper, 
                 bucket, 
                 lift, 
                 gamepad1,
-                hardwareMap.get(
-                        DistanceSensor.class, 
-                        "distanceSensor"
-                ),
+                colorSensor,
                 light,
                 telemetry
         );

@@ -22,20 +22,20 @@ public class CycleHandler {
     private final LiftHandler lift;
     private final LightHandler light;
     private final Gamepad controller;
-    private final DistanceSensor distanceSensor;
+    private final ColorSensorHandler colorSensor;
     private Position targetPosition = Position.HIGH;
     private Cycle currentCycle = null;
     private String cycleData = "";
 
     public CycleHandler(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
-                        Gamepad controller, DistanceSensor distanceSensor,
+                        Gamepad controller, ColorSensorHandler colorSensor,
                         LightHandler light, Telemetry telemetry) {
         this.telemetry = telemetry;
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
         this.controller = controller;
-        this.distanceSensor = distanceSensor;
+        this.colorSensor = colorSensor;
         this.light = light;
     }
 
@@ -60,7 +60,7 @@ public class CycleHandler {
             telemetry.addData("Stage", currentCycle.stage);
         }
         telemetry.addData("Target", targetPosition);
-        telemetry.addData("Current detected distance (cm)", distanceSensor.getDistance(DistanceUnit.CM));
+        telemetry.addData("Current detected distance (cm)", colorSensor.getRGBValues());
         if (!cycleData.isEmpty()) {
             telemetry.addData("Cycle data", cycleData);
         }
@@ -91,7 +91,7 @@ public class CycleHandler {
                 currentCycle.finish();
                 light.setColor(LightHandler.Color.GREEN);
             } else if (currentCycle == null) {
-                currentCycle = new Cycle(sweeper, bucket, lift, targetPosition, distanceSensor);
+                currentCycle = new Cycle(sweeper, bucket, lift, targetPosition, colorSensor);
                 currentCycle.start();
                 light.setColor(LightHandler.Color.GREEN);
             }
