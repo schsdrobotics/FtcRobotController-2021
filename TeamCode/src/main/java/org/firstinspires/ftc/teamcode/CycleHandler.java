@@ -4,15 +4,10 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LiftHandler.Position;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class CycleHandler {
@@ -60,7 +55,7 @@ public class CycleHandler {
             telemetry.addData("Stage", currentCycle.stage);
         }
         telemetry.addData("Target", targetPosition);
-        telemetry.addData("Current detected distance (cm)", colorSensor.getRGBValues());
+        telemetry.addData("Current detected RGB", colorSensor.getRGBValues());
         if (!cycleData.isEmpty()) {
             telemetry.addData("Cycle data", cycleData);
         }

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.CameraHandler;
+import org.firstinspires.ftc.teamcode.ColorSensorHandler;
 import org.firstinspires.ftc.teamcode.Cycle;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
@@ -41,7 +42,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
     protected SweeperHandler sweeper;
     protected IntakeServoHandler intakeServo;
     protected LightHandler light;
-    protected ColorSensor colorSensor;
+    protected ColorSensorHandler colorSensor;
     protected Cycle currentCycle;
     
     protected static final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -60,7 +61,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         sweeper = new SweeperHandler(hardwareMap, null);
         intakeServo = new IntakeServoHandler(hardwareMap);
         light = new LightHandler(hardwareMap);
-        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
+        colorSensor = new ColorSensorHandler(hardwareMap);
 
         light.setColor(LightHandler.Color.YELLOW);
         telemetry.addData("Status", "Initialized");
