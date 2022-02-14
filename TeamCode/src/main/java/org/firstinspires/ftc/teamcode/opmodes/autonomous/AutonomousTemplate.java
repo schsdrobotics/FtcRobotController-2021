@@ -7,12 +7,11 @@ import androidx.annotation.RequiresApi;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.CameraHandler;
-import org.firstinspires.ftc.teamcode.ColorSensorHandler;
 import org.firstinspires.ftc.teamcode.Cycle;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
@@ -42,9 +41,9 @@ public abstract class AutonomousTemplate extends LinearOpMode {
     protected SweeperHandler sweeper;
     protected IntakeServoHandler intakeServo;
     protected LightHandler light;
-    protected ColorSensorHandler colorSensor;
+    protected DistanceSensor distanceSensor;
     protected Cycle currentCycle;
-    
+
     protected static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     protected abstract Pose2d startPose();
@@ -61,7 +60,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         sweeper = new SweeperHandler(hardwareMap, null);
         intakeServo = new IntakeServoHandler(hardwareMap);
         light = new LightHandler(hardwareMap);
-        colorSensor = new ColorSensorHandler(hardwareMap);
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
         light.setColor(LightHandler.Color.YELLOW);
         telemetry.addData("Status", "Initialized");
@@ -79,7 +78,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         setup();
 
         // Raise arm + lift bucket halfway
-        currentCycle = new Cycle(sweeper, bucket, lift, target, colorSensor);
+        currentCycle = new Cycle(sweeper, bucket, lift, target, distanceSensor);
         currentCycle.start();
 
         main();
@@ -131,27 +130,27 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         executor.submit(() -> {
             // Set up to blink robopandas in morse code
             light
-                .pause()
-                //R
-                .dot().dash().dot().pause()
-                //O
-                .dash().dash().dash().pause()
-                //B
-                .dash().dot().dot().dot().pause()
-                //O
-                .dash().dash().dash().pause()
-                //P
-                .dot().dash().dash().dot().pause()
-                //A
-                .dot().dash().pause()
-                //N
-                .dash().dot().pause()
-                //D
-                .dash().dot().dot().pause()
-                //A
-                .dot().dash().pause()
-                //S
-                .dot().dot().dot();
+                    .pause()
+                    //R
+                    .dot().dash().dot().pause()
+                    //O
+                    .dash().dash().dash().pause()
+                    //B
+                    .dash().dot().dot().dot().pause()
+                    //O
+                    .dash().dash().dash().pause()
+                    //P
+                    .dot().dash().dash().dot().pause()
+                    //A
+                    .dot().dash().pause()
+                    //N
+                    .dash().dot().pause()
+                    //D
+                    .dash().dot().dot().pause()
+                    //A
+                    .dot().dash().pause()
+                    //S
+                    .dot().dot().dot();
             waitForStart();
             light.resetTimer();
             while (opModeIsActive() && !isStopRequested()) {

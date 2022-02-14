@@ -36,6 +36,7 @@ import androidx.annotation.RequiresApi;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.teamcode.Cycle;
 import org.firstinspires.ftc.teamcode.LiftHandler;
@@ -73,7 +74,6 @@ public class RedWarehouse extends AutonomousTemplate {
 
         park = drive.trajectoryBuilder(toWarehouse2.end(), false)
                 .forward(-6)
-                .forward(-6)
                 .splineToConstantHeading(pos(46, -38), rad(0))
                 .lineToSplineHeading(pose(60, -38, 270))
                 .build();
@@ -91,7 +91,7 @@ public class RedWarehouse extends AutonomousTemplate {
             for (int cycles = 0; cycles < MAX_CYCLES - 1; cycles++) {
                 // To warehouse
                 drive.followTrajectory(toWarehouse1, false);
-                currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, colorSensor);
+                currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
                 drive.followTrajectoryAsync(toWarehouse2, false);
                 currentCycle.start();
                 // wait for the cycle to finish before running the check for failure once

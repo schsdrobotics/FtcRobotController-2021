@@ -4,12 +4,19 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LiftHandler.Position;
 
-import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 /**
  * Represents a cycle of:
@@ -28,17 +35,17 @@ public class Cycle {
     private final BucketHandler bucket;
     private final LiftHandler lift;
     private final Position targetPosition;
-    private final ColorSensorHandler colorSensor;
+    private final DistanceSensor distanceSensor;
     public volatile Stage stage = Stage.WAITING;
     public volatile String errorMessage = "";
 
     public Cycle(SweeperHandler sweeper, BucketHandler bucket, LiftHandler lift,
-                 Position targetPosition, ColorSensorHandler colorSensor) {
+                 Position targetPosition, DistanceSensor distanceSensor) {
         this.sweeper = sweeper;
         this.bucket = bucket;
         this.lift = lift;
         this.targetPosition = targetPosition;
-        this.colorSensor = colorSensor;
+        this.distanceSensor = distanceSensor;
     }
 
     /**
@@ -48,8 +55,8 @@ public class Cycle {
         executor.submit(() -> {
             stage = Stage.IN_START;
             holdValues(true);
-            int[] RGB = colorSensor.getRGBValues();
-            boolean preFilled = colorSensor.testForFreight(RGB);
+            double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
+            boolean preFilled = distanceCm < 7;
             if (!preFilled) {
                 sweeper.forwards(1);
 
@@ -60,10 +67,10 @@ public class Cycle {
 
                 // give 4 seconds for object to enter bucket
                 while (runtime < 4000) {
-                    RGB = colorSensor.getRGBValues();
+                    distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
                     runtime = System.currentTimeMillis() - startTime;
 
-                    if (colorSensor.testForFreight(RGB)) { // if item in bucket
+                    if (distanceCm < 7) { // if item in bucket
 
                         // keep track of how long an item is in the bucket to prevent
                         // stuff bouncing out but still triggering loop exit
@@ -83,7 +90,7 @@ public class Cycle {
                 }
             }
 
-            boolean objectPickedUp = colorSensor.testForFreight(RGB);
+            boolean objectPickedUp = distanceCm < 7;
             if (objectPickedUp) {
                 if (!preFilled) {
                     sweeper.backwards(1); // spit out extras
@@ -96,7 +103,7 @@ public class Cycle {
             } else {
                 holdValues(false);
                 stage = Stage.COMPLETE; // finish early to allow for new cycle
-                errorMessage = "Failed to pick up object; detected RGB: " + Arrays.toString(RGB);
+                errorMessage = "Failed to pick up object; detected distance: " + distanceCm;
             }
             waitFor(600);
             sweeper.stop();
@@ -116,14 +123,10 @@ public class Cycle {
             waitFor(350);
 
             // wiggle bucket to encourage item to drop
-            int[] RGB = new int[]{0, 0, 0};
+            double distanceCm = Double.MIN_VALUE;
             AtomicBoolean dropped = new AtomicBoolean(false);
             bucket.wiggleUntil(() -> {
-                int[] current = colorSensor.getRGBValues();
-                RGB[0] = current[0];
-                RGB[1] = current[1];
-                RGB[2] = current[2];
-                boolean shouldStop = colorSensor.testForFreight(current);
+                boolean shouldStop = distanceSensor.getDistance(DistanceUnit.CM) > 12;
                 if (shouldStop) {
                     dropped.set(true);
                 }
@@ -138,7 +141,7 @@ public class Cycle {
             holdValues(false);
             stage = Stage.COMPLETE;
             if (!dropped.get()) {
-                errorMessage = "Failed to drop item - detected RGB: " + Arrays.toString(RGB);
+                errorMessage = "Failed to drop item - detected distance: " + distanceCm;
             }
             return dropped.get();
         });
