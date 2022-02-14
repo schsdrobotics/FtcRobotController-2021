@@ -73,7 +73,6 @@ public class RedWarehouse extends AutonomousTemplate {
 
         park = drive.trajectoryBuilder(toWarehouse2.end(), false)
                 .forward(-6)
-                .forward(-6)
                 .splineToConstantHeading(pos(46, -38), rad(0))
                 .lineToSplineHeading(pose(60, -38, 270))
                 .build();
