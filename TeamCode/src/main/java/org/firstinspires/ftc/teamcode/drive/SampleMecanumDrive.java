@@ -373,7 +373,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void waitForCorrect() {
-        while (!Thread.currentThread().isInterrupted() && isCorrecting()) {
+        while (!Thread.currentThread().isInterrupted() && !isCorrecting()) {
             update();
         }
     }
@@ -383,7 +383,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public boolean isCorrecting() {
-        return mode != Mode.CORRECT;
+        return mode == Mode.CORRECT;
     }
 
     public void setMode(DcMotor.RunMode runMode) {
