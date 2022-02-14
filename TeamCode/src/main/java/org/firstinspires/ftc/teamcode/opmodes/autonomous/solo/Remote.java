@@ -236,7 +236,7 @@ public class Remote extends LinearOpMode {
 
                         // Lower lift
                         lift.pursueTarget(LiftHandler.Position.LOW);
-                        // Run duck spinner for 2.5 seconds
+                        // Run duck spinner for 1.5 seconds
                         double startTime = getRuntime();
                         while (getRuntime() - startTime < 1.5) {
                             duck.tick();

@@ -82,7 +82,7 @@ public class RedWarehouse extends AutonomousTemplate {
     @Override
     public void main() {
         // Go to alliance hub
-        drive.followTrajectory(toHubInitial);
+        drive.followTrajectory(toHubInitial, true);
         // Drop and retract
         currentCycle.finish();
         currentCycle.await();
@@ -90,9 +90,9 @@ public class RedWarehouse extends AutonomousTemplate {
         park: {
             for (int cycles = 0; cycles < MAX_CYCLES - 1; cycles++) {
                 // To warehouse
-                drive.followTrajectory(toWarehouse1);
+                drive.followTrajectory(toWarehouse1, false);
                 currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, colorSensor);
-                drive.followTrajectoryAsync(toWarehouse2);
+                drive.followTrajectoryAsync(toWarehouse2, false);
                 currentCycle.start();
                 // wait for the cycle to finish before running the check for failure once
                 if (currentCycle.await()) { // If this is true, we did NOT pick anything up
@@ -100,7 +100,6 @@ public class RedWarehouse extends AutonomousTemplate {
                     if (!currentCycle.errorMessage.isEmpty())
                         System.out.println("Failed to pick up an item; parking now");
                     else System.out.println("Cycle is not working properly.");
-                    drive.waitForIdle();
                     break park;
                 } else {
                     drive.cancelFollowing();
@@ -108,19 +107,19 @@ public class RedWarehouse extends AutonomousTemplate {
                 }
 
                 // To hub
-                // Since we cancel our following, we need to get our start position for this trajecotry on the fly
-                drive.followTrajectory(buildHubTrajectory());
+                // Since we cancel our following, we need to get our start position for this trajectory on the fly
+                drive.followTrajectory(buildHubTrajectory(), true);
                 currentCycle.finish();
                 currentCycle.await();
                 currentCycle = null;
             }
 
-            drive.followTrajectory(toWarehouse1);
-            drive.followTrajectory(toWarehouse2);
+            drive.followTrajectory(toWarehouse1, false);
+            drive.followTrajectory(toWarehouse2, false);
         }
 
         // Park
-        drive.followTrajectory(park);
+        drive.followTrajectory(park, true);
     }
 
     private Trajectory buildHubTrajectory() {

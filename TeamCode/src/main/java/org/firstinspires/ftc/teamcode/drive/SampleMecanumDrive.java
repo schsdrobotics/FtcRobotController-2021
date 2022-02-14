@@ -75,7 +75,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     public enum Mode {
         IDLE,
         TURN,
-        FOLLOW_TRAJECTORY
+        FOLLOW_TRAJECTORY,
+        CORRECT
     }
 
     private FtcDashboard dashboard;
@@ -100,6 +101,9 @@ public class SampleMecanumDrive extends MecanumDrive {
     private VoltageSensor batteryVoltageSensor;
 
     private Pose2d lastPoseOnTurn;
+
+    private boolean shouldCorrect;
+    private Trajectory currentTrajectory;
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -129,7 +133,6 @@ public class SampleMecanumDrive extends MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        // TODO: adjust the names of the following hardware devices to match your configuration
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
@@ -162,7 +165,6 @@ public class SampleMecanumDrive extends MecanumDrive {
             setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
         }
 
-        // TODO: reverse any motors using DcMotor.setDirection()
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -203,18 +205,35 @@ public class SampleMecanumDrive extends MecanumDrive {
         waitForIdle();
     }
 
-    public void followTrajectoryAsync(Trajectory trajectory) {
+    public void followTrajectoryAsync(Trajectory trajectory, boolean shouldCorrect) {
+        waitForIdle(); //Make sure we aren't following two trajectories at once
         follower.followTrajectory(trajectory);
+        currentTrajectory = trajectory;
+        this.shouldCorrect = shouldCorrect;
         mode = Mode.FOLLOW_TRAJECTORY;
     }
 
-    public void followTrajectory(Trajectory trajectory) {
-        followTrajectory(trajectory, () -> {});
+    public void followTrajectoryAsync(Trajectory trajectory) {
+        followTrajectoryAsync(trajectory, false);
     }
 
-    public void followTrajectory(Trajectory trajectory, Runnable onWait) {
-        followTrajectoryAsync(trajectory);
-        waitForIdle(onWait);
+    /**
+     * This is blocking until the bot starts correcting, so update() has to be called repeatedly
+     * @param trajectory the trajectory the bot will follow
+     * @param shouldCorrect whether or not the bot should correct after it's done following
+     */
+    public void followTrajectory(Trajectory trajectory, boolean shouldCorrect) {
+        followTrajectoryAsync(trajectory, shouldCorrect);
+        if (shouldCorrect) {
+            waitForCorrect();
+        }
+        else {
+            waitForIdle();
+        }
+    }
+
+    public void followTrajectory(Trajectory trajectory) {
+        followTrajectory(trajectory, false);
     }
 
     public void cancelFollowing() {
@@ -306,6 +325,33 @@ public class SampleMecanumDrive extends MecanumDrive {
                 DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
 
                 if (!follower.isFollowing()) {
+                    if (shouldCorrect) {
+                        correct(); //This is async
+                        mode = Mode.CORRECT;
+                    }
+                    else {
+                        mode = Mode.IDLE;
+                    }
+                    setDriveSignal(new DriveSignal());
+                }
+
+                break;
+            }
+            case CORRECT: {
+                setDriveSignal(follower.update(currentPose, getPoseVelocity()));
+
+                Trajectory trajectory = follower.getTrajectory();
+
+                fieldOverlay.setStrokeWidth(1);
+                fieldOverlay.setStroke("#4CAF50");
+                DashboardUtil.drawSampledPath(fieldOverlay, trajectory.getPath());
+                double t = follower.elapsedTime();
+                DashboardUtil.drawRobot(fieldOverlay, trajectory.get(t));
+
+                fieldOverlay.setStroke("#3F51B5");
+                DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
+
+                if (!follower.isFollowing()) {
                     mode = Mode.IDLE;
                     setDriveSignal(new DriveSignal());
                 }
@@ -321,18 +367,23 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void waitForIdle() {
-        waitForIdle(() -> {});
-    }
-
-    public void waitForIdle(Runnable onWait) {
         while (!Thread.currentThread().isInterrupted() && isBusy()) {
             update();
-            onWait.run();
+        }
+    }
+
+    public void waitForCorrect() {
+        while (!Thread.currentThread().isInterrupted() && isCorrecting()) {
+            update();
         }
     }
 
     public boolean isBusy() {
         return mode != Mode.IDLE;
+    }
+
+    public boolean isCorrecting() {
+        return mode != Mode.CORRECT;
     }
 
     public void setMode(DcMotor.RunMode runMode) {
@@ -441,5 +492,12 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
         return new ProfileAccelerationConstraint(maxAccel);
+    }
+
+    private void correct() {
+        Trajectory correction = trajectoryBuilder(getPoseEstimate())
+                .lineToLinearHeading(currentTrajectory.end())
+                .build();
+        follower.followTrajectory(correction);
     }
 }

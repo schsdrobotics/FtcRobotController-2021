@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class ColorSensorHandler {
     private ColorSensor sensor;
-    private final int MAXERROR = 20;
+    private final int MAX_ERROR = 20;
 
     public ColorSensorHandler(HardwareMap map) {
         sensor = map.get(ColorSensor.class, "colorSensor");
@@ -22,7 +22,7 @@ public class ColorSensorHandler {
             for (int i = 0; i < 3; i++) {
                 //Passes test if current reading is between theoretical +or- MAXERROR
                 int error = Math.abs(RGB[i] - object.RGB[i]);
-                if (error >= MAXERROR) {
+                if (error >= MAX_ERROR) {
                     break;
                 }
                 //If it has passed all 3 tests, return true

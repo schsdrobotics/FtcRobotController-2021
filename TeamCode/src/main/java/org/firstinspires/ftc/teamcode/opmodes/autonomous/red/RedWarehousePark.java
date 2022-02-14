@@ -77,12 +77,12 @@ public class RedWarehousePark extends AutonomousTemplate {
     @Override
     public void main() {
         //Go out
-        drive.followTrajectory(out);
+        drive.followTrajectory(out, false);
         //Align
-        drive.followTrajectory(align);
+        drive.followTrajectory(align, false);
         //Set pose estimate since we just bonked against the wall
         drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 0));
         //Park
-        drive.followTrajectory(park);
+        drive.followTrajectory(park, true);
     }
 }

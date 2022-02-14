@@ -90,15 +90,15 @@ public class RedDuckWarehouse extends AutonomousTemplate {
     @Override
     public void main() {
         // Go to alliance hub
-        drive.followTrajectory(toHubInitial);
+        drive.followTrajectory(toHubInitial, true);
         // Drop and retract
         currentCycle.finish();
         currentCycle.await();
         // Go to duck spinner
-        drive.followTrajectory(toDuckSpinner);
+        drive.followTrajectory(toDuckSpinner, true);
         // Lower lift
         lift.pursueTarget(LiftHandler.Position.LOW);
-        // Run duck spinner for 2.5 seconds
+        // Run duck spinner for 1.5 seconds
         double startTime = getRuntime();
         while (getRuntime() - startTime < 1.5) {
             duck.tick();
@@ -110,10 +110,12 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         //Wait until there's 8 seconds left
         while (getRuntime() < 22);
         // Align
-        drive.followTrajectory(align);
+        drive.followTrajectory(align, false);
+        //We just bonked so make pose estimate accurate
+        drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 0));
         // Go to warehouse
-        drive.followTrajectory(toWarehouse);
+        drive.followTrajectory(toWarehouse, false);
         // Park
-        drive.followTrajectory(park);
+        drive.followTrajectory(park, true);
     }
 }
