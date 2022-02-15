@@ -9,14 +9,10 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.LiftHandler.Position;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a cycle of:
@@ -123,10 +119,11 @@ public class Cycle {
             waitFor(350);
 
             // wiggle bucket to encourage item to drop
-            double distanceCm = Double.MIN_VALUE;
+            AtomicReference<Double> distanceCm = new AtomicReference<>(Double.MIN_VALUE);
             AtomicBoolean dropped = new AtomicBoolean(false);
             bucket.wiggleUntil(() -> {
-                boolean shouldStop = distanceSensor.getDistance(DistanceUnit.CM) > 12;
+                distanceCm.set(distanceSensor.getDistance(DistanceUnit.CM));
+                boolean shouldStop = distanceCm.get() > 12;
                 if (shouldStop) {
                     dropped.set(true);
                 }
@@ -141,7 +138,7 @@ public class Cycle {
             holdValues(false);
             stage = Stage.COMPLETE;
             if (!dropped.get()) {
-                errorMessage = "Failed to drop item - detected distance: " + distanceCm;
+                errorMessage = "Failed to drop item - detected distance: " + distanceCm.get();
             }
             return dropped.get();
         });
