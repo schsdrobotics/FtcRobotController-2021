@@ -28,6 +28,8 @@ import java.util.concurrent.Executors;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 public abstract class AutonomousTemplate extends LinearOpMode {
+    public static Pose2d teleOpStartPose = new Pose2d(); // When transitioning to teleop this is used to determine where we start.
+
     private float xCenter;
     protected LiftHandler.Position target = LiftHandler.Position.HIGH;
 
@@ -156,9 +158,15 @@ public abstract class AutonomousTemplate extends LinearOpMode {
             while (opModeIsActive() && !isStopRequested()) {
                 drive.update();
                 light.tick();
+                updateTeleOpPose();
             }
+            updateTeleOpPose();
             light.setColor(LightHandler.Color.OFF);
         });
+    }
+
+    private void updateTeleOpPose() {
+        teleOpStartPose = drive.getPoseEstimate();
     }
 
     /**

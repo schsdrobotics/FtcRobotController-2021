@@ -33,21 +33,24 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.CycleHandler;
-import org.firstinspires.ftc.teamcode.DrivingHandler;
 import org.firstinspires.ftc.teamcode.DuckHandler;
 import org.firstinspires.ftc.teamcode.IntakeServoHandler;
 import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.LightHandler;
 import org.firstinspires.ftc.teamcode.SweeperHandler;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
 /*
 Controls:
@@ -80,7 +83,7 @@ Controls:
 public class ControlledOpMode extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
-    private DrivingHandler driving;
+    private SampleMecanumDrive drive;
     private SweeperHandler sweeper;
     private LiftHandler lift;
     private BucketHandler bucket;
@@ -95,7 +98,7 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void init() {
-        driving = new DrivingHandler(hardwareMap, gamepad1);
+        drive = new SampleMecanumDrive(hardwareMap);
         sweeper = new SweeperHandler(hardwareMap, gamepad1);
         lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
         bucket = new BucketHandler(hardwareMap, gamepad2);
@@ -116,6 +119,14 @@ public class ControlledOpMode extends OpMode {
         );
         intakeServo = new IntakeServoHandler(hardwareMap);
         intakeServo.hook();
+
+        // We want to turn off velocity control for teleop
+        // Velocity control per wheel is not necessary outside of motion profiled auto
+        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Retrieve our pose from autonomous
+        drive.setPoseEstimate(AutonomousTemplate.teleOpStartPose);
+
         telemetry.addData("Status", "Initialized");
     }
 
@@ -141,7 +152,27 @@ public class ControlledOpMode extends OpMode {
      */
     @Override
     public void loop() {
-        driving.tick();
+        // Drive code
+        Pose2d poseEstimate = drive.getPoseEstimate();
+
+        // Create a vector from the gamepad x/y inputs
+        // Then, rotate that vector by the inverse of that heading
+        Vector2d input = new Vector2d(
+            -gamepad1.left_stick_y,
+            -gamepad1.left_stick_x
+        ).rotated(-poseEstimate.getHeading());
+
+        // Pass in the rotated input + right stick value for rotation
+        // Rotation is not part of the rotated input thus must be passed in separately
+        drive.setWeightedDrivePower(
+            new Pose2d(
+                input.getX(),
+                input.getY(),
+                -gamepad1.right_stick_x
+            )
+        );
+        drive.update();
+
         sweeper.tick();
         lift.tick();
         bucket.tick();
