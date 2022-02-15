@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
@@ -55,11 +56,16 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kA;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kStatic;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 
+import static java.lang.Math.toRadians;
+
+import android.os.Build;
+
 /*
  * This is a modified SampleMecanumDrive class that implements the ability to cancel a trajectory
  * following. Essentially, it just forces the mode to IDLE.
  */
 @Config
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class SampleMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
@@ -121,7 +127,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         velConstraint = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
         accelConstraint = getAccelerationConstraint(MAX_ACCEL);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.0);
+                new Pose2d(0.5, 0.5, toRadians(5.0)), 0.0);
 
         poseHistory = new LinkedList<>();
 
@@ -224,12 +230,8 @@ public class SampleMecanumDrive extends MecanumDrive {
      */
     public void followTrajectory(Trajectory trajectory, boolean shouldCorrect) {
         followTrajectoryAsync(trajectory, shouldCorrect);
-        if (shouldCorrect) {
-            waitForCorrect();
-        }
-        else {
-            waitForIdle();
-        }
+        if (shouldCorrect) waitForCorrect();
+        else waitForIdle();
     }
 
     public void followTrajectory(Trajectory trajectory) {
@@ -495,9 +497,17 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     private void correct() {
-        Trajectory correction = trajectoryBuilder(getPoseEstimate())
-                .lineToLinearHeading(currentTrajectory.end())
-                .build();
-        follower.followTrajectory(correction);
+        Pose2d current = getPoseEstimate();
+        Pose2d target = currentTrajectory.end();
+        if (current.epsilonEquals(target)) return; // If we are where we want to be, stop.
+        if (current.vec().epsilonEquals(target.vec())) { // If the x and y are equal...
+            // We already checked if everything is equal, so we can assume that only the angle needs correction.
+            turn(toRadians(target.getHeading() - current.getHeading()));
+        } else { // The position needs fixing.
+            Trajectory correction = trajectoryBuilder(getPoseEstimate())
+                    .lineToLinearHeading(currentTrajectory.end())
+                    .build();
+            follower.followTrajectory(correction);
+        }
     }
 }
