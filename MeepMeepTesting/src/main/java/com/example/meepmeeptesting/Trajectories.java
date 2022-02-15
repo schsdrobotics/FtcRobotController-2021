@@ -121,25 +121,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineToLinearHeading(pose(60, 38, 270))
             .build()),
     TEST(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .addTemporalMarker(() -> {
-                //slheflkjaes;e;okf
-            })
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
+            .lineToLinearHeading(pose(12+1e-5, 62, 270))
             .build()),
     REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
@@ -206,7 +188,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(45*stupid, 45*stupid, rad(180)*stupid, rad(180)*stupid, 13.7)
                 .setBotDimensions(13.25, 17.25)
-                .followTrajectorySequence(RED_WAREHOUSE_PARK::apply)
+                .followTrajectorySequence(TEST::apply)
                 .start();
     }
 }
