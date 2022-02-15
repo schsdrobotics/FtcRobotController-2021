@@ -245,6 +245,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public Pose2d getLastError() {
         switch (mode) {
             case FOLLOW_TRAJECTORY:
+            case CORRECT:
                 return follower.getLastError();
             case TURN:
                 return new Pose2d(0, 0, turnController.getLastError());
@@ -312,6 +313,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
                 break;
             }
+            case CORRECT:
             case FOLLOW_TRAJECTORY: {
                 setDriveSignal(follower.update(currentPose, getPoseVelocity()));
 
@@ -327,34 +329,12 @@ public class SampleMecanumDrive extends MecanumDrive {
                 DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
 
                 if (!follower.isFollowing()) {
-                    if (shouldCorrect) {
-                        correct(); //This is async
+                    if (shouldCorrect && (mode != Mode.CORRECT)) {
+                        correct(); // This is async
                         mode = Mode.CORRECT;
-                    }
-                    else {
+                    } else {
                         mode = Mode.IDLE;
                     }
-                    setDriveSignal(new DriveSignal());
-                }
-
-                break;
-            }
-            case CORRECT: {
-                setDriveSignal(follower.update(currentPose, getPoseVelocity()));
-
-                Trajectory trajectory = follower.getTrajectory();
-
-                fieldOverlay.setStrokeWidth(1);
-                fieldOverlay.setStroke("#4CAF50");
-                DashboardUtil.drawSampledPath(fieldOverlay, trajectory.getPath());
-                double t = follower.elapsedTime();
-                DashboardUtil.drawRobot(fieldOverlay, trajectory.get(t));
-
-                fieldOverlay.setStroke("#3F51B5");
-                DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
-
-                if (!follower.isFollowing()) {
-                    mode = Mode.IDLE;
                     setDriveSignal(new DriveSignal());
                 }
 
@@ -375,7 +355,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void waitForCorrect() {
-        while (!Thread.currentThread().isInterrupted() && isCorrecting()) {
+        while (!Thread.currentThread().isInterrupted() && !isCorrecting()) {
             update();
         }
     }
@@ -385,7 +365,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public boolean isCorrecting() {
-        return mode != Mode.CORRECT;
+        return mode == Mode.CORRECT;
     }
 
     public void setMode(DcMotor.RunMode runMode) {
@@ -502,7 +482,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         if (current.epsilonEquals(target)) return; // If we are where we want to be, stop.
         if (current.vec().epsilonEquals(target.vec())) { // If the x and y are equal...
             // We already checked if everything is equal, so we can assume that only the angle needs correction.
-            turn(toRadians(target.getHeading() - current.getHeading()));
+            turnAsync(toRadians(target.getHeading() - current.getHeading()));
         } else { // The position needs fixing.
             Trajectory correction = trajectoryBuilder(getPoseEstimate())
                     .lineToLinearHeading(currentTrajectory.end())
