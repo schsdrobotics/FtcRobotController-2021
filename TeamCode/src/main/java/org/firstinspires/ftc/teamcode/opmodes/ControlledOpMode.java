@@ -124,6 +124,7 @@ public class ControlledOpMode extends OpMode {
         // Velocity control per wheel is not necessary outside of motion profiled auto
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        if (AutonomousTemplate.teleOpStartPose == null) AutonomousTemplate.teleOpStartPose = new Pose2d();
         // Retrieve our pose from autonomous
         drive.setPoseEstimate(AutonomousTemplate.teleOpStartPose);
 

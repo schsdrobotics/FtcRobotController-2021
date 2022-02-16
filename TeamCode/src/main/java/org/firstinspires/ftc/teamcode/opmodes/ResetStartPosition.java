@@ -4,6 +4,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -19,7 +20,7 @@ public class ResetStartPosition extends OpMode {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void init() {
-        AutonomousTemplate.teleOpStartPose = AutonomousTemplate.pose(0, 0, 90);
+        AutonomousTemplate.teleOpStartPose = new Pose2d();
     }
 
     @Override
