@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.os.Build;
+import android.util.MutableDouble;
 
 import androidx.annotation.RequiresApi;
 
@@ -119,11 +120,11 @@ public class Cycle {
             waitFor(350);
 
             // wiggle bucket to encourage item to drop
-            AtomicReference<Double> distanceCm = new AtomicReference<>(Double.MIN_VALUE);
+            MutableDouble distanceCm = new MutableDouble(Double.MIN_VALUE);
             AtomicBoolean dropped = new AtomicBoolean(false);
             bucket.wiggleUntil(() -> {
-                distanceCm.set(distanceSensor.getDistance(DistanceUnit.CM));
-                boolean shouldStop = distanceCm.get() > 12;
+                distanceCm.value = distanceSensor.getDistance(DistanceUnit.CM);
+                boolean shouldStop = distanceCm.value > 12;
                 if (shouldStop) {
                     dropped.set(true);
                 }
@@ -138,7 +139,7 @@ public class Cycle {
             holdValues(false);
             stage = Stage.COMPLETE;
             if (!dropped.get()) {
-                errorMessage = "Failed to drop item - detected distance: " + distanceCm.get();
+                errorMessage = "Failed to drop item - detected distance: " + distanceCm.value;
             }
             return dropped.get();
         });

@@ -34,6 +34,7 @@ public class LiftHandler {
     }
 
     public void tick() {
+        telemetry.addData("lift pos", motor.motor.getCurrentPosition());
         if (gamepad != null && !shouldHoldPos) {
             motor.setAndUpdate(gamepad.left_stick_y);
             if (gamepad.left_stick_button && gamepad.right_stick_button &&
@@ -44,7 +45,7 @@ public class LiftHandler {
             boolean x = gamepad.x;
             boolean y = gamepad.y;
             boolean b = gamepad.b;
-            if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed and motor stopped
+            if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
                 Position target = null;
                 if (x) {
                     target = Position.LOW;
