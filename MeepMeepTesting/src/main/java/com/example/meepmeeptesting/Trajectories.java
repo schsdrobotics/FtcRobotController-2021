@@ -172,7 +172,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
         }
     }
 
-    public static double multiplier = 1;
+    public static double multiplier = 1e4;
 
     public static void main(String[] args) {
         // Declare a MeepMeep instance
