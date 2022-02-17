@@ -78,14 +78,15 @@ public class RedDuckStorage extends AutonomousTemplate {
     @Override
     public void main() {
         // Go to alliance hub
-        drive.followTrajectory(toHubInitial, true);
+        drive.followTrajectory(toHubInitial, false);
+        System.out.println("done following; " + System.currentTimeMillis());
         // Drop and retract
         currentCycle.finish();
         currentCycle.await();
+        System.out.println("cycle done; " + System.currentTimeMillis());
         // Go to duck spinner
-        drive.followTrajectory(toDuckSpinner, true);
-        // Lower lift
-        lift.pursueTarget(LiftHandler.Position.LOW);
+        drive.followTrajectory(toDuckSpinner, false);
+        System.out.println("duck done; " + System.currentTimeMillis());
         // Run duck spinner for 1.5 seconds
         double startTime = getRuntime();
         while (getRuntime() - startTime < 1.5) {
@@ -96,6 +97,7 @@ public class RedDuckStorage extends AutonomousTemplate {
         duck.stop();
         duck.tick();
         // Park
-        drive.followTrajectory(park, true);
+        drive.followTrajectory(park, false);
+        System.out.println("park done; " + System.currentTimeMillis());
     }
 }

@@ -139,7 +139,7 @@ public class SampleMecanumDrive extends MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu = hardwareMap.get(BNO055IMU.class, "expansionHubIMU");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
@@ -231,7 +231,7 @@ public class SampleMecanumDrive extends MecanumDrive {
      */
     public void followTrajectory(Trajectory trajectory, boolean shouldCorrect) {
         followTrajectoryAsync(trajectory, shouldCorrect);
-        if (shouldCorrect) waitForCorrect();
+        if (shouldCorrect) waitForCorrectOrIdle();
         else waitForIdle();
     }
 
@@ -356,8 +356,12 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
     }
 
-    public void waitForCorrect() {
-        while (!Thread.currentThread().isInterrupted() && !isCorrecting) {
+    public void waitForCorrectOrIdle() {
+        while (true) {
+            boolean stop = isCorrecting || !isBusy() || Thread.currentThread().isInterrupted();
+            if (stop) {
+                break;
+            }
             update();
         }
     }
@@ -477,15 +481,19 @@ public class SampleMecanumDrive extends MecanumDrive {
     private void correct() {
         Pose2d current = getPoseEstimate();
         Pose2d target = currentTrajectory.end();
+        System.out.println("Current: " + current.getX() + " " + current.getY() + " " + current.getHeading());
+        System.out.println("Target: " + target.getX() + " " + target.getY() + " " + target.getHeading());
         if (current.epsilonEquals(target)) return; // If we are where we want to be, stop.
         if (current.vec().epsilonEquals(target.vec())) { // If the x and y are equal...
             // We already checked if everything is equal, so we can assume that only the angle needs correction.
             turnAsync(target.getHeading() - current.getHeading());
+            System.out.println("turning");
         } else { // The position needs fixing.
             Trajectory correction = trajectoryBuilder(current)
                     .lineToLinearHeading(target)
                     .build();
             followTrajectoryAsync(correction, false);
+            System.out.println("lining");
         }
     }
 }

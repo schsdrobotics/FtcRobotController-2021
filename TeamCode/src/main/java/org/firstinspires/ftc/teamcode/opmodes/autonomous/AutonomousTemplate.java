@@ -49,7 +49,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
     protected abstract Pose2d startPose();
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         // Initialize hardware
         camera = new CameraHandler(hardwareMap);
         drive = new SampleMecanumDrive(hardwareMap);
@@ -81,6 +81,8 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         currentCycle = new Cycle(sweeper, bucket, lift, target, distanceSensor);
         currentCycle.start();
 
+        resetStartTime();
+
         main();
     }
 
@@ -102,11 +104,10 @@ public abstract class AutonomousTemplate extends LinearOpMode {
 
     public static double calculatePoint(double x1, double y1, double x2, double y2, boolean x, double xory) {
         if (x) {
-            double slope = ((y2-y1)/(x2-x1));
-            return slope*(xory - x1) + y1;
-        }
-        else {
-            double slope = ((x2 - x1)/(y2-y1));
+            double slope = ((y2 - y1) / (x2 - x1));
+            return slope * (xory - x1) + y1;
+        } else {
+            double slope = ((x2 - x1) / (y2 - y1));
             return slope * (xory - y1) + x1;
         }
     }

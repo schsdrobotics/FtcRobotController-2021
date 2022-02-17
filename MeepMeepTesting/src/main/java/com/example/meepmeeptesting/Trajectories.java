@@ -172,7 +172,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
         }
     }
 
-    public static double stupid = 1e4;
+    public static double multiplier = 1;
 
     public static void main(String[] args) {
         // Declare a MeepMeep instance
@@ -185,9 +185,10 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // Background opacity from 0-1
                 .setBackgroundAlpha(1f)
                 // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(45*stupid, 45*stupid, rad(180)*stupid, rad(180)*stupid, 13.7)
+//                .setConstraints(45*stupid, 45*stupid, rad(180)*stupid, rad(180)*stupid, 13.7)
                 .setBotDimensions(13.25, 17.25)
-                .followTrajectorySequence(TEST::apply)
+                .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
+                .followTrajectorySequence(RED_WAREHOUSE::apply)
                 .start();
     }
 }

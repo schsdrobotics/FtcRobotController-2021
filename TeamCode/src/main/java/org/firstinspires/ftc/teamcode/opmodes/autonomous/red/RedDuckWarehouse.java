@@ -90,12 +90,12 @@ public class RedDuckWarehouse extends AutonomousTemplate {
     @Override
     public void main() {
         // Go to alliance hub
-        drive.followTrajectory(toHubInitial, true);
+        drive.followTrajectory(toHubInitial, false);
         // Drop and retract
         currentCycle.finish();
         currentCycle.await();
         // Go to duck spinner
-        drive.followTrajectory(toDuckSpinner, true);
+        drive.followTrajectory(toDuckSpinner, false);
         // Lower lift
         lift.pursueTarget(LiftHandler.Position.LOW);
         // Run duck spinner for 1.5 seconds
@@ -116,6 +116,6 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Go to warehouse
         drive.followTrajectory(toWarehouse, false);
         // Park
-        drive.followTrajectory(park, true);
+        drive.followTrajectory(park, false);
     }
 }

@@ -82,7 +82,7 @@ public class RedWarehouse extends AutonomousTemplate {
     @Override
     public void main() {
         // Go to alliance hub
-        drive.followTrajectory(toHubInitial, true);
+        drive.followTrajectory(toHubInitial, false);
         // Drop and retract
         currentCycle.finish();
         currentCycle.await();
@@ -108,7 +108,7 @@ public class RedWarehouse extends AutonomousTemplate {
 
                 // To hub
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
-                drive.followTrajectory(buildHubTrajectory(), true);
+                drive.followTrajectory(buildHubTrajectory(), false);
                 currentCycle.finish();
                 currentCycle.await();
                 currentCycle = null;
@@ -119,11 +119,11 @@ public class RedWarehouse extends AutonomousTemplate {
         }
 
         // Park
-        drive.followTrajectory(park, true);
+        drive.followTrajectory(park, false);
     }
 
     private Trajectory buildHubTrajectory() {
-        return drive.trajectoryBuilder(drive.getPoseEstimate(), true)
+        return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
                 .lineToLinearHeading(pose(12, -62, 0))
                 .splineToSplineHeading(pose(-5, -38, 280), rad(100))
                 .build();

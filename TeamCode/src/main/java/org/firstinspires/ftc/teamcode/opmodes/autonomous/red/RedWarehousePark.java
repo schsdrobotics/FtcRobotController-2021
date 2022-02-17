@@ -72,7 +72,10 @@ public class RedWarehousePark extends AutonomousTemplate {
     }
 
     @Override
-    public void setup() { target = LiftHandler.Position.LOW; }
+    public void setup() {
+        target = LiftHandler.Position.LOW;
+        while (!opModeIsActive() && !isStopRequested());
+    }
 
     @Override
     public void main() {
@@ -83,6 +86,6 @@ public class RedWarehousePark extends AutonomousTemplate {
         //Set pose estimate since we just bonked against the wall
         drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 0));
         //Park
-        drive.followTrajectory(park, true);
+        drive.followTrajectory(park, false);
     }
 }
