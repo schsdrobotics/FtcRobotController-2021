@@ -4,8 +4,9 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class ArmHandler {
-    private final ServoWrapper vertical;
-    private final ServoWrapper horizontal;
+    // public for debug
+    public final ServoWrapper vertical;
+    public final ServoWrapper horizontal;
     private final Gamepad controller;
     private boolean init = true;
     private long startMillis;
@@ -18,14 +19,14 @@ public class ArmHandler {
     }
 
     public void onStart() {
-        vertical.setAndUpdate(.55);
+        vertical.setAndUpdate(0.64);
+        horizontal.setAndUpdate(0.5);
         startMillis = System.currentTimeMillis();
-//        horizontal.setAndUpdate(0.4);
     }
 
     public void tick() {
         if (controller != null) {
-            //Horizontal servo is continuous
+            // Horizontal servo is continuous
             if (controller.dpad_right) {  // if we want this on a joystick, change the condition to controller.left_stick_x != 0 etc.
 //                horizontal.setPos(horizontal.getPos() - 0.01);
                 horizontal.setPos(0.55);
@@ -41,7 +42,7 @@ public class ArmHandler {
             if (millis - lastMillis > 40) {
                 if (init) {
                     if (millis - startMillis > 2000) init = false;
-                    horizontal.setAndUpdate(0.4);
+//                    horizontal.setAndUpdate(0.4);
                 } else {
                     if (controller.dpad_down) {
                         vertical.setPos(vertical.getPos() - 0.01);

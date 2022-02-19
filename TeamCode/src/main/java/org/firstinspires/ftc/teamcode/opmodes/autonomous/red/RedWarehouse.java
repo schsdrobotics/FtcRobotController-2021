@@ -126,7 +126,9 @@ public class RedWarehouse extends AutonomousTemplate {
 
     private Trajectory buildHubTrajectory() {
         return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
-                .lineToLinearHeading(pose(12, -62, 0))
+                .addDisplacementMarker(() -> System.out.println("line"))
+                .lineToSplineHeading(pose(12, -62, 0))
+                .addDisplacementMarker(() -> System.out.println("spline"))
                 .splineToSplineHeading(pose(-5, -38, 280), rad(100))
                 .build();
     }

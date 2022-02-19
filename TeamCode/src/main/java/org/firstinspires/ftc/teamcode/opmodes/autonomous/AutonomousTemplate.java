@@ -82,10 +82,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         currentCycle.start();
 
         resetStartTime();
-        while (opModeIsActive() && !isStopRequested()) {
-            main();
-            sleep(69420);
-        }
+        main();
     }
 
     public static double rad(double deg) {
@@ -157,8 +154,8 @@ public abstract class AutonomousTemplate extends LinearOpMode {
             waitForStart();
             light.resetTimer();
             while (opModeIsActive() && !isStopRequested()) {
-                drive.update();
                 light.tick();
+                drive.update();
             }
             light.setColor(LightHandler.Color.OFF);
         });

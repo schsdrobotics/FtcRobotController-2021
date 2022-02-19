@@ -109,11 +109,11 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Stop duck motor
         duck.stop();
         duck.tick();
-        //Wait until there's 8 seconds left
+        // Wait until there's 8 seconds left
         while (getRuntime() < 22);
         // Align
         drive.followTrajectory(align, false);
-        //We just bonked so make pose estimate accurate
+        // We just bonked so make pose estimate accurate
         drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 270));
         // Go to warehouse
         drive.followTrajectory(toWarehouse, false);

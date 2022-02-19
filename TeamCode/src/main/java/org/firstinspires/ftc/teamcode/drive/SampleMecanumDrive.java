@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_ACCEL;
@@ -110,6 +112,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     private boolean shouldCorrect;
     public boolean isCorrecting = false;
     private Trajectory currentTrajectory;
+
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -348,6 +352,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         DashboardUtil.drawRobot(fieldOverlay, currentPose);
 
         dashboard.sendTelemetryPacket(packet);
+        System.out.println("update");
     }
 
     public void waitForIdle() {
