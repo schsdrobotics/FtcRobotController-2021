@@ -190,8 +190,6 @@ public abstract class AutonomousTemplate extends LinearOpMode {
 
         // Raise arm
         arm.onStart();
-        // Drop intake
-        intakeServo.release();
     }
 
     /**

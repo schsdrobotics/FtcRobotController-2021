@@ -116,6 +116,7 @@ public class ControlledOpMode extends OpMode {
         );
         intakeServo = new IntakeServoHandler(hardwareMap);
         intakeServo.hook();
+        DuckHandler.rampUp = true;
         telemetry.addData("Status", "Initialized");
     }
 

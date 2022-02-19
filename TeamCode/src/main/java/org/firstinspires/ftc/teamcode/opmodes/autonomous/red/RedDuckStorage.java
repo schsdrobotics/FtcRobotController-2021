@@ -66,12 +66,12 @@ public class RedDuckStorage extends AutonomousTemplate {
 
         toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
                 .splineToSplineHeading(pose(-50, -17, 270), rad(180))
-                .splineToConstantHeading(pos(-65, -35), rad(270))
-                .forward(18)
+                .splineToConstantHeading(pos(-77, -35), rad(270))
+                .forward(26)
                 .build();
 
-        park = drive.trajectoryBuilder(toDuckSpinner.end())
-                .forward(-22)
+        park = drive.trajectoryBuilder(pose(-63.375, -51.375, 270))
+                .forward(-20)
                 .build();
     }
 
@@ -79,14 +79,13 @@ public class RedDuckStorage extends AutonomousTemplate {
     public void main() {
         // Go to alliance hub
         drive.followTrajectory(toHubInitial, false);
-        System.out.println("done following; " + System.currentTimeMillis());
         // Drop and retract
         currentCycle.finish();
         currentCycle.await();
-        System.out.println("cycle done; " + System.currentTimeMillis());
         // Go to duck spinner
         drive.followTrajectory(toDuckSpinner, false);
-        System.out.println("duck done; " + System.currentTimeMillis());
+        //Reset pose estimate because we bonk
+        drive.setPoseEstimate(pose(-63.375, -51.375, 270));
         // Run duck spinner for 1.5 seconds
         double startTime = getRuntime();
         while (getRuntime() - startTime < 1.5) {
@@ -98,6 +97,5 @@ public class RedDuckStorage extends AutonomousTemplate {
         duck.tick();
         // Park
         drive.followTrajectory(park, false);
-        System.out.println("park done; " + System.currentTimeMillis());
     }
 }

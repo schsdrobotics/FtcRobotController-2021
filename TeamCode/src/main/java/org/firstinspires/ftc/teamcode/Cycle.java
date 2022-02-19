@@ -134,6 +134,7 @@ public class Cycle {
             bucket.backwards();
 
             lift.pursueTarget(Position.LOW);
+            stage = Stage.LOWERING_LIFT;
             waitFor(targetPosition.pos * 5L);
 
             holdValues(false);
@@ -149,12 +150,16 @@ public class Cycle {
         return stage.isBusy();
     }
 
+    public boolean isLowering() {
+        return stage.isLowering();
+    }
+
     /**
      * @return true if COMPLETE, false if BETWEEN or WAITING
      */
     public boolean await() {
         waitFor(100); // Make sure that the other thread has a chance to set the state
-        while (isBusy()) {
+        while (isBusy() && !isLowering()) {
             waitFor(20);
         }
         return stage == Stage.COMPLETE;
@@ -176,10 +181,15 @@ public class Cycle {
         IN_START,
         BETWEEN,
         IN_FINISH,
+        LOWERING_LIFT,
         COMPLETE;
 
         public boolean isBusy() {
             return this == IN_START || this == IN_FINISH;
+        }
+
+        public boolean isLowering() {
+            return this == LOWERING_LIFT;
         }
     }
 }

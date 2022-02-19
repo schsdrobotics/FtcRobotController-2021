@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class IntakeServoHandler {
     public final ServoWrapper servo;
-    public static final double HOOKED = 0.3;
+    public static final double HOOKED = 0.25;
     public static final double RELEASED = 0.5;
 
     public IntakeServoHandler(HardwareMap map) {

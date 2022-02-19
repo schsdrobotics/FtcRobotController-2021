@@ -47,45 +47,30 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedWarehousePark", group="Red")
 public class RedWarehousePark extends AutonomousTemplate {
-    Trajectory out;
-    Trajectory align;
     Trajectory park;
 
     @Override
     protected Pose2d startPose() {
-        return pose(12, -61.375, 90);
+        return pose(12, -63.375, 0);
     }
 
     @Override
     public void initializeTrajectories() {
-        out = drive.trajectoryBuilder(startPose())
-                .splineToLinearHeading(pose(6, -55, 0), rad(270))
-                .build();
-        align = drive.trajectoryBuilder(out.end())
-                .strafeRight(14)
-                .build();
-        park = drive.trajectoryBuilder(pose(align.end().getX(), -63.375, 0))
-                .forward(27)
-                .splineToConstantHeading(pos(44, -38), rad(0))
-                .lineToSplineHeading(pose(60, -38, 270))
+        park = drive.trajectoryBuilder(startPose())
+                .lineTo(pos(30, -63.375))
+                .splineToConstantHeading(pos(35, -29), rad(0))
+                .lineToSplineHeading(pose(60, -29, 270))
                 .build();
     }
 
     @Override
     public void setup() {
         target = LiftHandler.Position.LOW;
-        while (!opModeIsActive() && !isStopRequested());
+        waitForStart();
     }
 
     @Override
     public void main() {
-        //Go out
-        drive.followTrajectory(out, false);
-        //Align
-        drive.followTrajectory(align, false);
-        //Set pose estimate since we just bonked against the wall
-        drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 0));
-        //Park
         drive.followTrajectory(park, false);
     }
 }

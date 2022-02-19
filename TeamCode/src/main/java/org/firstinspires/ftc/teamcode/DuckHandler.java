@@ -20,7 +20,7 @@ public class DuckHandler {
     public static double MILLIS_FOR_PLATE_REV = 825;
     public static double RPMSPEED = 275;
     private double speed = rpmToTicksPerSecond(RPMSPEED) * (reversed ? -1 : 1);
-    public boolean fast = false;
+    public static boolean rampUp = false;
 
     public DuckHandler(HardwareMap map, Gamepad controller) {
         motor = map.get(DcMotorEx.class, "duckMotor");
@@ -32,7 +32,6 @@ public class DuckHandler {
     public void tick() {
         long millis = System.currentTimeMillis();
         speed = rpmToTicksPerSecond(RPMSPEED) * (reversed ? -1 : 1);
-        fast = false;
         if (controller != null) {
             on = controller.guide;
             // reversing
@@ -46,12 +45,14 @@ public class DuckHandler {
             // ramping up speed
             long milliDiff = millis - lastMillis;
             milliTimer += milliDiff;
-            if (milliTimer <= MILLIS_FOR_PLATE_REV) {
+            if (!rampUp) {
                 motor.setVelocity(speed);
             }
-            if (milliTimer > MILLIS_FOR_PLATE_REV) {
+            else if (milliTimer <= MILLIS_FOR_PLATE_REV) {
+                motor.setVelocity(speed);
+            }
+            else if (milliTimer > MILLIS_FOR_PLATE_REV) {
                 double power = (reversed ? -1 : 1);
-                fast = true;
                 motor.setPower(power);
             }
         } else {

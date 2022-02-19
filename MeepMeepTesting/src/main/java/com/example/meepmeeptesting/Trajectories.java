@@ -119,8 +119,17 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .strafeLeft(24)
             .lineToLinearHeading(pose(60, 38, 270))
             .build()),
-    TEST(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
-            .lineToLinearHeading(pose(12+1e-5, 62, 270))
+    TEST(drive -> drive.trajectorySequenceBuilder(pose(0, -60, 90))
+            .splineToSplineHeading(pose(-60, 0, 0), rad(0))
+            .splineToSplineHeading(pose(0, 60, 270), rad(270))
+            .splineToSplineHeading(pose(60, 0, 180), rad(180))
+            .splineToSplineHeading(pose(0, -60, 90), rad(90))
+            .build()),
+    TEST2(drive -> drive.trajectorySequenceBuilder(pose(0, -60, 270))
+            .splineToSplineHeading(pose(-60, 0, 180), rad(0))
+            .splineToSplineHeading(pose(0, 60, 90), rad(270))
+            .splineToSplineHeading(pose(60, 0, 0), rad(180))
+            .splineToSplineHeading(pose(0, -60, 270), rad(90))
             .build()),
     REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
@@ -184,11 +193,9 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setTheme(new ColorSchemeRedDark())
                 // Background opacity from 0-1
                 .setBackgroundAlpha(1f)
-                // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-//                .setConstraints(45*stupid, 45*stupid, rad(180)*stupid, rad(180)*stupid, 13.7)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(RED_WAREHOUSE::apply)
+                .followTrajectorySequence(RED_DUCK_WAREHOUSE::apply)
                 .start();
     }
 }

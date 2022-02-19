@@ -81,6 +81,8 @@ public class RedWarehouse extends AutonomousTemplate {
 
     @Override
     public void main() {
+        // Drop intake
+        intakeServo.release();
         // Go to alliance hub
         drive.followTrajectory(toHubInitial, false);
         // Drop and retract

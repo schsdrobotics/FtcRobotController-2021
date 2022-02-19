@@ -68,22 +68,22 @@ public class RedDuckWarehouse extends AutonomousTemplate {
 
         toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
                 .splineToSplineHeading(pose(-50, -17, 270), rad(180))
-                .splineToConstantHeading(pos(-65, -35), rad(270))
-                .forward(18)
+                .splineToConstantHeading(pos(-77, -35), rad(270))
+                .forward(26)
                 .build();
 
-        align = drive.trajectoryBuilder(toDuckSpinner.end())
-                .lineToSplineHeading(pose(-55, -48, 0))
+        align = drive.trajectoryBuilder(pose(-63.375, -51.375, 270))
+                .lineToSplineHeading(pose(-55, -40, 0))
                 .splineToConstantHeading(pos(-15, -64), rad(270))
-                .strafeRight(7)
+                .strafeRight(10)
                 .build();
 
         toWarehouse = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))
-                .forward(60)
+                .forward(65)
                 .build();
 
         park = drive.trajectoryBuilder(toWarehouse.end())
-                .strafeLeft(15)
+                .strafeLeft(10)
                 .build();
     }
 
@@ -96,6 +96,8 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         currentCycle.await();
         // Go to duck spinner
         drive.followTrajectory(toDuckSpinner, false);
+        //Reset pose estimate because we bonk
+        drive.setPoseEstimate(pose(-63.375, -51.375, 270));
         // Lower lift
         lift.pursueTarget(LiftHandler.Position.LOW);
         // Run duck spinner for 1.5 seconds
@@ -112,7 +114,7 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Align
         drive.followTrajectory(align, false);
         //We just bonked so make pose estimate accurate
-        drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 0));
+        drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 270));
         // Go to warehouse
         drive.followTrajectory(toWarehouse, false);
         // Park
