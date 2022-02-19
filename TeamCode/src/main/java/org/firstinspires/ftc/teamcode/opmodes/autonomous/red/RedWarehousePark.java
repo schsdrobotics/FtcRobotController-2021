@@ -47,6 +47,8 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedWarehousePark", group="Red")
 public class RedWarehousePark extends AutonomousTemplate {
+    Trajectory forward;
+    Trajectory strafe;
     Trajectory park;
 
     @Override
@@ -56,10 +58,14 @@ public class RedWarehousePark extends AutonomousTemplate {
 
     @Override
     public void initializeTrajectories() {
-        park = drive.trajectoryBuilder(startPose())
-                .lineTo(pos(30, -63.375))
-                .splineToConstantHeading(pos(35, -29), rad(0))
-                .lineToSplineHeading(pose(60, -29, 270))
+        forward = drive.trajectoryBuilder(startPose())
+                .lineTo(pos(40, -63.375))
+                .build();
+        strafe = drive.trajectoryBuilder(forward.end())
+                .lineTo(pos(35, -30))
+                .build();
+        park = drive.trajectoryBuilder(strafe.end())
+                .lineToSplineHeading(pose(60, -30, 270))
                 .build();
     }
 
@@ -71,6 +77,8 @@ public class RedWarehousePark extends AutonomousTemplate {
 
     @Override
     public void main() {
+        drive.followTrajectory(forward, false);
+        drive.followTrajectory(strafe, false);
         drive.followTrajectory(park, false);
     }
 }
