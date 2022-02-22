@@ -190,6 +190,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new TrajectoryBuilder(startPose, reversed, velConstraint, accelConstraint);
     }
 
+    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, TrajectoryVelocityConstraint velConstraint) {
+        return new TrajectoryBuilder(startPose, velConstraint, accelConstraint);
+    }
+
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
         return new TrajectoryBuilder(startPose, startHeading, velConstraint, accelConstraint);
     }
@@ -217,11 +221,14 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void followTrajectoryAsync(Trajectory trajectory, boolean shouldCorrect) {
-        waitForIdle(); //Make sure we aren't following two trajectories at once
+        waitForIdle(); // Make sure we aren't following two trajectories at once
         follower.followTrajectory(trajectory);
         currentTrajectory = trajectory;
         this.shouldCorrect = shouldCorrect;
         mode = Mode.FOLLOW_TRAJECTORY;
+        executor.submit(() -> {
+            while (isBusy()) update();
+        });
     }
 
     public void followTrajectoryAsync(Trajectory trajectory) {
@@ -352,7 +359,6 @@ public class SampleMecanumDrive extends MecanumDrive {
         DashboardUtil.drawRobot(fieldOverlay, currentPose);
 
         dashboard.sendTelemetryPacket(packet);
-        System.out.println("update");
     }
 
     public void waitForIdle() {

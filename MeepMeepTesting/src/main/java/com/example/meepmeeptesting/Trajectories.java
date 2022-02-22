@@ -191,7 +191,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(RED_DUCK_WAREHOUSE::apply)
+                .followTrajectorySequence(RED_WAREHOUSE::apply)
                 .start();
     }
 }

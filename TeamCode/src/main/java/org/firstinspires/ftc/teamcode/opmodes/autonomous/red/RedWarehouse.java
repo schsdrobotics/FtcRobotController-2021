@@ -40,18 +40,23 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.teamcode.Cycle;
 import org.firstinspires.ftc.teamcode.LiftHandler;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedWarehouse", group="Red")
 public class RedWarehouse extends AutonomousTemplate {
+    DistanceSensor xCoordinateSensor;
+
     Trajectory toHubInitial;
     Trajectory toWarehouse1;
+    Trajectory bonk;
     Trajectory toWarehouse2;
+    Trajectory toWarehouse3;
     Trajectory park;
 
-    private final int MAX_CYCLES = 3;
+    private final int MAX_CYCLES = 2;
 
     @Override
     protected Pose2d startPose() {
@@ -68,15 +73,19 @@ public class RedWarehouse extends AutonomousTemplate {
                 .splineTo(pos(12, -61), 0)
                 .build();
 
-        toWarehouse2 = drive.trajectoryBuilder(toWarehouse1.end(), false)
-                .forward(48)
+        bonk = drive.trajectoryBuilder(toWarehouse1.end())
+                .strafeRight(8)
                 .build();
 
-        park = drive.trajectoryBuilder(toWarehouse2.end(), false)
-                .forward(-6)
-                .splineToConstantHeading(pos(46, -38), rad(0))
-                .lineToSplineHeading(pose(60, -38, 270))
+        toWarehouse2 = drive.trajectoryBuilder(pose(bonk.end().getX(), -63.375, 0))
+                .forward(28)
                 .build();
+
+        toWarehouse3 = drive.trajectoryBuilder(toWarehouse2.end(), SampleMecanumDrive.getVelocityConstraint(10, rad(180), 13.7))
+                .forward(20)
+                .build();
+
+        xCoordinateSensor = hardwareMap.get(DistanceSensor.class, "xCoordinateSensor"); // putting this here to save time
     }
 
     @Override
@@ -93,8 +102,10 @@ public class RedWarehouse extends AutonomousTemplate {
             for (int cycles = 0; cycles < MAX_CYCLES - 1; cycles++) {
                 // To warehouse
                 drive.followTrajectory(toWarehouse1, false);
+                drive.followTrajectory(bonk, false);
+                drive.followTrajectory(toWarehouse2, false);
                 currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
-                drive.followTrajectoryAsync(toWarehouse2, false);
+                drive.followTrajectoryAsync(toWarehouse3, false);
                 currentCycle.start();
                 // wait for the cycle to finish before running the check for failure once
                 if (currentCycle.await()) { // If this is true, we did NOT pick anything up
@@ -110,26 +121,40 @@ public class RedWarehouse extends AutonomousTemplate {
 
                 // To hub
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
+                System.out.println("to hub");
                 drive.followTrajectory(buildHubTrajectory(), false);
+                System.out.println("finished hub");
                 currentCycle.finish();
                 currentCycle.await();
                 currentCycle = null;
             }
 
             drive.followTrajectory(toWarehouse1, false);
+            drive.followTrajectory(bonk, false);
             drive.followTrajectory(toWarehouse2, false);
+            drive.followTrajectory(toWarehouse3, false);
         }
 
         // Park
-        drive.followTrajectory(park, false);
+        drive.followTrajectory(buildParkTrajectory(), false);
     }
 
     private Trajectory buildHubTrajectory() {
+        drive.update();
         return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
-                .addDisplacementMarker(() -> System.out.println("line"))
-                .lineToSplineHeading(pose(12, -62, 0))
-                .addDisplacementMarker(() -> System.out.println("spline"))
-                .splineToSplineHeading(pose(-5, -38, 280), rad(100))
-                .build();
+            .addDisplacementMarker(() -> System.out.println("line"))
+            .lineToSplineHeading(pose(12, -63.375, 0))
+            .addDisplacementMarker(() -> System.out.println("spline"))
+            .splineToSplineHeading(pose(-5, -38, 280), rad(100))
+            .build();
+    }
+
+    private Trajectory buildParkTrajectory() {
+        drive.update();
+        return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
+            .lineToSplineHeading(pose(54, -63.375, 0))
+            .splineToConstantHeading(pos(46, -38), rad(0))
+            .lineToSplineHeading(pose(60, -38, 270))
+            .build();
     }
 }

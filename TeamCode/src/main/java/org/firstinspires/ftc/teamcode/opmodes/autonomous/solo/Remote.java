@@ -38,6 +38,7 @@ import androidx.annotation.RequiresApi;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
@@ -55,6 +56,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="Remote", group="Remote")
+@Disabled
 public class Remote extends LinearOpMode {
     // Declare OpMode members.
     private float xCenter;

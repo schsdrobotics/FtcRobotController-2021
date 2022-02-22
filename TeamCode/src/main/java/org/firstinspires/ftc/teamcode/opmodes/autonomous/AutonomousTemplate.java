@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.path.PathContinuityViolationException;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
@@ -155,7 +156,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
             light.resetTimer();
             while (opModeIsActive() && !isStopRequested()) {
                 light.tick();
-                drive.update();
+//                drive.update();
             }
             light.setColor(LightHandler.Color.OFF);
         });
