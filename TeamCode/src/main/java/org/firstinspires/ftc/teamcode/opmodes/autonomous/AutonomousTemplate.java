@@ -32,6 +32,10 @@ public abstract class AutonomousTemplate extends LinearOpMode {
     private float xCenter;
     protected LiftHandler.Position target = LiftHandler.Position.HIGH;
 
+    protected int multiplier() {
+        return 1; // 1 is for red; -1 is for blue. Multiply all headings and y-coordinates (NOT x-coordinates) by this.
+    }
+
     // Declare all hardware-related fields
     protected CameraHandler camera;
     protected SampleMecanumDrive drive;
@@ -100,6 +104,23 @@ public abstract class AutonomousTemplate extends LinearOpMode {
 
     public static Pose2d pose(double x, double y, double deg) {
         return new Pose2d(x, y, rad(deg));
+    }
+
+
+    public double radM(double deg) {
+        return Math.toRadians(deg) * multiplier();
+    }
+
+    public Vector2d posM(double x, double y) {
+        return new Vector2d(x, y * multiplier());
+    }
+
+    public Vector2d posM(double pos) {
+        return pos(pos, pos * multiplier());
+    }
+
+    public Pose2d poseM(double x, double y, double deg) {
+        return new Pose2d(x, y * multiplier(), rad(deg * multiplier()));
     }
 
     public static double calculatePoint(double x1, double y1, double x2, double y2, boolean x, double xory) {

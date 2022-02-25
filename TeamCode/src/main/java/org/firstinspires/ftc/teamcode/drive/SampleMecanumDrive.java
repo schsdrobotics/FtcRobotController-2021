@@ -31,11 +31,14 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 
@@ -113,6 +116,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     public boolean isCorrecting = false;
     private Trajectory currentTrajectory;
 
+    private DistanceSensor xCoordinateSensor;
+    private static final double X_SENSOR_OFFSET = 1; // How far away the sensor is from the center of the robot. + is toward he intake.
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
@@ -180,6 +185,8 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
+
+        xCoordinateSensor = hardwareMap.get(DistanceSensor.class, "xCoordinateSensor");
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -502,5 +509,16 @@ public class SampleMecanumDrive extends MecanumDrive {
                     .build();
             followTrajectoryAsync(correction, false);
         }
+    }
+
+    public double findActualX(Telemetry telemetry) {
+        double heading = Math.toDegrees(getPoseEstimate().getHeading());
+        if (!(heading % 180 <= 3 || heading % 180 >= 177)) {
+            if (telemetry == null) throw new RuntimeException("Reset failed");
+            telemetry.addData("Drive", "Failed to reset x-coordinate");
+            return getPoseEstimate().getX();
+        }
+        boolean reversed = (heading % 180 >= 179);
+        return (70 - xCoordinateSensor.getDistance(DistanceUnit.INCH) - X_SENSOR_OFFSET) * (reversed ? -1 : 1);
     }
 }

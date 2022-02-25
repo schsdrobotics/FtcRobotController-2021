@@ -47,25 +47,25 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedWarehousePark", group="Red")
 public class RedWarehousePark extends AutonomousTemplate {
-    Trajectory forward;
-    Trajectory strafe;
-    Trajectory park;
+    private Trajectory forward;
+    private Trajectory strafe;
+    private Trajectory park;
 
     @Override
     protected Pose2d startPose() {
-        return pose(12, -63.375, 0);
+        return poseM(12, -63.375, 0);
     }
 
     @Override
     public void initializeTrajectories() {
         forward = drive.trajectoryBuilder(startPose())
-                .lineTo(pos(40, -63.375))
+                .lineTo(posM(40, -63.375))
                 .build();
         strafe = drive.trajectoryBuilder(forward.end())
-                .lineTo(pos(35, -30))
+                .lineTo(posM(35, -30))
                 .build();
         park = drive.trajectoryBuilder(strafe.end())
-                .lineToSplineHeading(pose(60, -30, 270))
+                .lineToSplineHeading(poseM(60, -30, 270))
                 .build();
     }
 

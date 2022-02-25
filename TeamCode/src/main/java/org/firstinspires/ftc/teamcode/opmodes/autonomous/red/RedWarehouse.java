@@ -47,45 +47,41 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedWarehouse", group="Red")
 public class RedWarehouse extends AutonomousTemplate {
-    DistanceSensor xCoordinateSensor;
+    private Trajectory toHubInitial;
+    private Trajectory toWarehouse1;
+    private Trajectory bonk;
+    private Trajectory toWarehouse2;
+    private Trajectory toWarehouse3;
+    private Trajectory park;
 
-    Trajectory toHubInitial;
-    Trajectory toWarehouse1;
-    Trajectory bonk;
-    Trajectory toWarehouse2;
-    Trajectory toWarehouse3;
-    Trajectory park;
-
-    private final int MAX_CYCLES = 2;
+    private final int MAX_CYCLES = 1;
 
     @Override
     protected Pose2d startPose() {
-        return pose(12, -61.375, 90);
+        return poseM(12, -61.375, 90);
     }
 
     @Override
     public void initializeTrajectories() {
         toHubInitial = drive.trajectoryBuilder(startPose())
-                .lineToLinearHeading(pose(-5, -38, 280))
+                .lineToLinearHeading(poseM(-5, -38, 280))
                 .build();
 
         toWarehouse1 = drive.trajectoryBuilder(toHubInitial.end(), false)
-                .splineTo(pos(12, -61), 0)
+                .splineTo(posM(12, -61), 0)
                 .build();
 
         bonk = drive.trajectoryBuilder(toWarehouse1.end())
                 .strafeRight(8)
                 .build();
 
-        toWarehouse2 = drive.trajectoryBuilder(pose(bonk.end().getX(), -63.375, 0))
+        toWarehouse2 = drive.trajectoryBuilder(poseM(bonk.end().getX(), -63.375, 0))
                 .forward(28)
                 .build();
 
         toWarehouse3 = drive.trajectoryBuilder(toWarehouse2.end(), SampleMecanumDrive.getVelocityConstraint(10, rad(180), 13.7))
                 .forward(20)
                 .build();
-
-        xCoordinateSensor = hardwareMap.get(DistanceSensor.class, "xCoordinateSensor"); // putting this here to save time
     }
 
     @Override
@@ -99,7 +95,7 @@ public class RedWarehouse extends AutonomousTemplate {
         currentCycle.await();
 
         park: {
-            for (int cycles = 0; cycles < MAX_CYCLES - 1; cycles++) {
+            for (int cycles = 0; cycles < MAX_CYCLES; cycles++) {
                 // To warehouse
                 drive.followTrajectory(toWarehouse1, false);
                 drive.followTrajectory(bonk, false);
@@ -143,18 +139,18 @@ public class RedWarehouse extends AutonomousTemplate {
         drive.update();
         return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
             .addDisplacementMarker(() -> System.out.println("line"))
-            .lineToSplineHeading(pose(12, -63.375, 0))
+            .lineToSplineHeading(poseM(12, -63.375, 0))
             .addDisplacementMarker(() -> System.out.println("spline"))
-            .splineToSplineHeading(pose(-5, -38, 280), rad(100))
+            .splineToSplineHeading(poseM(-5, -38, 280), radM(100))
             .build();
     }
 
     private Trajectory buildParkTrajectory() {
         drive.update();
         return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
-            .lineToSplineHeading(pose(54, -63.375, 0))
-            .splineToConstantHeading(pos(46, -38), rad(0))
-            .lineToSplineHeading(pose(60, -38, 270))
+            .lineToSplineHeading(poseM(54, -63.375, 0))
+            .splineToConstantHeading(posM(46, -38), radM(0))
+            .lineToSplineHeading(poseM(60, -38, 270))
             .build();
     }
 }

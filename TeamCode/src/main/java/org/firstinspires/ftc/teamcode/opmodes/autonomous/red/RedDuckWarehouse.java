@@ -47,38 +47,38 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedDuckWarehouse", group="Red")
 public class RedDuckWarehouse extends AutonomousTemplate {
-    Trajectory toHubInitial;
-    Trajectory toDuckSpinner;
-    Trajectory align;
-    Trajectory toWarehouse;
-    Trajectory park;
+    private Trajectory toHubInitial;
+    private Trajectory toDuckSpinner;
+    private Trajectory align;
+    private Trajectory toWarehouse;
+    private Trajectory park;
 
     @Override
     protected Pose2d startPose() {
-        return pose(-35, -61.375, 90);
+        return poseM(-35, -61.375, 90);
     }
 
     @Override
     public void initializeTrajectories() {
         toHubInitial = drive.trajectoryBuilder(startPose())
-                .splineToConstantHeading(pos(-57,-38), rad(90))
-                .lineToConstantHeading(pos(-57, -23))
-                .splineToSplineHeading(pose(-30, -19, 180), 0)
+                .splineToConstantHeading(posM(-57,-38), radM(90))
+                .lineToConstantHeading(posM(-57, -23))
+                .splineToSplineHeading(poseM(-30, -19, 180), 0)
                 .build();
 
         toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
-                .splineToSplineHeading(pose(-50, -17, 270), rad(180))
-                .splineToConstantHeading(pos(-77, -35), rad(270))
+                .splineToSplineHeading(poseM(-50, -17, 270), radM(180))
+                .splineToConstantHeading(posM(-77, -35), radM(270))
                 .forward(26)
                 .build();
 
-        align = drive.trajectoryBuilder(pose(-63.375, -51.375, 270))
-                .lineToSplineHeading(pose(-55, -40, 0))
-                .splineToConstantHeading(pos(-15, -64), rad(270))
+        align = drive.trajectoryBuilder(poseM(-63.375, -51.375, 270))
+                .lineToSplineHeading(poseM(-55, -40, 0))
+                .splineToConstantHeading(posM(-15, -64), radM(270))
                 .strafeRight(10)
                 .build();
 
-        toWarehouse = drive.trajectoryBuilder(pose(align.end().getX(), -65.25, 0))
+        toWarehouse = drive.trajectoryBuilder(poseM(align.end().getX(), -65.25, 0))
                 .forward(65)
                 .build();
 
@@ -97,7 +97,7 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Go to duck spinner
         drive.followTrajectory(toDuckSpinner, false);
         //Reset pose estimate because we bonk
-        drive.setPoseEstimate(pose(-63.375, -51.375, 270));
+        drive.setPoseEstimate(poseM(-63.375, -51.375, 270));
         // Lower lift
         lift.pursueTarget(LiftHandler.Position.LOW);
         // Run duck spinner for 1.5 seconds
@@ -114,7 +114,7 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Align
         drive.followTrajectory(align, false);
         // We just bonked so make pose estimate accurate
-        drive.setPoseEstimate(pose(drive.getPoseEstimate().getX(), -63.375, 270));
+        drive.setPoseEstimate(poseM(drive.getPoseEstimate().getX(), -63.375, 270));
         // Go to warehouse
         drive.followTrajectory(toWarehouse, false);
         // Park

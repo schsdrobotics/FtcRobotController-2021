@@ -37,7 +37,6 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
 /**
@@ -45,32 +44,32 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
  * Duck side -> Preload -> duck -> park in storage
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedDuckStorage", group="Red")
+@Autonomous(name = "RedDuckStorage", group = "Red")
 public class RedDuckStorage extends AutonomousTemplate {
-    Trajectory toHubInitial;
-    Trajectory toDuckSpinner;
-    Trajectory park;
+    protected Trajectory toHubInitial;
+    protected Trajectory toDuckSpinner;
+    protected Trajectory park;
 
     @Override
     protected Pose2d startPose() {
-        return pose(-35, -61.375, 90);
+        return poseM(-35, -61.375, 90);
     }
 
     @Override
     public void initializeTrajectories() {
         toHubInitial = drive.trajectoryBuilder(startPose())
-                .splineToConstantHeading(pos(-57,-38), rad(90))
-                .lineToConstantHeading(pos(-57, -23))
-                .splineToSplineHeading(pose(-30, -19, 180), 0)
+                .splineToConstantHeading(posM(-57,-38), radM(90))
+                .lineToConstantHeading(posM(-57, -23))
+                .splineToSplineHeading(poseM(-30, -19, 180), 0)
                 .build();
 
         toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
-                .splineToSplineHeading(pose(-50, -17, 270), rad(180))
-                .splineToConstantHeading(pos(-77, -35), rad(270))
-                .forward(26)
+                .splineToSplineHeading(poseM(-50, -17, 270), radM(180))
+                .splineToConstantHeading(posM(-73, -35), radM(270))
+                .forward(30)
                 .build();
 
-        park = drive.trajectoryBuilder(pose(-63.375, -51.375, 270))
+        park = drive.trajectoryBuilder(poseM(-63.375, -51.375, 270))
                 .forward(-20)
                 .build();
     }
@@ -85,12 +84,13 @@ public class RedDuckStorage extends AutonomousTemplate {
         // Go to duck spinner
         drive.followTrajectory(toDuckSpinner, false);
         //Reset pose estimate because we bonk
-        drive.setPoseEstimate(pose(-63.375, -51.375, 270));
+        drive.setPoseEstimate(poseM(-63.375, -51.375, 270));
         // Run duck spinner for 1.5 seconds
+        if (multiplier() == -1) duck.reverse();
         double startTime = getRuntime();
         while (getRuntime() - startTime < 1.5) {
             duck.tick();
-            duck.start(); // red does not need reversing
+            duck.start();
         }
         // Stop duck motor
         duck.stop();
