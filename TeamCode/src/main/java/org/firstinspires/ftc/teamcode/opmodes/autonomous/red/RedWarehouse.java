@@ -72,7 +72,7 @@ public class RedWarehouse extends AutonomousTemplate {
                 .build();
 
         bonk = drive.trajectoryBuilder(toWarehouse1.end(), SampleMecanumDrive.getVelocityConstraint(20, rad(180), 13.7))
-                .strafeRight(6)
+                .strafeRight(6 * multiplier())
                 .build();
 
         toWarehouse2 = drive.trajectoryBuilder(poseM(bonk.end().getX(), -65.375, 0))

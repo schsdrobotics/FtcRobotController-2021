@@ -44,7 +44,6 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedWarehouse;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="BlueWarehouse", group="Blue")
-@Disabled
 public class BlueWarehouse extends RedWarehouse {
     @Override
     protected int multiplier() {
