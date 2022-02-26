@@ -122,6 +122,8 @@ public class RedWarehouse extends AutonomousTemplate {
                 drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).forward(-6).build());
                 drive.followTrajectory(bonk);
                 drive.setPoseEstimate(poseM(drive.findActualX(telemetry), -65.375, 0));
+                drive.update();
+                System.out.println(drive.getPoseEstimate());
                 drive.followTrajectory(buildHubTrajectory(), false);
                 System.out.println("finished hub");
                 currentCycle.finish();

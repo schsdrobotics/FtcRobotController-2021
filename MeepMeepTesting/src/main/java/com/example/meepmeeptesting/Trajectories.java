@@ -115,11 +115,9 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .strafeLeft(24)
             .lineToLinearHeading(pose(60, 38, 270))
             .build()),
-    TEST(drive -> drive.trajectorySequenceBuilder(pose(0, -60, 90))
-            .splineToSplineHeading(pose(-60, 0, 0), rad(0))
-            .splineToSplineHeading(pose(0, 60, 270), rad(270))
-            .splineToSplineHeading(pose(60, 0, 180), rad(180))
-            .splineToSplineHeading(pose(0, -60, 90), rad(90))
+    TEST(drive -> drive.trajectorySequenceBuilder(pose(43.606, -65.375, 0.000))
+            .forward(0.01)
+            .waitSeconds(10)
             .build()),
     TEST2(drive -> drive.trajectorySequenceBuilder(pose(0, -60, 270))
             .splineToSplineHeading(pose(-60, 0, 180), rad(0))
@@ -191,7 +189,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(RED_WAREHOUSE::apply)
+                .followTrajectorySequence(TEST::apply)
                 .start();
     }
 }
