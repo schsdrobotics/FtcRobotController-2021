@@ -117,7 +117,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     private Trajectory currentTrajectory;
 
     private DistanceSensor xCoordinateSensor;
-    private static final double X_SENSOR_OFFSET = 1; // How far away the sensor is from the center of the robot. + is toward he intake.
+    private static final double X_SENSOR_OFFSET = 8; // How far away the sensor is from the center of the robot. + is toward he intake.
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
@@ -519,6 +519,6 @@ public class SampleMecanumDrive extends MecanumDrive {
             return getPoseEstimate().getX();
         }
         boolean reversed = (heading % 180 >= 179);
-        return (70 - xCoordinateSensor.getDistance(DistanceUnit.INCH) - X_SENSOR_OFFSET) * (reversed ? -1 : 1);
+        return (72 - xCoordinateSensor.getDistance(DistanceUnit.INCH) - X_SENSOR_OFFSET) * (reversed ? -1 : 1);
     }
 }

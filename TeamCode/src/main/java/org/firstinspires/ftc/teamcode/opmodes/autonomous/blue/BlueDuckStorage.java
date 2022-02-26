@@ -34,6 +34,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckStorage;
 
@@ -43,6 +44,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckStorage;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="BlueDuckStorage", group="Blue")
+@Disabled
 public class BlueDuckStorage extends RedDuckStorage {
     @Override
     protected int multiplier() {
