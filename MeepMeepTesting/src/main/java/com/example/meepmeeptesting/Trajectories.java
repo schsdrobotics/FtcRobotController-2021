@@ -50,6 +50,29 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineToConstantHeading(pos(42, -38), rad(0))
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
+    RED_WAREHOUSE2(drive -> drive.trajectorySequenceBuilder(pose(12, -63.375, 90))
+            //toHubInitial
+            .lineToLinearHeading(pose(-5, -42, 280))
+            //align(kinda)
+            .splineToSplineHeading(pose(-2, -54, 0), rad(290))
+            .splineToConstantHeading(pos(12, -71), rad(0))
+            //toWarehouse
+            .forward(40)
+            .setReversed(true)
+            //toHub
+            .lineTo(pos(12, -64))
+            .splineToSplineHeading(pose(-5, -42, 280), rad(100))
+            .setReversed(false)
+            //align(kinda)
+            .splineToSplineHeading(pose(-2, -54, 0), rad(290))
+            .splineToConstantHeading(pos(12, -71), rad(0))
+            //toWarehouse
+            .forward(40)
+            //park
+            .forward(-6)
+            .splineToConstantHeading(pos(42, -38), rad(0))
+            .lineToSplineHeading(pose(60, -38, 270))
+            .build()),
     RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -63.375, 0))
             .lineTo(pos(40, -63.375))
             .lineTo(pos(35, -30))
@@ -189,7 +212,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(TEST::apply)
+                .followTrajectorySequence(RED_WAREHOUSE2::apply)
                 .start();
     }
 }
