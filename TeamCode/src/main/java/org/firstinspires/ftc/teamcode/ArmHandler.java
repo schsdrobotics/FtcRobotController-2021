@@ -7,6 +7,7 @@ public class ArmHandler {
     // public for debug
     public final ServoWrapper vertical;
     public final ServoWrapper horizontal;
+    public final ServoWrapper mini;
     private final Gamepad controller;
     private boolean init = true;
     private long startMillis;
@@ -16,6 +17,7 @@ public class ArmHandler {
         this.controller = controller;
         vertical = ServoWrapper.get(map, "verticalServo");
         horizontal = ServoWrapper.get(map, "horizontalServo");
+        mini = ServoWrapper.get(map, "miniArmServo");
     }
 
     public void onStart() {
@@ -26,6 +28,7 @@ public class ArmHandler {
 
     public void tick() {
         if (controller != null) {
+            // horizontal
             // Horizontal servo is continuous
             if (controller.dpad_right) {  // if we want this on a joystick, change the condition to controller.left_stick_x != 0 etc.
 //                horizontal.setPos(horizontal.getPos() - 0.01);
@@ -39,10 +42,11 @@ public class ArmHandler {
             horizontal.update();
 
             long millis = System.currentTimeMillis();
+            // init and vertical
             if (millis - lastMillis > 40) {
                 if (init) {
                     if (millis - startMillis > 2000) init = false;
-//                    horizontal.setAndUpdate(0.4);
+                    horizontal.setAndUpdate(0.4);
                 } else {
                     if (controller.dpad_down) {
                         vertical.setPos(vertical.getPos() - 0.01);
@@ -54,6 +58,8 @@ public class ArmHandler {
                 vertical.update();
                 this.lastMillis = millis;
             }
+            // mini arm
+            mini.setAndUpdate(controller.a ? 0.7 : 0);
         }
     }
 }

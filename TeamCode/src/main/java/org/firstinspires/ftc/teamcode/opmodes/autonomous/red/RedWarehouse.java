@@ -35,6 +35,8 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
@@ -51,10 +53,14 @@ public class RedWarehouse extends AutonomousTemplate {
     private Trajectory toWarehouse1;
     private Trajectory bonk;
     private Trajectory toWarehouse2;
-    private Trajectory toWarehouse3;
+    private Trajectory toHub1;
     private Trajectory park;
 
+    private double xTemp = 48;
+
     private final int MAX_CYCLES = 2;
+    private final TrajectoryVelocityConstraint maxVel = SampleMecanumDrive.getVelocityConstraint(45, rad(240), 13.7);
+    private final TrajectoryAccelerationConstraint maxAccel = SampleMecanumDrive.getAccelerationConstraint(39);
 
     @Override
     protected Pose2d startPose() {
@@ -63,24 +69,18 @@ public class RedWarehouse extends AutonomousTemplate {
 
     @Override
     public void initializeTrajectories() {
+        drive.velConstraint = maxVel;
+        drive.accelConstraint = maxAccel;
         toHubInitial = drive.trajectoryBuilder(startPose())
                 .lineToLinearHeading(poseM(-5, -38, 280))
                 .build();
 
-        toWarehouse1 = drive.trajectoryBuilder(toHubInitial.end(), false)
-                .splineTo(posM(12, -61), 0)
-                .build();
+//        bonk = drive.trajectoryBuilder(drive.getPoseEstimate(), SampleMecanumDrive.getVelocityConstraint(20, rad(180), 13.7))
+//                .strafeRight(5 * multiplier())
+//                .build();
 
-        bonk = drive.trajectoryBuilder(toWarehouse1.end(), SampleMecanumDrive.getVelocityConstraint(20, rad(180), 13.7))
-                .strafeRight(6 * multiplier())
-                .build();
-
-        toWarehouse2 = drive.trajectoryBuilder(poseM(bonk.end().getX(), -65.375, 0))
-                .forward(36)
-                .build();
-
-        toWarehouse3 = drive.trajectoryBuilder(toWarehouse2.end(), SampleMecanumDrive.getVelocityConstraint(5, rad(180), 13.7))
-                .forward(12)
+        toWarehouse2 = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(6, rad(180), 13.7))
+                .lineToConstantHeading(pos(12, -3))
                 .build();
     }
 
@@ -92,17 +92,18 @@ public class RedWarehouse extends AutonomousTemplate {
         drive.followTrajectory(toHubInitial, false);
         // Drop and retract
         currentCycle.finish();
+        toWarehouse1 = buildToWarehouse1Trajectory();
         currentCycle.await();
 
         park: {
             for (int cycles = 0; cycles < MAX_CYCLES; cycles++) {
                 // To warehouse
                 drive.followTrajectory(toWarehouse1, false);
-                drive.followTrajectory(bonk, false);
-                drive.setPoseEstimate(poseM(bonk.end().getX(), -65.375, 0));
-                drive.followTrajectory(toWarehouse2, false);
+//                drive.followTrajectory(bonk, false);
+//                drive.setPoseEstimate(poseM(bonk.end().getX(), -65.375, 0));
+//                drive.followTrajectory(toWarehouse2, false);
                 currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
-                drive.followTrajectoryAsync(toWarehouse3, false);
+                drive.followTrajectoryAsync(toWarehouse2, false);
                 currentCycle.start();
                 // wait for the cycle to finish before running the check for failure once
                 if (currentCycle.await()) { // If this is true, we did NOT pick anything up
@@ -118,15 +119,14 @@ public class RedWarehouse extends AutonomousTemplate {
 
                 // To hub
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
-                System.out.println("to hub");
-                drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).forward(-6).build());
-                drive.followTrajectory(bonk);
+                drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate(), false).forward(-6).build());
+//                drive.followTrajectory(bonk);
+                xTemp = drive.findActualX(telemetry) + 6;
                 drive.setPoseEstimate(poseM(drive.findActualX(telemetry), -65.375, 0));
                 drive.update();
-                System.out.println(drive.getPoseEstimate());
                 drive.followTrajectory(buildHubTrajectory(), false);
-                System.out.println("finished hub");
                 currentCycle.finish();
+                toWarehouse1 = buildToWarehouse1Trajectory();
                 currentCycle.await();
                 currentCycle = null;
             }
@@ -144,9 +144,7 @@ public class RedWarehouse extends AutonomousTemplate {
     private Trajectory buildHubTrajectory() {
         drive.update();
         return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
-            .addDisplacementMarker(() -> System.out.println("line"))
-            .lineToSplineHeading(poseM(3, -65.375, 0))
-            .addDisplacementMarker(() -> System.out.println("spline"))
+            .lineToSplineHeading(poseM(7, -65.375, 0))
             .splineToSplineHeading(poseM(-5, -38, 280), radM(100))
             .build();
     }
@@ -157,6 +155,15 @@ public class RedWarehouse extends AutonomousTemplate {
             .lineToSplineHeading(poseM(54, -65.375, 0))
             .splineToConstantHeading(posM(46, -38), radM(0))
             .lineToSplineHeading(poseM(60, -38, 270))
+            .build();
+    }
+
+    private Trajectory buildToWarehouse1Trajectory() {
+        drive.update();
+        return drive.trajectoryBuilder(toHubInitial.end(), false)
+            .splineToSplineHeading(poseM(-2, -54, 0), radM(290))
+            .splineToConstantHeading(posM(12, -71), radM(0))
+            .lineToConstantHeading(pos(xTemp, -71))
             .build();
     }
 }

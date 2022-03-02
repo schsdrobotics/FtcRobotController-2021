@@ -209,6 +209,8 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         // Run once when started
         target = determineTarget(camera, xCenter);
 
+        lift.reset();
+
         // Raise arm
         arm.onStart();
     }

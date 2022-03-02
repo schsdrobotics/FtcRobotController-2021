@@ -98,8 +98,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     private MotionProfile turnProfile;
     private double turnStart;
 
-    private TrajectoryVelocityConstraint velConstraint;
-    private TrajectoryAccelerationConstraint accelConstraint;
+    public TrajectoryVelocityConstraint velConstraint;
+    public TrajectoryAccelerationConstraint accelConstraint;
     private TrajectoryFollower follower;
 
     private LinkedList<Pose2d> poseHistory;
