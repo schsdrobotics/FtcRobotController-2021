@@ -53,7 +53,6 @@ public class RedWarehouse extends AutonomousTemplate {
     private Trajectory toWarehouse1;
     private Trajectory bonk;
     private Trajectory toWarehouse2;
-    private Trajectory toHub1;
     private Trajectory park;
 
     private double xTemp = 48;
@@ -101,7 +100,7 @@ public class RedWarehouse extends AutonomousTemplate {
                 drive.followTrajectory(toWarehouse1, false);
 //                drive.followTrajectory(bonk, false);
 //                drive.setPoseEstimate(poseM(bonk.end().getX(), -65.375, 0));
-//                drive.followTrajectory(toWarehouse2, false);
+//                drive.followTrajectory(toWarehouse2, false); // THIS IS AN OLD TOWAREHOUSE2 AND IS NOT THE SAME AS IN THE NEW CODE. THIS WAS MERGED WITH TOWAREHOUSE1.
                 currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
                 drive.followTrajectoryAsync(toWarehouse2, false);
                 currentCycle.start();
@@ -119,10 +118,10 @@ public class RedWarehouse extends AutonomousTemplate {
 
                 // To hub
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
-                drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate(), false).forward(-6).build());
+//                drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate(), false).forward(-6).build());
 //                drive.followTrajectory(bonk);
-                xTemp = drive.findActualX(telemetry) + 6;
-                drive.setPoseEstimate(poseM(drive.findActualX(telemetry), -65.375, 0));
+                xTemp = drive.findActualX(telemetry)/* + 6*/;
+                drive.setPoseEstimate(poseM(/*drive.findActualX(telemetry)*/xTemp, -65.375, 0));
                 drive.update();
                 drive.followTrajectory(buildHubTrajectory(), false);
                 currentCycle.finish();
