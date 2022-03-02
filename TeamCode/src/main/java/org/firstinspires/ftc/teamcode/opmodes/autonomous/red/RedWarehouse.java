@@ -58,8 +58,6 @@ public class RedWarehouse extends AutonomousTemplate {
     private double xTemp = 48;
 
     private final int MAX_CYCLES = 2;
-    private final TrajectoryVelocityConstraint maxVel = SampleMecanumDrive.getVelocityConstraint(45, rad(240), 13.7);
-    private final TrajectoryAccelerationConstraint maxAccel = SampleMecanumDrive.getAccelerationConstraint(39);
 
     @Override
     protected Pose2d startPose() {
@@ -68,18 +66,18 @@ public class RedWarehouse extends AutonomousTemplate {
 
     @Override
     public void initializeTrajectories() {
-        drive.velConstraint = maxVel;
-        drive.accelConstraint = maxAccel;
+        drive.velConstraint = SampleMecanumDrive.getVelocityConstraint(35, rad(240), 13.7);
+        drive.accelConstraint = SampleMecanumDrive.getAccelerationConstraint(35);
         toHubInitial = drive.trajectoryBuilder(startPose())
-                .lineToLinearHeading(poseM(-5, -38, 280))
+                .lineToLinearHeading(poseM(-5, -36, 280))
                 .build();
 
 //        bonk = drive.trajectoryBuilder(drive.getPoseEstimate(), SampleMecanumDrive.getVelocityConstraint(20, rad(180), 13.7))
 //                .strafeRight(5 * multiplier())
 //                .build();
 
-        toWarehouse2 = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(6, rad(180), 13.7))
-                .lineToConstantHeading(pos(12, -3))
+        toWarehouse2 = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(12, rad(180), 13.7))
+                .lineToConstantHeading(pos(12, -5))
                 .build();
     }
 
@@ -120,8 +118,8 @@ public class RedWarehouse extends AutonomousTemplate {
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
 //                drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate(), false).forward(-6).build());
 //                drive.followTrajectory(bonk);
-                xTemp = drive.findActualX(telemetry)/* + 6*/;
-                drive.setPoseEstimate(poseM(/*drive.findActualX(telemetry)*/xTemp, -65.375, 0));
+                xTemp = drive.findActualX(false) + 6;
+                drive.setPoseEstimate(poseM(xTemp - 6, -65.375, 0));
                 drive.update();
                 drive.followTrajectory(buildHubTrajectory(), false);
                 currentCycle.finish();
@@ -130,7 +128,7 @@ public class RedWarehouse extends AutonomousTemplate {
                 currentCycle = null;
             }
 
-//            drive.followTrajectory(toWarehouse1, false);
+            drive.followTrajectory(toWarehouse1, false);
 //            drive.followTrajectory(bonk, false);
 //            drive.followTrajectory(toWarehouse2, false);
 //            drive.followTrajectory(toWarehouse3, false);
@@ -144,7 +142,7 @@ public class RedWarehouse extends AutonomousTemplate {
         drive.update();
         return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
             .lineToSplineHeading(poseM(7, -65.375, 0))
-            .splineToSplineHeading(poseM(-5, -38, 280), radM(100))
+            .splineToSplineHeading(poseM(-5, -36, 280), radM(100))
             .build();
     }
 

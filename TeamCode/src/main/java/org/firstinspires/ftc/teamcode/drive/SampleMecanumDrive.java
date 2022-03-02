@@ -511,14 +511,14 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
     }
 
-    public double findActualX(Telemetry telemetry) {
-        double heading = Math.toDegrees(getPoseEstimate().getHeading());
-        if (!(heading % 180 <= 3 || heading % 180 >= 177)) {
-            if (telemetry == null) throw new RuntimeException("Reset failed");
-            telemetry.addData("Drive", "Failed to reset x-coordinate");
-            return getPoseEstimate().getX();
-        }
-        boolean reversed = (heading % 180 >= 179);
+    public double findActualX(/*Telemetry telemetry, */boolean reversed) {
+//        double heading = Math.toDegrees(getPoseEstimate().getHeading());
+//        if (!(heading % 180 <= 3 || heading % 180 >= 177)) {
+//            if (telemetry == null) throw new RuntimeException("Reset failed");
+//            telemetry.addData("Drive", "Failed to reset x-coordinate");
+//            return getPoseEstimate().getX();
+//        }
+//        boolean reversed = (heading % 180 >= 179);
         return (72 - xCoordinateSensor.getDistance(DistanceUnit.INCH) - X_SENSOR_OFFSET) * (reversed ? -1 : 1);
     }
 }
