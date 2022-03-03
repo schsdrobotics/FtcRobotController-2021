@@ -44,7 +44,6 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckStorage;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="BlueDuckStorage", group="Blue")
-@Disabled
 public class BlueDuckStorage extends RedDuckStorage {
     @Override
     protected int multiplier() {

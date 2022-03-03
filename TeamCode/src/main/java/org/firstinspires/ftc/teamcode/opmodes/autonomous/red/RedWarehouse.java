@@ -54,13 +54,15 @@ public class RedWarehouse extends AutonomousTemplate {
     private Trajectory bonk;
     private Trajectory toWarehouse2;
     private Trajectory toWarehouse3;
-    private Trajectory park;
+//    private Trajectory park;
 
     private double xTemp = 48;
     private double xTempTurn = 48;
     private double yHubCoord;
 
-    private final int MAX_CYCLES = 2;
+    protected int MAX_CYCLES() {
+        return 2;
+    }
 
     @Override
     protected Pose2d startPose() {
@@ -70,7 +72,7 @@ public class RedWarehouse extends AutonomousTemplate {
     @Override
     public void initializeTrajectories() {
         drive.velConstraint = SampleMecanumDrive.getVelocityConstraint(35, rad(240), 13.7);
-        drive.accelConstraint = SampleMecanumDrive.getAccelerationConstraint(35);
+//        drive.accelConstraint = SampleMecanumDrive.getAccelerationConstraint(35); // this is the default value so doesn't need to be written in
 
         bonk = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(23, rad(180), 13.7))
             .strafeRight(8 * multiplier())
@@ -97,14 +99,14 @@ public class RedWarehouse extends AutonomousTemplate {
             .lineToLinearHeading(poseM(-7, yHubCoord, 280))
             .build(), false);
         double startTime = getRuntime();
-        while (getRuntime() < startTime + 2.25); //Wait for 2s
+        while (getRuntime() < startTime + 2.25); // Wait for 2s
         // Drop and retract
         currentCycle.finish();
         toWarehouse1 = buildToWarehouse1Trajectory();
         currentCycle.await();
 
         park: {
-            for (int cycles = 0; cycles < MAX_CYCLES; cycles++) {
+            for (int cycles = 0; cycles < MAX_CYCLES(); cycles++) {
                 // To warehouse
                 drive.followTrajectory(toWarehouse1, false);
 //                drive.followTrajectory(bonk, false);
@@ -137,7 +139,7 @@ public class RedWarehouse extends AutonomousTemplate {
                 drive.update();
                 drive.followTrajectoryAsync(buildHubTrajectory(), false);
                 startTime = getRuntime();
-                while (getRuntime() < startTime + 3.25); //Wait for 3.75s
+                while (getRuntime() < startTime + 3.25); // Wait for 3.75s
                 currentCycle.finish();
                 toWarehouse1 = buildToWarehouse1Trajectory();
                 currentCycle.await();
