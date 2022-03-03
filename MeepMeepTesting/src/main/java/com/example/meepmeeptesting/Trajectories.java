@@ -67,11 +67,12 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineToSplineHeading(pose(-2, -54, 0), rad(290))
             .splineToConstantHeading(pos(12, -71), rad(0))
             //toWarehouse
-            .forward(40)
+            .lineToConstantHeading(pos(40, -71))
+            .splineToSplineHeading(pose(48, -67, 0), rad(10))
             //park
-            .forward(-6)
-            .splineToConstantHeading(pos(42, -38), rad(0))
-            .lineToSplineHeading(pose(60, -38, 270))
+//            .forward(-6)
+//            .splineToConstantHeading(pos(42, -38), rad(0))
+//            .lineToSplineHeading(pose(60, -38, 270))
             .build()),
     RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -63.375, 0))
             .lineTo(pos(40, -63.375))

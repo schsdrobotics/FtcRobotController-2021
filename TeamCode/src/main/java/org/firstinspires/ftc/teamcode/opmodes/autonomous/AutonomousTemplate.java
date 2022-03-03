@@ -212,7 +212,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         lift.reset();
 
         // Raise arm
-        arm.onStart();
+        arm.onStartAuto();
     }
 
     /**

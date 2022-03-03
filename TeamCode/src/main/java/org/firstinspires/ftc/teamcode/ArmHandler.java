@@ -20,10 +20,18 @@ public class ArmHandler {
         mini = ServoWrapper.get(map, "miniArmServo");
     }
 
-    public void onStart() {
-        vertical.setAndUpdate(0.64);
+    public void onStartControlled() {
+        onStartAuto();
         horizontal.setAndUpdate(0.5);
         startMillis = System.currentTimeMillis();
+    }
+
+    public void onStartAuto() {
+        vertical.setAndUpdate(0.64);
+    }
+
+    public void onStopAuto() {
+        vertical.setAndUpdate(0.4); // update this to be whatever the arm is at when the robot first starts
     }
 
     public void tick() {
@@ -46,7 +54,7 @@ public class ArmHandler {
             if (millis - lastMillis > 40) {
                 if (init) {
                     if (millis - startMillis > 2000) init = false;
-                    horizontal.setAndUpdate(0.4);
+                    else horizontal.setAndUpdate(0.4);
                 } else {
                     if (controller.dpad_down) {
                         vertical.setPos(vertical.getPos() - 0.01);

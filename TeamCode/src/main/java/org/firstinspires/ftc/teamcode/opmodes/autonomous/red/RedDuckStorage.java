@@ -97,5 +97,6 @@ public class RedDuckStorage extends AutonomousTemplate {
         duck.tick();
         // Park
         drive.followTrajectory(park, false);
+        arm.onStopAuto();
     }
 }

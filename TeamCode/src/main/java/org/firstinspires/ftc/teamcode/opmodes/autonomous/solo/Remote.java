@@ -182,7 +182,7 @@ public class Remote extends LinearOpMode {
         currentState = State.TO_HUB_INITIAL;
 
         // Raise arm
-        arm.onStart();
+        arm.onStartAuto();
         // Drop intake
         intakeServo.release();
         // Make bucket stand straight up

@@ -109,6 +109,7 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Stop duck motor
         duck.stop();
         duck.tick();
+        arm.onStopAuto();
         // Wait until there's 8 seconds left
         while (getRuntime() < 22);
         // Align

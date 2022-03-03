@@ -42,20 +42,24 @@ public class LiftHandler {
                 reset();
             }
 
-            boolean x = gamepad.x;
-            boolean y = gamepad.y;
-            boolean b = gamepad.b;
-            if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
-                Position target = null;
-                if (x) {
-                    target = Position.LOW;
-                } else if (y) {
-                    target = Position.MIDDLE;
-                } else if (b) {
-                    target = Position.HIGH;
-                }
-                if (target != null) pursueTarget(target);
+            if (gamepad.x) {
+                pursueTarget(Position.LOW);
             }
+
+//            boolean x = gamepad.x;
+//            boolean y = gamepad.y;
+//            boolean b = gamepad.b;
+//            if ((!(x && y) && !(y && b) && !(x && b))) { // if only 1 button is pressed
+//                Position target = null;
+//                if (x) {
+//                    target = Position.LOW;
+//                } else if (y) {
+//                    target = Position.MIDDLE;
+//                } else if (b) {
+//                    target = Position.HIGH;
+//                }
+//                if (target != null) pursueTarget(target);
+//            }
         }
     }
 

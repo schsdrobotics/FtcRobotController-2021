@@ -133,7 +133,7 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void start() {
         intakeServo.release();
-        arm.onStart();
+        arm.onStartControlled();
         runtime.reset();
     }
 

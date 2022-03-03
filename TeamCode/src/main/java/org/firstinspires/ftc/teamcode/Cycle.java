@@ -53,7 +53,7 @@ public class Cycle {
             stage = Stage.IN_START;
             holdValues(true);
             double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-            boolean preFilled = distanceCm < 7;
+            boolean preFilled = distanceCm < 6;
             if (!preFilled) {
                 sweeper.forwards(1);
 
@@ -77,7 +77,7 @@ public class Cycle {
                     } else bucketFilledFor = 0; // reset timer if item has exited
 
                     // if bucket has consistently held an item for 300 millis, consider it secure
-                    if (bucketFilledFor > 300) {
+                    if (bucketFilledFor > 400) {
                         sweeper.stop();
                         break;
                     }
@@ -87,9 +87,11 @@ public class Cycle {
                 }
             }
 
-            boolean objectPickedUp = distanceCm < 7;
+            boolean objectPickedUp = distanceCm < 6;
+            stage = Stage.SHOULD_CANCEL;
             if (objectPickedUp) {
                 if (!preFilled) {
+                    bucket.halfway();
                     sweeper.backwards(1); // spit out extras
                     waitFor(300);
                 }
@@ -150,8 +152,16 @@ public class Cycle {
         return stage.isBusy();
     }
 
+    public boolean softIsBusy() {
+        return stage.softIsBusy();
+    }
+
     public boolean isLowering() {
         return stage.isLowering();
+    }
+
+    public boolean shouldCancel() {
+        return stage.shouldCancel();
     }
 
     /**
@@ -159,7 +169,7 @@ public class Cycle {
      */
     public boolean await() {
         waitFor(100); // Make sure that the other thread has a chance to set the state
-        while (isBusy() && !isLowering()) {
+        while (softIsBusy() && !isLowering() && !shouldCancel()) {
             waitFor(20);
         }
         return stage == Stage.COMPLETE;
@@ -179,17 +189,26 @@ public class Cycle {
     public enum Stage {
         WAITING,
         IN_START,
+        SHOULD_CANCEL,
         BETWEEN,
         IN_FINISH,
         LOWERING_LIFT,
         COMPLETE;
 
         public boolean isBusy() {
+            return this == IN_START || this == IN_FINISH || this == SHOULD_CANCEL;
+        }
+
+        public boolean softIsBusy() {
             return this == IN_START || this == IN_FINISH;
         }
 
         public boolean isLowering() {
             return this == LOWERING_LIFT;
+        }
+
+        public boolean shouldCancel() {
+            return this == SHOULD_CANCEL;
         }
     }
 }
