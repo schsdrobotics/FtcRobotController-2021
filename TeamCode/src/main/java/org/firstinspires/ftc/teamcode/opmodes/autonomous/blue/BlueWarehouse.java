@@ -33,6 +33,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
@@ -49,4 +50,14 @@ public class BlueWarehouse extends RedWarehouse {
     protected int multiplier() {
         return -1;
     }
+
+//    @Override
+//    protected Trajectory buildToHubTrajectory() {
+//        drive.update();
+//        return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
+//            .lineToSplineHeading(poseM(7, -65.375, 0))
+//            .splineToConstantHeading(posM(-2, -60), radM(110))
+//            .splineToSplineHeading(poseM(-13, -36, 280), radM(100))
+//            .build();
+//    }
 }

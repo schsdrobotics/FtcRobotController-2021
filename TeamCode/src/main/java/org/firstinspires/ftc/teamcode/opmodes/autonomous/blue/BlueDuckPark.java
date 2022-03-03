@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckPark;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueDuckStorage", group="Blue")
+@Autonomous(name="BlueDuckPark", group="Blue")
 public class BlueDuckPark extends RedDuckPark {
     @Override
     protected int multiplier() {

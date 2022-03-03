@@ -35,8 +35,6 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
@@ -50,10 +48,10 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @Autonomous(name="RedWarehouse", group="Red")
 public class RedWarehouse extends AutonomousTemplate {
 //    private Trajectory toHubInitial;
-    private Trajectory toWarehouse1;
-    private Trajectory bonk;
-    private Trajectory toWarehouse2;
-    private Trajectory toWarehouse3;
+    private Trajectory enterWarehouse;
+    private Trajectory bonk; // strafes into the wall to align
+    private Trajectory pickupStrafe;
+    private Trajectory pickupStraight;
 //    private Trajectory park;
 
     private double xTemp = 48;
@@ -78,12 +76,13 @@ public class RedWarehouse extends AutonomousTemplate {
             .strafeRight(8 * multiplier())
             .build();
 
-        toWarehouse2 = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(10, rad(180), 13.7))
-                .lineToConstantHeading(posM(12, -5))
+        pickupStrafe = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(10, rad(180), 13.7))
+                .splineToConstantHeading(posM(5, 5), 0)
+                .forward(7)
                 .build();
 
-        toWarehouse3 = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(13, rad(180), 13.7))
-                .lineToConstantHeading(posM(10, 7))
+        pickupStraight = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(13, rad(180), 13.7))
+                .lineToConstantHeading(posM(13, -2))
                 .build();
     }
 
@@ -102,19 +101,19 @@ public class RedWarehouse extends AutonomousTemplate {
         while (getRuntime() < startTime + 2.25); // Wait for 2s
         // Drop and retract
         currentCycle.finish();
-        toWarehouse1 = buildToWarehouse1Trajectory();
+        enterWarehouse = buildEnterWarehouseTrajectory();
         currentCycle.await();
 
         park: {
             for (int cycles = 0; cycles < MAX_CYCLES(); cycles++) {
                 // To warehouse
-                drive.followTrajectory(toWarehouse1, false);
+                drive.followTrajectory(enterWarehouse, false);
 //                drive.followTrajectory(bonk, false);
 //                drive.setPoseEstimate(poseM(bonk.end().getX(), -65.375, 0));
 //                drive.followTrajectory(toWarehouse2, false); // THIS IS AN OLD TOWAREHOUSE2 AND IS NOT THE SAME AS IN THE NEW CODE. THIS WAS MERGED WITH TOWAREHOUSE1.
                 currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
-                if (cycles % 2 == 0) drive.followTrajectoryAsync(toWarehouse2, false);
-                else drive.followTrajectoryAsync(toWarehouse3, false);
+                if (cycles % 2 == 1) drive.followTrajectoryAsync(pickupStrafe, false);
+                else drive.followTrajectoryAsync(pickupStraight, false);
                 currentCycle.start();
                 // wait for the cycle to finish before running the check for failure once
                 if (currentCycle.await()) { // If this is true, we did NOT pick anything up
@@ -122,6 +121,8 @@ public class RedWarehouse extends AutonomousTemplate {
                     if (!currentCycle.errorMessage.isEmpty())
                         System.out.println("Failed to pick up an item; parking now");
                     else System.out.println("Cycle is not working properly.");
+                    drive.cancelFollowing();
+                    drive.setDrivePower(new Pose2d());
                     break park;
                 } else {
                     drive.cancelFollowing();
@@ -137,17 +138,17 @@ public class RedWarehouse extends AutonomousTemplate {
                 xTemp = drive.findActualX(false);
                 drive.setPoseEstimate(poseM(xTemp, -65.375, 0));
                 drive.update();
-                drive.followTrajectoryAsync(buildHubTrajectory(), false);
+                drive.followTrajectoryAsync(buildToHubTrajectory(), false);
                 startTime = getRuntime();
-                while (getRuntime() < startTime + 3.25); // Wait for 3.75s
+                while (getRuntime() < startTime + 3.3); // Wait for 3.75s
                 currentCycle.finish();
-                toWarehouse1 = buildToWarehouse1Trajectory();
+                enterWarehouse = buildEnterWarehouseTrajectory();
                 currentCycle.await();
                 currentCycle = null;
             }
 
             arm.onStopAuto();
-            drive.followTrajectory(toWarehouse1, false);
+            drive.followTrajectory(enterWarehouse, false);
 //            drive.followTrajectory(bonk, false);
 //            drive.followTrajectory(toWarehouse2, false);
 //            drive.followTrajectory(toWarehouse3, false);
@@ -157,11 +158,12 @@ public class RedWarehouse extends AutonomousTemplate {
 //        drive.followTrajectory(buildParkTrajectory(), false);
     }
 
-    private Trajectory buildHubTrajectory() {
+    protected Trajectory buildToHubTrajectory() {
         drive.update();
         return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
             .lineToSplineHeading(poseM(7, -65.375, 0))
-            .splineToSplineHeading(poseM(-7, -37, 280), radM(100))
+            .splineToConstantHeading(posM(-2, -60), radM(110))
+            .splineToSplineHeading(poseM(-13, -36, 280), radM(100))
             .build();
     }
 
@@ -174,12 +176,12 @@ public class RedWarehouse extends AutonomousTemplate {
             .build();
     }
 
-    private Trajectory buildToWarehouse1Trajectory() {
+    private Trajectory buildEnterWarehouseTrajectory() {
         drive.update();
         return drive.trajectoryBuilder(poseM(-7, -37, 280), false)
             .splineToSplineHeading(poseM(-2, -54, 0), radM(290))
             .splineToConstantHeading(posM(12, -71), radM(0))
-            .lineToConstantHeading(posM(xTemp, -71))
+            .lineToConstantHeading(posM(xTemp + 6, -71))
             .build();
     }
 }

@@ -76,7 +76,7 @@ public class Cycle {
 
                     } else bucketFilledFor = 0; // reset timer if item has exited
 
-                    // if bucket has consistently held an item for 300 millis, consider it secure
+                    // if bucket has consistently held an item for 400 millis, consider it secure
                     if (bucketFilledFor > 400) {
                         sweeper.stop();
                         break;
@@ -196,7 +196,7 @@ public class Cycle {
         COMPLETE;
 
         public boolean isBusy() {
-            return this == IN_START || this == IN_FINISH || this == SHOULD_CANCEL;
+            return this == IN_START || this == IN_FINISH || this == SHOULD_CANCEL || this == LOWERING_LIFT;
         }
 
         public boolean softIsBusy() {

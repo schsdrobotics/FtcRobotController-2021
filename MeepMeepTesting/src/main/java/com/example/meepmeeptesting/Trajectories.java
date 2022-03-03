@@ -2,6 +2,10 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
 import com.noahbres.meepmeep.roadrunner.DriveShim;
@@ -9,6 +13,7 @@ import com.noahbres.meepmeep.roadrunner.trajectorysequence.TrajectorySequence;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
@@ -59,8 +64,12 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             //toWarehouse
             .forward(40)
             .setReversed(true)
+            .setVelConstraint(getVelocityConstraint(1000, 1, 13.7))
+            .strafeLeft(8)
+            .resetVelConstraint()
             //toHub
             .lineTo(pos(12, -64))
+            .splineToConstantHeading(pos(-2, -54), rad(110))
             .splineToSplineHeading(pose(-5, -42, 280), rad(100))
             .setReversed(false)
             //align(kinda)
@@ -149,6 +158,10 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineToSplineHeading(pose(60, 0, 0), rad(180))
             .splineToSplineHeading(pose(0, -60, 270), rad(90))
             .build()),
+    PICKUP_STRAFE(drive -> drive.trajectorySequenceBuilder(pose(0, 0, 0))
+            .splineToConstantHeading(pos(12, -5), 0)
+            .forward(5)
+            .build()),
     REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
             .lineToSplineHeading(pose(-7, -40, 270))
@@ -199,6 +212,13 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
         }
     }
 
+    public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
+        return new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(maxAngularVel),
+                new MecanumVelocityConstraint(maxVel, trackWidth)
+        ));
+    }
+
     public static double multiplier = 1;
 
     public static void main(String[] args) {
@@ -213,7 +233,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(RED_WAREHOUSE2::apply)
+                .followTrajectorySequence(PICKUP_STRAFE::apply)
                 .start();
     }
 }
