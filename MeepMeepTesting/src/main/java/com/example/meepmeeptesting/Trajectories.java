@@ -2,6 +2,9 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
@@ -10,6 +13,7 @@ import com.noahbres.meepmeep.roadrunner.trajectorysequence.TrajectorySequence;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
@@ -26,17 +30,16 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .build()),
     RED_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, -61.375, 90))
             .splineToConstantHeading(pos(-57,-38), rad(90))
-            .lineToConstantHeading(pos(-57, -28))
-            .splineToSplineHeading(pose(-30, -24, 180), 0)
-            .waitSeconds(0)
-            .splineToSplineHeading(pose(-50, -22, 270), rad(180))
-            .splineToConstantHeading(pos(-63.375, -35), rad(270))
-            .forward(15)
-            .waitSeconds(1.5)
-            .lineToSplineHeading(pose(-55, -48, 0))
+            .lineToConstantHeading(pos(-57, -23))
+            .splineToSplineHeading(pose(-30, -19, 180), 0)
+            .splineToSplineHeading(pose(-50, -17, 270), rad(180))
+            .splineToConstantHeading(pos(-77, -35), rad(270))
+            .forward(26)
+            .lineToSplineHeading(pose(-55, -40, 0))
             .splineToConstantHeading(pos(-15, -64), rad(270))
-            .strafeRight(7)
-            .forward(60)
+            .strafeRight(10)
+            .forward(65)
+            .strafeLeft(10)
             .build()),
     RED_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, -61.375, 90))
             .lineToLinearHeading(pose(-5, -42, 280))
@@ -52,15 +55,38 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineToConstantHeading(pos(42, -38), rad(0))
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
-    RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -61.375, 90))
-            // FIXME change this so we don't bonk the barrier
-            .forward(10)
-            .turn(rad(-90))
-            .strafeRight(17)
-            .forward(18)
-            .addTemporalMarker(() -> drive.setPoseEstimate(pose(12, -63.375, 0)))
-            .splineToConstantHeading(pos(42, -38), rad(0))
-            .lineToSplineHeading(pose(60, -38, 270))
+    RED_WAREHOUSE2(drive -> drive.trajectorySequenceBuilder(pose(12, -63.375, 90))
+            //toHubInitial
+            .lineToLinearHeading(pose(-5, -42, 280))
+            //align(kinda)
+            .splineToSplineHeading(pose(-2, -54, 0), rad(290))
+            .splineToConstantHeading(pos(12, -71), rad(0))
+            //toWarehouse
+            .forward(40)
+            .setReversed(true)
+            .setVelConstraint(getVelocityConstraint(1000, 1, 13.7))
+            .strafeLeft(8)
+            .resetVelConstraint()
+            //toHub
+            .lineTo(pos(12, -64))
+            .splineToConstantHeading(pos(-2, -54), rad(110))
+            .splineToSplineHeading(pose(-5, -42, 280), rad(100))
+            .setReversed(false)
+            //align(kinda)
+            .splineToSplineHeading(pose(-2, -54, 0), rad(290))
+            .splineToConstantHeading(pos(12, -71), rad(0))
+            //toWarehouse
+            .lineToConstantHeading(pos(40, -71))
+            .splineToSplineHeading(pose(48, -67, 0), rad(10))
+            //park
+//            .forward(-6)
+//            .splineToConstantHeading(pos(42, -38), rad(0))
+//            .lineToSplineHeading(pose(60, -38, 270))
+            .build()),
+    RED_WAREHOUSE_PARK(drive -> drive.trajectorySequenceBuilder(pose(12, -63.375, 0))
+            .lineTo(pos(40, -63.375))
+            .lineTo(pos(35, -30))
+            .lineToSplineHeading(pose(60, -30, 270))
             .build()),
     BLUE_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
             .lineTo(pos(-12, 45))
@@ -122,26 +148,19 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .strafeLeft(24)
             .lineToLinearHeading(pose(60, 38, 270))
             .build()),
-    TEST(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .addTemporalMarker(() -> {
-                //slheflkjaes;e;okf
-            })
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
-            .forward(1)
+    TEST(drive -> drive.trajectorySequenceBuilder(pose(43.606, -65.375, 0.000))
+            .forward(0.01)
+            .waitSeconds(10)
+            .build()),
+    TEST2(drive -> drive.trajectorySequenceBuilder(pose(0, -60, 270))
+            .splineToSplineHeading(pose(-60, 0, 180), rad(0))
+            .splineToSplineHeading(pose(0, 60, 90), rad(270))
+            .splineToSplineHeading(pose(60, 0, 0), rad(180))
+            .splineToSplineHeading(pose(0, -60, 270), rad(90))
+            .build()),
+    PICKUP_STRAFE(drive -> drive.trajectorySequenceBuilder(pose(0, 0, 0))
+            .splineToConstantHeading(pos(12, -5), 0)
+            .forward(5)
             .build()),
     REMOTE(drive -> drive.trajectorySequenceBuilder(pose(-35, -62, 90))
             .lineTo(pos(calculatePoint(-35, -62, -7, -40, false, -58), -58))
@@ -193,7 +212,14 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
         }
     }
 
-    public static double stupid = 1;
+    public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
+        return new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(maxAngularVel),
+                new MecanumVelocityConstraint(maxVel, trackWidth)
+        ));
+    }
+
+    public static double multiplier = 1;
 
     public static void main(String[] args) {
         // Declare a MeepMeep instance
@@ -205,10 +231,9 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setTheme(new ColorSchemeRedDark())
                 // Background opacity from 0-1
                 .setBackgroundAlpha(1f)
-                // Set constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(45*stupid, 45*stupid, rad(180)*stupid, rad(180)*stupid, 13.7)
                 .setBotDimensions(13.25, 17.25)
-                .followTrajectorySequence(RED_DUCK_WAREHOUSE::apply)
+                .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
+                .followTrajectorySequence(PICKUP_STRAFE::apply)
                 .start();
     }
 }

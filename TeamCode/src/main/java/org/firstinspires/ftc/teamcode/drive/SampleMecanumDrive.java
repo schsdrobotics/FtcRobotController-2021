@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
@@ -30,11 +31,14 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 
@@ -42,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_ACCEL;
@@ -55,11 +61,16 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kA;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kStatic;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 
+import static java.lang.Math.toRadians;
+
+import android.os.Build;
+
 /*
  * This is a modified SampleMecanumDrive class that implements the ability to cancel a trajectory
  * following. Essentially, it just forces the mode to IDLE.
  */
 @Config
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class SampleMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
@@ -87,8 +98,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     private MotionProfile turnProfile;
     private double turnStart;
 
-    private TrajectoryVelocityConstraint velConstraint;
-    private TrajectoryAccelerationConstraint accelConstraint;
+    public TrajectoryVelocityConstraint velConstraint;
+    public TrajectoryAccelerationConstraint accelConstraint;
     private TrajectoryFollower follower;
 
     private LinkedList<Pose2d> poseHistory;
@@ -100,6 +111,14 @@ public class SampleMecanumDrive extends MecanumDrive {
     private VoltageSensor batteryVoltageSensor;
 
     private Pose2d lastPoseOnTurn;
+
+    private boolean shouldCorrect;
+    public boolean isCorrecting = false;
+    private Trajectory currentTrajectory;
+
+    private DistanceSensor xCoordinateSensor;
+    private static final double X_SENSOR_OFFSET = 8; // How far away the sensor is from the center of the robot. + is toward he intake.
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -117,7 +136,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         velConstraint = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
         accelConstraint = getAccelerationConstraint(MAX_ACCEL);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.0);
+                new Pose2d(0.5, 0.5, toRadians(5.0)), 0.0);
 
         poseHistory = new LinkedList<>();
 
@@ -129,8 +148,7 @@ public class SampleMecanumDrive extends MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        // TODO: adjust the names of the following hardware devices to match your configuration
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu = hardwareMap.get(BNO055IMU.class, "expansionHubIMU");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
@@ -162,12 +180,13 @@ public class SampleMecanumDrive extends MecanumDrive {
             setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
         }
 
-        // TODO: reverse any motors using DcMotor.setDirection()
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
+
+        xCoordinateSensor = hardwareMap.get(DistanceSensor.class, "xCoordinateSensor");
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -178,11 +197,16 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new TrajectoryBuilder(startPose, reversed, velConstraint, accelConstraint);
     }
 
+    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, TrajectoryVelocityConstraint velConstraint) {
+        return new TrajectoryBuilder(startPose, velConstraint, accelConstraint);
+    }
+
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
         return new TrajectoryBuilder(startPose, startHeading, velConstraint, accelConstraint);
     }
 
     public void turnAsync(double angle) {
+        waitForIdle(); //Make sure we aren't doing two things at once
         double heading = getPoseEstimate().getHeading();
 
         lastPoseOnTurn = getPoseEstimate();
@@ -203,21 +227,38 @@ public class SampleMecanumDrive extends MecanumDrive {
         waitForIdle();
     }
 
-    public void followTrajectoryAsync(Trajectory trajectory) {
+    public void followTrajectoryAsync(Trajectory trajectory, boolean shouldCorrect) {
+        waitForIdle(); // Make sure we aren't following two trajectories at once
         follower.followTrajectory(trajectory);
+        currentTrajectory = trajectory;
+        this.shouldCorrect = shouldCorrect;
         mode = Mode.FOLLOW_TRAJECTORY;
+        executor.submit(() -> {
+            while (isBusy()) update();
+        });
+    }
+
+    public void followTrajectoryAsync(Trajectory trajectory) {
+        followTrajectoryAsync(trajectory, false);
+    }
+
+    /**
+     * This is blocking until the bot starts correcting, so update() has to be called repeatedly
+     * @param trajectory the trajectory the bot will follow
+     * @param shouldCorrect whether or not the bot should correct after it's done following
+     */
+    public void followTrajectory(Trajectory trajectory, boolean shouldCorrect) {
+        followTrajectoryAsync(trajectory, shouldCorrect);
+        if (shouldCorrect) waitForCorrectOrIdle();
+        else waitForIdle();
     }
 
     public void followTrajectory(Trajectory trajectory) {
-        followTrajectory(trajectory, () -> {});
-    }
-
-    public void followTrajectory(Trajectory trajectory, Runnable onWait) {
-        followTrajectoryAsync(trajectory);
-        waitForIdle(onWait);
+        followTrajectory(trajectory, false);
     }
 
     public void cancelFollowing() {
+        isCorrecting = false;
         mode = Mode.IDLE;
     }
 
@@ -285,6 +326,7 @@ public class SampleMecanumDrive extends MecanumDrive {
                 DashboardUtil.drawRobot(fieldOverlay, newPose);
 
                 if (t >= turnProfile.duration()) {
+                    isCorrecting = false;
                     mode = Mode.IDLE;
                     setDriveSignal(new DriveSignal());
                 }
@@ -306,7 +348,13 @@ public class SampleMecanumDrive extends MecanumDrive {
                 DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
 
                 if (!follower.isFollowing()) {
-                    mode = Mode.IDLE;
+                    if (shouldCorrect && !isCorrecting) {
+                        isCorrecting = true;
+                        correct(); // This is async
+                    } else {
+                        isCorrecting = false;
+                        mode = Mode.IDLE;
+                    }
                     setDriveSignal(new DriveSignal());
                 }
 
@@ -321,13 +369,18 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void waitForIdle() {
-        waitForIdle(() -> {});
-    }
-
-    public void waitForIdle(Runnable onWait) {
         while (!Thread.currentThread().isInterrupted() && isBusy()) {
             update();
-            onWait.run();
+        }
+    }
+
+    public void waitForCorrectOrIdle() {
+        while (true) {
+            boolean stop = isCorrecting || !isBusy() || Thread.currentThread().isInterrupted();
+            if (stop) {
+                break;
+            }
+            update();
         }
     }
 
@@ -441,5 +494,31 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
         return new ProfileAccelerationConstraint(maxAccel);
+    }
+
+    private void correct() {
+        Pose2d current = getPoseEstimate();
+        Pose2d target = currentTrajectory.end();
+        if (current.epsilonEquals(target)) return; // If we are where we want to be, stop.
+        if (current.vec().epsilonEquals(target.vec())) { // If the x and y are equal...
+            // We already checked if everything is equal, so we can assume that only the angle needs correction.
+            turnAsync(target.getHeading() - current.getHeading());
+        } else { // The position needs fixing.
+            Trajectory correction = trajectoryBuilder(current)
+                    .lineToLinearHeading(target)
+                    .build();
+            followTrajectoryAsync(correction, false);
+        }
+    }
+
+    public double findActualX(/*Telemetry telemetry, */boolean reversed) {
+//        double heading = Math.toDegrees(getPoseEstimate().getHeading());
+//        if (!(heading % 180 <= 3 || heading % 180 >= 177)) {
+//            if (telemetry == null) throw new RuntimeException("Reset failed");
+//            telemetry.addData("Drive", "Failed to reset x-coordinate");
+//            return getPoseEstimate().getX();
+//        }
+//        boolean reversed = (heading % 180 >= 179);
+        return (72 - xCoordinateSensor.getDistance(DistanceUnit.INCH) - X_SENSOR_OFFSET) * (reversed ? -1 : 1);
     }
 }

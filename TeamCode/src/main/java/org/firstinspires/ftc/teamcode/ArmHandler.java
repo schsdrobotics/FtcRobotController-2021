@@ -4,8 +4,10 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class ArmHandler {
-    private final ServoWrapper vertical;
-    private final ServoWrapper horizontal;
+    // public for debug
+    public final ServoWrapper vertical;
+    public final ServoWrapper horizontal;
+    public final ServoWrapper mini;
     private final Gamepad controller;
     private boolean init = true;
     private long startMillis;
@@ -15,18 +17,27 @@ public class ArmHandler {
         this.controller = controller;
         vertical = ServoWrapper.get(map, "verticalServo");
         horizontal = ServoWrapper.get(map, "horizontalServo");
+        mini = ServoWrapper.get(map, "miniArmServo");
     }
 
-    public void onStart() {
-        vertical.setAndUpdate(.55);
+    public void onStartControlled() {
+        onStartAuto();
+        horizontal.setAndUpdate(0.5);
         startMillis = System.currentTimeMillis();
-//        horizontal.setAndUpdate(0.4);
+    }
+
+    public void onStartAuto() {
+        vertical.setAndUpdate(0.64);
+    }
+
+    public void onStopAuto() {
+        vertical.setAndUpdate(0.4); // update this to be whatever the arm is at when the robot first starts
     }
 
     public void tick() {
-        System.out.println("vert: " + vertical.servo.getPosition() + "; hoz: " + horizontal.servo.getPosition());
         if (controller != null) {
-            //Horizontal servo is continuous
+            // horizontal
+            // Horizontal servo is continuous
             if (controller.dpad_right) {  // if we want this on a joystick, change the condition to controller.left_stick_x != 0 etc.
 //                horizontal.setPos(horizontal.getPos() - 0.01);
                 horizontal.setPos(0.55);
@@ -39,10 +50,11 @@ public class ArmHandler {
             horizontal.update();
 
             long millis = System.currentTimeMillis();
+            // init and vertical
             if (millis - lastMillis > 40) {
                 if (init) {
                     if (millis - startMillis > 2000) init = false;
-                    horizontal.setAndUpdate(0.4);
+                    else horizontal.setAndUpdate(0.4);
                 } else {
                     if (controller.dpad_down) {
                         vertical.setPos(vertical.getPos() - 0.01);
@@ -54,6 +66,8 @@ public class ArmHandler {
                 vertical.update();
                 this.lastMillis = millis;
             }
+            // mini arm
+            mini.setAndUpdate(controller.a ? 0.7 : 0);
         }
     }
 }

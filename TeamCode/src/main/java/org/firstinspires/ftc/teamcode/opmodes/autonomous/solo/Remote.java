@@ -29,10 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.solo;
 
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.calculatePoint;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pos;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.pose;
-import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousStuff.rad;
+import static org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate.*;
 
 import android.os.Build;
 
@@ -41,6 +38,7 @@ import androidx.annotation.RequiresApi;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.ArmHandler;
@@ -58,6 +56,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="Remote", group="Remote")
+@Disabled
 public class Remote extends LinearOpMode {
     // Declare OpMode members.
     private float xCenter;
@@ -183,7 +182,7 @@ public class Remote extends LinearOpMode {
         currentState = State.TO_HUB_INITIAL;
 
         // Raise arm
-        arm.onStart();
+        arm.onStartAuto();
         // Drop intake
         intakeServo.release();
         // Make bucket stand straight up
@@ -239,7 +238,7 @@ public class Remote extends LinearOpMode {
 
                         // Lower lift
                         lift.pursueTarget(LiftHandler.Position.LOW);
-                        // Run duck spinner for 2.5 seconds
+                        // Run duck spinner for 1.5 seconds
                         double startTime = getRuntime();
                         while (getRuntime() - startTime < 1.5) {
                             duck.tick();

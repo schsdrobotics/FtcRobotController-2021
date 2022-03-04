@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class BucketHandler {
-    public final ServoWrapper servo;
+    private final ServoWrapper servo;
     private final Gamepad controller;
     public volatile boolean shouldHoldPos = false;
 
@@ -20,46 +20,40 @@ public class BucketHandler {
         servo = ServoWrapper.get(map, "bucketServo");
     }
 
-    public void tick() {
+     public void tick() {
         if (controller != null && !shouldHoldPos) {
-            System.out.println("tick");
             if (controller.right_trigger <= 0.1) backwards();
             else {
                 if (controller.left_trigger <= 0.1) halfway();
                 else forwards();
             }
         }
-        servo.update();
-    }
+     }
 
-    public void forwards() {
-        servo.setAndUpdate(0);
-        System.out.println("forwards");
-    }
+     public void forwards() {
+         servo.setAndUpdate(0.15);
+     }
 
-    public void backwards() {
-        servo.setAndUpdate(0.9);
-        System.out.println("backwards");
-    }
+     public void backwards() {
+        servo.setAndUpdate(0.85);
+     }
 
-    public void halfway() {
-        System.out.println("halfway");
+     public void halfway() {
         servo.setAndUpdate(0.5);
-    }
+     }
 
     /**
      * This method is blocking
      */
     public void wiggleUntil(Supplier<Boolean> test) {
-        System.out.println("wiggling");
-        for (int i = 0; i < 15; i++) {
-            halfway();
-            waitFor(25);
-            forwards();
-            waitFor(25);
-            if (test.get()) return;
-        }
-    }
+         for (int i = 0; i < 15; i++) {
+             halfway();
+             waitFor(100);
+             forwards();
+             waitFor(100);
+             if (test.get()) return;
+         }
+     }
 
     private void waitFor(long millis) {
         long endTime = System.currentTimeMillis() + millis;

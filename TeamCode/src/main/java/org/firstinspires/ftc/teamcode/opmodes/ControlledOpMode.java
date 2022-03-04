@@ -103,12 +103,12 @@ public class ControlledOpMode extends OpMode {
         arm = new ArmHandler(hardwareMap, gamepad2);
         light = new LightHandler(hardwareMap);
         cycles = new CycleHandler(
-                sweeper, 
-                bucket, 
-                lift, 
+                sweeper,
+                bucket,
+                lift,
                 gamepad1,
                 hardwareMap.get(
-                        DistanceSensor.class, 
+                        DistanceSensor.class,
                         "distanceSensor"
                 ),
                 light,
@@ -116,6 +116,7 @@ public class ControlledOpMode extends OpMode {
         );
         intakeServo = new IntakeServoHandler(hardwareMap);
         intakeServo.hook();
+        DuckHandler.rampUp = true;
         telemetry.addData("Status", "Initialized");
     }
 
@@ -132,7 +133,7 @@ public class ControlledOpMode extends OpMode {
     @Override
     public void start() {
         intakeServo.release();
-        arm.onStart();
+        arm.onStartControlled();
         runtime.reset();
     }
 

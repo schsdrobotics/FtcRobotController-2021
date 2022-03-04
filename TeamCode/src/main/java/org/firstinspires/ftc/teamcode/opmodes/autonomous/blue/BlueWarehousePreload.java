@@ -36,15 +36,15 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedWarehousePark;
+import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedWarehousePreload;
 
 /**
  * Backup for warehouse side
  * Warehouse side -> park in warehouse
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueWarehousePark", group="Blue")
-public class BlueWarehousePark extends RedWarehousePark {
+@Autonomous(name="BlueWarehousePreload", group="Blue")
+public class BlueWarehousePreload extends RedWarehousePreload {
     @Override
     protected int multiplier() {
         return -1;
