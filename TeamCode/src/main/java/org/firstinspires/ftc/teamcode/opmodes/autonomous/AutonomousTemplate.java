@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.path.PathContinuityViolationException;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.CameraHandler;
@@ -177,6 +178,8 @@ public abstract class AutonomousTemplate extends LinearOpMode {
             light.resetTimer();
             while (opModeIsActive() && !isStopRequested()) {
                 light.tick();
+                telemetry.addData("distance", distanceSensor.getDistance(DistanceUnit.CM)); //KEEP THIS HERE THE DISTANCE SENSOR READS ABOUT 3 WHEN IT FIRST TURNS ON
+                telemetry.update();
 //                drive.update();
             }
             light.setColor(LightHandler.Color.OFF);

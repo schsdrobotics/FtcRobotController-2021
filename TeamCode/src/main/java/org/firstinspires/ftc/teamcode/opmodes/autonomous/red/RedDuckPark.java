@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.LiftHandler;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
 /**
@@ -17,7 +18,9 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedDuckPark", group="Red")
 public class RedDuckPark extends AutonomousTemplate {
-    Trajectory park;
+    Trajectory forward1;
+    Trajectory align;
+    Trajectory forward2;
 
     @Override
     protected Pose2d startPose() {
@@ -26,9 +29,15 @@ public class RedDuckPark extends AutonomousTemplate {
 
     @Override
     public void initializeTrajectories() {
-        park = drive.trajectoryBuilder(startPose())
-            .lineTo(posM(-63.375, -33.375))
+        forward1 = drive.trajectoryBuilder(startPose())
+            .forward(11)
             .build();
+        align = drive.trajectoryBuilder(forward1.end(), SampleMecanumDrive.getVelocityConstraint(17, rad(180), 13.7))
+                .strafeLeft(48 * multiplier())
+                .build();
+        forward2 = drive.trajectoryBuilder(align.end())
+                .forward(18)
+                .build();
     }
 
     @Override
@@ -39,6 +48,8 @@ public class RedDuckPark extends AutonomousTemplate {
 
     @Override
     public void main() {
-        drive.followTrajectory(park);
+        drive.followTrajectory(forward1);
+        drive.followTrajectory(align);
+        drive.followTrajectory(forward2);
     }
 }

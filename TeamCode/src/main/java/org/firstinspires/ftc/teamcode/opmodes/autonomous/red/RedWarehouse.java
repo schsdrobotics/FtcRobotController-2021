@@ -54,8 +54,8 @@ public class RedWarehouse extends AutonomousTemplate {
     private Trajectory pickupStraight;
 //    private Trajectory park;
 
-    private double xTemp = 48;
-    private double xTempTurn = 48;
+    private final double XTEMPADDER = 12;
+    private double xTemp = 48 - XTEMPADDER;
     private double yHubCoord;
 
     protected int MAX_CYCLES() {
@@ -82,7 +82,7 @@ public class RedWarehouse extends AutonomousTemplate {
                 .build();
 
         pickupStraight = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(13, rad(180), 13.7))
-                .lineToConstantHeading(posM(13, -2))
+                .lineToConstantHeading(posM(9, -2))
                 .build();
     }
 
@@ -106,35 +106,43 @@ public class RedWarehouse extends AutonomousTemplate {
 
         park: {
             for (int cycles = 0; cycles < MAX_CYCLES(); cycles++) {
+                currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
                 // To warehouse
-                drive.followTrajectory(enterWarehouse, false);
+                drive.followTrajectoryAsync(enterWarehouse, false);
+                startTime = getRuntime();
+                while (getRuntime() < startTime + 3); //Wait for 3s
+                currentCycle.start();
+                while (drive.isBusy() && currentCycle.softIsBusy() && !currentCycle.isLowering() && !currentCycle.shouldCancel()); //Await but with a drive.isBusy()
+                if (drive.isBusy()) {
+                    drive.cancelFollowing();
+                    drive.setDrivePower(new Pose2d());
+                }
+                else {
 //                drive.followTrajectory(bonk, false);
 //                drive.setPoseEstimate(poseM(bonk.end().getX(), -65.375, 0));
 //                drive.followTrajectory(toWarehouse2, false); // THIS IS AN OLD TOWAREHOUSE2 AND IS NOT THE SAME AS IN THE NEW CODE. THIS WAS MERGED WITH TOWAREHOUSE1.
-                currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
-                if (cycles % 2 == 1) drive.followTrajectoryAsync(pickupStrafe, false);
-                else drive.followTrajectoryAsync(pickupStraight, false);
-                currentCycle.start();
-                // wait for the cycle to finish before running the check for failure once
-                if (currentCycle.await()) { // If this is true, we did NOT pick anything up
-                    // Assume that Cycle is working properly (i.e. the state will not be WAITING), and that there is only one possible error message
-                    if (!currentCycle.errorMessage.isEmpty())
-                        System.out.println("Failed to pick up an item; parking now");
-                    else System.out.println("Cycle is not working properly.");
-                    drive.cancelFollowing();
-                    drive.setDrivePower(new Pose2d());
-                    break park;
-                } else {
-                    drive.cancelFollowing();
-                    drive.setDrivePower(new Pose2d());
+                    if (cycles % 2 == 1) drive.followTrajectoryAsync(pickupStrafe, false);
+                    else drive.followTrajectoryAsync(pickupStraight, false);
+                    // wait for the cycle to finish before running the check for failure once
+                    if (currentCycle.await()) { // If this is true, we did NOT pick anything up
+                        // Assume that Cycle is working properly (i.e. the state will not be WAITING), and that there is only one possible error message
+                        if (!currentCycle.errorMessage.isEmpty())
+                            System.out.println("Failed to pick up an item; parking now");
+                        else System.out.println("Cycle is not working properly.");
+                        drive.cancelFollowing();
+                        drive.setDrivePower(new Pose2d());
+                        break park;
+                    } else {
+                        drive.cancelFollowing();
+                        drive.setDrivePower(new Pose2d());
+                        if (cycles % 2 == 1) {
+                            drive.followTrajectory(bonk);
+                        }
+                    }
                 }
 
                 // To hub
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
-                if (cycles % 2 == 1) {
-//                    drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate(), false).forward(-6).build());
-                    drive.followTrajectory(bonk);
-                }
                 xTemp = drive.findActualX(false);
                 drive.setPoseEstimate(poseM(xTemp, -65.375, 0));
                 drive.update();
@@ -181,7 +189,7 @@ public class RedWarehouse extends AutonomousTemplate {
         return drive.trajectoryBuilder(poseM(-7, -37, 280), false)
             .splineToSplineHeading(poseM(-2, -54, 0), radM(290))
             .splineToConstantHeading(posM(12, -71), radM(0))
-            .lineToConstantHeading(posM(xTemp + 6, -71))
+            .lineToConstantHeading(posM(xTemp + XTEMPADDER, -71)) //(72d-xTemp)*0.5d is a stupid way to correct for bad odometry
             .build();
     }
 }

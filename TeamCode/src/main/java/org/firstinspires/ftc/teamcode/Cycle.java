@@ -62,13 +62,13 @@ public class Cycle {
                 long bucketFilledFor = 0;
                 long runtime = 0;
 
-                // give 4 seconds for object to enter bucket
-                while (runtime < 4000) {
+                // give 5 seconds for object to enter bucket
+                while (runtime < 5000) {
                     distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
                     runtime = System.currentTimeMillis() - startTime;
 
-                    if (distanceCm < 7) { // if item in bucket
-
+                    if (distanceCm < 9) { // if item in bucket
+                        stage = Stage.SHOULD_CANCEL;
                         // keep track of how long an item is in the bucket to prevent
                         // stuff bouncing out but still triggering loop exit
                         long deltaMillis = System.currentTimeMillis() - lastTime;
@@ -87,8 +87,7 @@ public class Cycle {
                 }
             }
 
-            boolean objectPickedUp = distanceCm < 6;
-            stage = Stage.SHOULD_CANCEL;
+            boolean objectPickedUp = distanceCm < 9;
             if (objectPickedUp) {
                 if (!preFilled) {
                     bucket.halfway();
