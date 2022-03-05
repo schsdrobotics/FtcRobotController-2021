@@ -216,7 +216,7 @@ public class Remote extends LinearOpMode {
                         while (getRuntime() - startTime < 0.350) { // Wait 350 ms
                             light.tick();
                         }
-                        bucket.wiggleUntil(() -> {
+                        bucket.waitUntilOr3s(() -> {
                             light.tick();
                             return getRuntime() - startTime > 1; // wiggle for 1 sec at most
                         });

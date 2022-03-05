@@ -5,6 +5,8 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
@@ -73,17 +75,20 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
 //            .splineToSplineHeading(pose(-5, -42, 280), rad(100))
             .setReversed(false)
             //align(kinda)
-            .splineToSplineHeading(pose(-2, -54, 0), rad(290))
+            .splineToSplineHeading(pose(-5, -54, 0), rad(300))
             .splineToConstantHeading(pos(12, -71), rad(0))
             //toWarehouse
             .lineToConstantHeading(pos(30, -71))
             .splineToConstantHeading(pos(50, -67), rad(0))
             .lineToConstantHeading(pos(60, -67))
-            .waitSeconds(0)
-            .splineToConstantHeading(pos(30, -74), rad(180))
-            .lineToSplineHeading(pose(12, -65.375, 0))
-            .splineToConstantHeading(pos(-2, -60), rad(110))
-            .splineToSplineHeading(pose(-10, -34, 280), rad(100))
+            .setVelConstraint(getVelocityConstraint(1e6, 1e6, 13.7))
+            .setAccelConstraint(getAccelerationConstraint(1e6))
+            .lineToLinearHeading(pose(48, -65.375, 0))
+            .resetConstraints()
+            .setReversed(true)
+            .splineToConstantHeading(pos(10, -65.375), rad(180))
+            .splineToConstantHeading(pos(0, -62), rad(180))
+            .splineTo(pos(-10, -34), rad(100))
 //            .splineTo(pos(48, -67), rad(15))
             //park
 //            .forward(-6)
@@ -224,6 +229,10 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 new AngularVelocityConstraint(maxAngularVel),
                 new MecanumVelocityConstraint(maxVel, trackWidth)
         ));
+    }
+
+    public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
+        return new ProfileAccelerationConstraint(maxAccel);
     }
 
     public static double multiplier = 1;

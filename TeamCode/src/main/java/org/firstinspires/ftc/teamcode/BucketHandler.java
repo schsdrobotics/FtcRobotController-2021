@@ -39,13 +39,13 @@ public class BucketHandler {
      }
 
      public void halfway() {
-        servo.setAndUpdate(0.4);
+        servo.setAndUpdate(0.5);
      }
 
     /**
      * This method is blocking
      */
-    public void wiggleUntil(Supplier<Boolean> test) {
+    public void waitUntilOr3s(Supplier<Boolean> test) {
          for (int i = 0; i < 30; i++) {
 //             halfway();
              waitFor(100);

@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.LiftHandler.Position;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a cycle of:
@@ -124,7 +123,7 @@ public class Cycle {
             // wiggle bucket to encourage item to drop
             MutableDouble distanceCm = new MutableDouble(Double.MIN_VALUE);
             AtomicBoolean dropped = new AtomicBoolean(false);
-            bucket.wiggleUntil(() -> {
+            bucket.waitUntilOr3s(() -> {
                 distanceCm.value = distanceSensor.getDistance(DistanceUnit.CM);
                 boolean shouldStop = distanceCm.value > 12;
                 if (shouldStop) {
