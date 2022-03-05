@@ -58,26 +58,33 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
     RED_WAREHOUSE2(drive -> drive.trajectorySequenceBuilder(pose(12, -63.375, 90))
             //toHubInitial
             .lineToLinearHeading(pose(-5, -42, 280))
-            //align(kinda)
-            .splineToSplineHeading(pose(-2, -54, 0), rad(290))
-            .splineToConstantHeading(pos(12, -71), rad(0))
-            //toWarehouse
-            .forward(40)
-            .setReversed(true)
-            .setVelConstraint(getVelocityConstraint(1000, 1, 13.7))
-            .strafeLeft(8)
-            .resetVelConstraint()
-            //toHub
-            .lineTo(pos(12, -64))
-            .splineToConstantHeading(pos(-2, -54), rad(110))
-            .splineToSplineHeading(pose(-5, -42, 280), rad(100))
+//            //align(kinda)
+//            .splineToSplineHeading(pose(-2, -60, 0), rad(290))
+//            .splineToConstantHeading(pos(12, -71), rad(0))
+//            //toWarehouse
+//            .forward(40)
+//            .setReversed(true)
+//            .setVelConstraint(getVelocityConstraint(1000, 1, 13.7))
+//            .strafeLeft(8)
+//            .resetVelConstraint()
+//            //toHub
+//            .lineTo(pos(12, -64))
+//            .splineToConstantHeading(pos(-2, -54), rad(110))
+//            .splineToSplineHeading(pose(-5, -42, 280), rad(100))
             .setReversed(false)
             //align(kinda)
             .splineToSplineHeading(pose(-2, -54, 0), rad(290))
             .splineToConstantHeading(pos(12, -71), rad(0))
             //toWarehouse
-            .lineToConstantHeading(pos(40, -71))
-            .splineToSplineHeading(pose(48, -67, 0), rad(10))
+            .lineToConstantHeading(pos(30, -71))
+            .splineToConstantHeading(pos(50, -67), rad(0))
+            .lineToConstantHeading(pos(60, -67))
+            .waitSeconds(0)
+            .splineToConstantHeading(pos(30, -74), rad(180))
+            .lineToSplineHeading(pose(12, -65.375, 0))
+            .splineToConstantHeading(pos(-2, -60), rad(110))
+            .splineToSplineHeading(pose(-10, -34, 280), rad(100))
+//            .splineTo(pos(48, -67), rad(15))
             //park
 //            .forward(-6)
 //            .splineToConstantHeading(pos(42, -38), rad(0))
@@ -233,7 +240,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(PICKUP_STRAFE::apply)
+                .followTrajectorySequence(RED_WAREHOUSE2::apply)
                 .start();
     }
 }

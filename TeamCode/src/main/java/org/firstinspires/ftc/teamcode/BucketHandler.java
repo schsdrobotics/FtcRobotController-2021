@@ -31,7 +31,7 @@ public class BucketHandler {
      }
 
      public void forwards() {
-         servo.setAndUpdate(0.15);
+         servo.setAndUpdate(0.2);
      }
 
      public void backwards() {
@@ -39,18 +39,18 @@ public class BucketHandler {
      }
 
      public void halfway() {
-        servo.setAndUpdate(0.5);
+        servo.setAndUpdate(0.4);
      }
 
     /**
      * This method is blocking
      */
     public void wiggleUntil(Supplier<Boolean> test) {
-         for (int i = 0; i < 15; i++) {
-             halfway();
+         for (int i = 0; i < 30; i++) {
+//             halfway();
              waitFor(100);
-             forwards();
-             waitFor(100);
+//             forwards();
+//             waitFor(100);
              if (test.get()) return;
          }
      }

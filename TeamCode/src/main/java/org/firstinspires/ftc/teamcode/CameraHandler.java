@@ -100,12 +100,12 @@ public class CameraHandler {
     public Recognition mostConfident = null;
 
 
-    public CameraHandler(HardwareMap map) {
+    public CameraHandler(HardwareMap map, String cameraName) {
         hardwareMap = map;
         System.out.println(VUFORIA_KEY);
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
-        initVuforia();
+        initVuforia(cameraName);
         initTfod();
 
         /**
@@ -159,14 +159,14 @@ public class CameraHandler {
     /**
      * Initialize the Vuforia localization engine.
      */
-    private void initVuforia() {
+    private void initVuforia(String cameraName) {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = hardwareMap.get(WebcamName.class, "camera");
+        parameters.cameraName = hardwareMap.get(WebcamName.class, cameraName);
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);

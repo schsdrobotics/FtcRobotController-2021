@@ -49,11 +49,11 @@ public class Cycle {
      * Begin process: intake, lift
      */
     public void start() {
+        stage = Stage.IN_START;
         executor.submit(() -> {
-            stage = Stage.IN_START;
             holdValues(true);
             double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-            boolean preFilled = distanceCm < 6;
+            boolean preFilled = distanceCm < 9;
             if (!preFilled) {
                 sweeper.forwards(1);
 
@@ -91,6 +91,7 @@ public class Cycle {
             if (objectPickedUp) {
                 if (!preFilled) {
                     bucket.halfway();
+                    waitFor(100);
                     sweeper.backwards(1); // spit out extras
                     waitFor(300);
                 }

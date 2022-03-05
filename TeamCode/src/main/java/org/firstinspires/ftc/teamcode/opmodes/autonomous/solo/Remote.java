@@ -102,7 +102,7 @@ public class Remote extends LinearOpMode {
         bucket = new BucketHandler(hardwareMap, null);
         sweeper = new SweeperHandler(hardwareMap, null);
         intakeServo = new IntakeServoHandler(hardwareMap);
-        camera = new CameraHandler(hardwareMap);
+        camera = new CameraHandler(hardwareMap, "intakeCamera");
         light = new LightHandler(hardwareMap);
         light.setColor(LightHandler.Color.YELLOW);
         telemetry.addData("Status", "Initialized");
