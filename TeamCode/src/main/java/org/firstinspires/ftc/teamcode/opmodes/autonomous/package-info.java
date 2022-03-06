@@ -6,7 +6,8 @@
  * DuckWarehouse - Duck side -> Preload -> duck -> park in warehouse (duck sde main)
  * WarehousePark - Warehouse side -> park in warehouse (warehouse side emergency)
  * WarehousePreload - Warehouse side -> Preload -> park in warehouse (warehouse side backup)
- * Warehouse - Warehouse side -> Preload -> intake cycles -> park in warehouse (warehouse side main)
+ * Warehouse - Warehouse side -> Preload -> 3 intake cycles -> park in warehouse (warehouse side main)
+ * SeaLion - Warehouse side -> Preload -> 2 intake cycles -> park in warehouse (warehouse side, made to work well with the Sea Lion Techs)
  * Remote - basically the same as RedDuckWarehouse (for remote competitions); no longer maintained
  */
 package org.firstinspires.ftc.teamcode.opmodes.autonomous;

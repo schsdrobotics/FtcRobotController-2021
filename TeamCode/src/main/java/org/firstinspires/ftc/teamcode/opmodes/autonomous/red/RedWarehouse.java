@@ -62,6 +62,10 @@ public class RedWarehouse extends AutonomousTemplate {
         return 3;
     }
 
+    protected boolean shouldWaitForSeaLions() {
+        return false;
+    }
+
     @Override
     protected String cameraName() {
         return "liftCamera";
@@ -194,9 +198,9 @@ public class RedWarehouse extends AutonomousTemplate {
                 //Follow closest toHub trajectory
                 int index = (int) (Math.round(xTemp) - 21);
                 System.out.println("index: " + index);
-                //This also handles currentcycle.finish();
+                // This also handles currentCycle.finish();
                 drive.followTrajectory((index >= 0 && index < toHub.length) ? toHub[index] : toHub[1], false);
-//                if (cycles == 0) sleep(7000);
+                if (cycles == 0 && shouldWaitForSeaLions()) sleep(7000); // This only runs when running a SeaLion auto
 //                drive.followTrajectoryAsync(toHub[cycles]);
 
 //                if (getRuntime() < 7) { //If we run out of time
