@@ -78,12 +78,20 @@ public class RedWarehouse extends AutonomousTemplate {
 //        drive.accelConstraint = SampleMecanumDrive.getAccelerationConstraint(35); // this is the default value so doesn't need to be written in
 
         toHubInitial = drive.trajectoryBuilder(startPose())
-            .lineToLinearHeading(poseM(-15, -36, 280))
+                .lineToLinearHeading(poseM(-15, -36, 280))
+                .addTemporalMarker(1, -0.7, () -> {
+                    //Drop and retract
+                    currentCycle.finish();
+                })
+                .addTemporalMarker(1, -0.3, () -> {
+                    //Cancel early to make it faster
+                    cancelAndStop();
+                })
             .build();
 
         bonk = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(23, rad(180), 13.7))
-            .strafeRight(8 * multiplier())
-            .build();
+                .strafeRight(8 * multiplier())
+                .build();
 
         pickupStraight = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(13, rad(180), 13.7))
                 .lineToConstantHeading(posM(9, -2))
@@ -117,6 +125,14 @@ public class RedWarehouse extends AutonomousTemplate {
                     .splineToConstantHeading(pos(20, -65.375), rad(180))
                     .splineToConstantHeading(pos(10, -62), rad(180))
                     .splineTo(pos(-7, -35), rad(100))
+                    .addTemporalMarker(1, -0.7, () -> {
+                        //Drop and retract
+                        currentCycle.finish();
+                    })
+                    .addTemporalMarker(1, -0.3, () -> {
+                        //Cancel early to make it faster
+                        cancelAndStop();
+                    })
                     .build();
         }
     }
@@ -128,13 +144,8 @@ public class RedWarehouse extends AutonomousTemplate {
 //        else if (target == LiftHandler.Position.HIGH) yHubCoord = -37;
         // Drop intake
         intakeServo.release();
-        // Go to alliance hub
-        drive.followTrajectoryAsync(toHubInitial);
-        sleep(1600);
-        // Drop and retract
-        currentCycle.finish();
-        sleep(350);
-        cancelAndStop();
+        // Go to alliance hub (this also handles currentcycle.finish();
+        drive.followTrajectory(toHubInitial);
 //        enterWarehouse = buildEnterWarehouseTrajectory();
 //        currentCycle.await();
 
@@ -183,7 +194,8 @@ public class RedWarehouse extends AutonomousTemplate {
                 //Follow closest toHub trajectory
                 int index = (int) (Math.round(xTemp) - 21);
                 System.out.println("index: " + index);
-                drive.followTrajectoryAsync((index >= 0 && index < toHub.length) ? toHub[index] : toHub[1], false);
+                //This also handles currentcycle.finish();
+                drive.followTrajectory((index >= 0 && index < toHub.length) ? toHub[index] : toHub[1], false);
 //                if (cycles == 0) sleep(7000);
 //                drive.followTrajectoryAsync(toHub[cycles]);
 
@@ -192,12 +204,6 @@ public class RedWarehouse extends AutonomousTemplate {
 //                    break park;
 //                }
 
-//                sleep(cycles == 0 ? 3300 : 3500);
-                //For every inch away from 21 it adds 5 ms
-                sleep(3500 + index*5);
-                currentCycle.finish();
-                sleep(350);
-                cancelAndStop();
 //                enterWarehouse = buildEnterWarehouseTrajectory();
 //                currentCycle.await();
                 currentCycle = null;
