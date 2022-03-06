@@ -39,11 +39,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckStorage;
 
 /**
- * Backup for duck side
+ * Primary backup for duck side
  * Duck side -> Preload -> duck -> park in storage
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueDuckStorage", group="Blue")
+@Autonomous(name="BlueDuckStorage", group="Blue Duck")
 public class BlueDuckStorage extends RedDuckStorage {
     @Override
     protected int multiplier() {

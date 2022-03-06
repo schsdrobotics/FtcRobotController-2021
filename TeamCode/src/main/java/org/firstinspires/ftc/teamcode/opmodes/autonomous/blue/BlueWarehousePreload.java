@@ -39,11 +39,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedWarehousePreload;
 
 /**
- * Backup for warehouse side
- * Warehouse side -> park in warehouse
+ * Primary backup for warehouse side. Same as Warehouse without preload and with delay at the beginning.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueWarehousePreload", group="Blue")
+@Autonomous(name="BlueWarehousePreload", group="Blue Warehouse")
 public class BlueWarehousePreload extends RedWarehousePreload {
     @Override
     protected int multiplier() {

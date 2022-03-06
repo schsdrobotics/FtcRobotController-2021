@@ -43,9 +43,12 @@ import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
-
+/**
+ * Main for warehouse side
+ * Warehouse side -> Preload -> 3 intake cycles -> park in warehouse
+ */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedWarehouse", group="Red")
+@Autonomous(name="RedWarehouse", group="Red Warehouse")
 public class RedWarehouse extends AutonomousTemplate {
     private Trajectory toHubInitial;
     private Trajectory[] enterWarehouse = new Trajectory[3];

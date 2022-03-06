@@ -7,10 +7,10 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 /**
- * Backup #1 for warehouse side. Same as Warehouse without preload and with delay at the beginning.
+ * Primary backup for warehouse side. Same as Warehouse without preload and with delay at the beginning.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedWarehousePreload", group="Red")
+@Autonomous(name="RedWarehousePreload", group="Red Warehouse")
 public class RedWarehousePreload extends RedWarehouse {
     @Override
     protected int MAX_CYCLES() {
