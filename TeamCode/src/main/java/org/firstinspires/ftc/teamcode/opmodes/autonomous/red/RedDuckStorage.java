@@ -40,11 +40,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
 /**
- * Backup for duck side
+ * Primary backup for duck side
  * Duck side -> Preload -> duck -> park in storage
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name = "RedDuckStorage", group = "Red")
+@Autonomous(name = "RedDuckStorage", group = "Red Duck")
 public class RedDuckStorage extends AutonomousTemplate {
     protected Trajectory toHubInitial;
     protected Trajectory toDuckSpinner;

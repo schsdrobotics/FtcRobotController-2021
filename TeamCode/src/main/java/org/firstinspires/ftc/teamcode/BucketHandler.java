@@ -45,12 +45,12 @@ public class BucketHandler {
     /**
      * This method is blocking
      */
-    public void waitUntilOr3s(Supplier<Boolean> test) {
+    public void wiggleUntil(Supplier<Boolean> test) {
          for (int i = 0; i < 30; i++) {
-//             halfway();
+             halfway();
              waitFor(100);
-//             forwards();
-//             waitFor(100);
+             forwards();
+             waitFor(100);
              if (test.get()) return;
          }
      }

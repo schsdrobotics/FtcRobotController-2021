@@ -39,11 +39,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedWarehousePark;
 
 /**
- * Backup for warehouse side
+ * Emergency backup for warehouse side
  * Warehouse side -> park in warehouse
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueWarehousePark", group="Blue")
+@Autonomous(name="BlueWarehousePark", group="Blue Warehouse")
 public class BlueWarehousePark extends RedWarehousePark {
     @Override
     protected int multiplier() {

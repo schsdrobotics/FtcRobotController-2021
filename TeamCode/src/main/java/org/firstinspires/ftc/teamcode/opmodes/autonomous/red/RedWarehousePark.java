@@ -41,11 +41,11 @@ import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
 /**
- * Backup for warehouse side
+ * Emergency backup for warehouse side
  * Warehouse side -> park in warehouse
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedWarehousePark", group="Red")
+@Autonomous(name="RedWarehousePark", group="Red Warehouse")
 public class RedWarehousePark extends AutonomousTemplate {
     private Trajectory forward;
     private Trajectory strafe;

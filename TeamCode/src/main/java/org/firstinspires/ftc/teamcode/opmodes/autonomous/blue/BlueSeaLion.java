@@ -6,14 +6,14 @@ import androidx.annotation.RequiresApi;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckPark;
+import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedSeaLion;
 
 /**
- * Emergency backup for duck side; only parks in storage area.
+ * A modified Warehouse optimized for the Sea Lion Techs.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueDuckPark", group="Blue Duck")
-public class BlueDuckPark extends RedDuckPark {
+@Autonomous(name="BlueSeaLion", group="Blue Warehouse")
+public class BlueSeaLion extends RedSeaLion {
     @Override
     protected int multiplier() {
         return -1;

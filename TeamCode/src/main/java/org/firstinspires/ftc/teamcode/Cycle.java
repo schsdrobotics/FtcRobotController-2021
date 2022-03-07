@@ -123,7 +123,7 @@ public class Cycle {
             // wiggle bucket to encourage item to drop
             MutableDouble distanceCm = new MutableDouble(Double.MIN_VALUE);
             AtomicBoolean dropped = new AtomicBoolean(false);
-            bucket.waitUntilOr3s(() -> {
+            bucket.wiggleUntil(() -> {
                 distanceCm.value = distanceSensor.getDistance(DistanceUnit.CM);
                 boolean shouldStop = distanceCm.value > 12;
                 if (shouldStop) {
