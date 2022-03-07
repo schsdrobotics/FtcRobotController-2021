@@ -19,16 +19,16 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
-    RED_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, -61.375, 90))
-            .splineToConstantHeading(pos(-57,-38), rad(90))
-            .lineToConstantHeading(pos(-57, -28))
-            .splineToSplineHeading(pose(-30, -24, 180), 0)
+    RED_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-37, -63.375, 90))
+            .splineToConstantHeading(pos(-59,-40), rad(90))
+            .lineToConstantHeading(pos(-59, -25))
+            .splineToSplineHeading(pose(-32, -21, 180), 0)
             .waitSeconds(0)
-            .splineToSplineHeading(pose(-50, -22, 270), rad(180))
-            .splineToConstantHeading(pos(-63.375, -35), rad(270))
-            .forward(15)
+            .splineToSplineHeading(pose(-52, -19, 270), rad(180))
+            .splineToConstantHeading(pos(-75, -37), rad(270))
+            .forward(26)
             .waitSeconds(1.5)
-            .forward(-15)
+            .forward(-20)
             .build()),
     RED_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, -61.375, 90))
             .splineToConstantHeading(pos(-57,-38), rad(90))
@@ -79,6 +79,12 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineToSplineHeading(pose(calculatePoint(-5, -42, 12, -71, false, -60), -60, 0))
             .lineToConstantHeading(pos(12, -71))
             //toWarehouse
+            .setAccelConstraint(getAccelerationConstraint(75))
+            .setVelConstraint(getVelocityConstraint(45, rad(270), 13.7))
+            .forward(30)
+            .addTemporalMarker(1, -0.3, () -> {
+                //Cancel following
+            })
 //            .lineToConstantHeading(pos(30, -71))
 //            .splineToConstantHeading(pos(50, -67), rad(0))
 //            .lineToConstantHeading(pos(60, -67))
@@ -102,32 +108,39 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineTo(pos(35, -30))
             .lineToSplineHeading(pose(60, -30, 270))
             .build()),
-    BLUE_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
-            .lineTo(pos(-12, 45))
-            .addTemporalMarker(() -> {
-                // drop initial cube
-            })
-            .waitSeconds(2)
-            .lineToLinearHeading(pose(-60, 60, 0))
-            .addTemporalMarker(() -> {
-                // duck motor
-            })
-            .waitSeconds(2)
-            .lineTo(pos(-60, 36)) // now in hub
+    BLUE_DUCK_STORAGE(drive -> drive.trajectorySequenceBuilder(poseM(-37, -63.375, 90))
+            .splineToConstantHeading(posM(-59,-40), radM(90))
+            .lineToConstantHeading(posM(-59, -25))
+            .splineToSplineHeading(poseM(-32, -21, 180), 0)
+            .waitSeconds(0)
+            .splineToSplineHeading(poseM(-52, -19, 270), radM(180))
+            .splineToConstantHeading(posM(-75, -27), radM(270))
+            // RESET POSE ESTIMATE HERE
+            .forward(10)
+            .splineToLinearHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
+            .waitSeconds(1.5)
+
+            ///////
+            .lineToLinearHeading(poseM(-59,-35, 90))
             .build()),
-    BLUE_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(-35, 62, 270))
-            .lineTo(pos(-12, 45))
-            .addTemporalMarker(() -> {
-                // drop initial cube
-            })
-            .waitSeconds(2)
-            .lineToLinearHeading(pose(-60, 60, 0))
-            .addTemporalMarker(() -> {
-                // duck motor
-            })
-            .waitSeconds(2)
-            .splineTo(pos(0, 62), rad(0))
-            .forward(40)
+    BLUE_DUCK_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(poseM(-37, -63.375, 90))
+            .splineToConstantHeading(posM(-59,-40), radM(90))
+            .lineToConstantHeading(posM(-59, -25))
+            .splineToSplineHeading(poseM(-32, -21, 180), 0)
+            .waitSeconds(0)
+            .splineToSplineHeading(poseM(-52, -19, 270), radM(180))
+            .splineToConstantHeading(posM(-75, -27), radM(270))
+            // RESET POSE ESTIMATE HERE
+            .forward(10)
+            .splineToLinearHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
+            .waitSeconds(1.5)
+
+            ///////
+            .forward(-10)
+            .lineToConstantHeading(posM(-65.375 + 9.5 + 20,-75))
+            // RESET POSE ESTIMATE HERE
+            .forward(-74)
+            .strafeLeft(10)
             .build()),
     BLUE_WAREHOUSE(drive -> drive.trajectorySequenceBuilder(pose(12, 62, 270))
             .lineToLinearHeading(pose(-5, 42, -100))
@@ -213,6 +226,22 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
 
     public static Pose2d pose(double x, double y, double deg) {
         return new Pose2d(x, y, rad(deg));
+    }
+
+    public static double radM(double deg) {
+        return Math.toRadians(deg) * -1;
+    }
+
+    public static Vector2d posM(double x, double y) {
+        return new Vector2d(x, y * -1);
+    }
+
+    public static Vector2d posM(double pos) {
+        return pos(pos, pos * -1);
+    }
+
+    public static Pose2d poseM(double x, double y, double deg) {
+        return new Pose2d(x, y * -1, rad(deg * -1));
     }
 
     public static double calculatePoint(double x1, double y1, double x2, double y2, boolean x, double xory) {

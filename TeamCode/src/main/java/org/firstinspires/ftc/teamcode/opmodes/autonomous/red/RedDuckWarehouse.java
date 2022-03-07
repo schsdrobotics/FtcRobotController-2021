@@ -55,30 +55,30 @@ public class RedDuckWarehouse extends AutonomousTemplate {
 
     @Override
     protected Pose2d startPose() {
-        return poseM(-35, -61.375, 90);
+        return poseM(-37, -63.375, 90);
     }
 
     @Override
     public void initializeTrajectories() {
         toHubInitial = drive.trajectoryBuilder(startPose())
-                .splineToConstantHeading(posM(-57,-38), radM(90))
-                .lineToConstantHeading(posM(-57, -23))
-                .splineToSplineHeading(poseM(-30, -19, 180), 0)
+                .splineToConstantHeading(posM(-59,-40), radM(90))
+                .lineToConstantHeading(posM(-59, -25))
+                .splineToSplineHeading(poseM(-32, -21, 180), 0)
                 .build();
 
         toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
-                .splineToSplineHeading(poseM(-50, -17, 270), radM(180))
-                .splineToConstantHeading(posM(-77, -35), radM(270))
+                .splineToSplineHeading(poseM(-52, -19, 270), radM(180))
+                .splineToConstantHeading(posM(-75, -37), radM(270))
                 .forward(26)
                 .build();
 
-        align = drive.trajectoryBuilder(poseM(-63.375, -51.375, 270))
-                .lineToSplineHeading(poseM(-55, -40, 0))
-                .splineToConstantHeading(posM(-15, -64), radM(270))
+        align = drive.trajectoryBuilder(poseM(-65.375, -53.375, 270))
+                .lineToSplineHeading(poseM(-57, -42, 0))
+                .splineToConstantHeading(posM(-17, -66), radM(270))
                 .strafeRight(10)
                 .build();
 
-        toWarehouse = drive.trajectoryBuilder(poseM(align.end().getX(), -65.25, 0))
+        toWarehouse = drive.trajectoryBuilder(poseM(align.end().getX(), -67.25, 0))
                 .forward(65)
                 .build();
 
@@ -97,7 +97,7 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Go to duck spinner
         drive.followTrajectory(toDuckSpinner, false);
         //Reset pose estimate because we bonk
-        drive.setPoseEstimate(poseM(-63.375, -51.375, 270));
+        drive.setPoseEstimate(poseM(-65.375, -53.375, 270));
         // Lower lift
         lift.pursueTarget(LiftHandler.Position.LOW);
         // Run duck spinner for 1.5 seconds
@@ -115,7 +115,7 @@ public class RedDuckWarehouse extends AutonomousTemplate {
         // Align
         drive.followTrajectory(align, false);
         // We just bonked so make pose estimate accurate
-        drive.setPoseEstimate(poseM(drive.getPoseEstimate().getX(), -63.375, 270));
+        drive.setPoseEstimate(poseM(drive.getPoseEstimate().getX(), -65.375, 270));
         // Go to warehouse
         drive.followTrajectory(toWarehouse, false);
         // Park

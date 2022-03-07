@@ -33,9 +33,12 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckWarehouse;
 
 /**
@@ -44,9 +47,85 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckWarehouse;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="BlueDuckWarehouse", group="Blue Duck")
-public class BlueDuckWarehouse extends RedDuckWarehouse {
+public class BlueDuckWarehouse extends AutonomousTemplate {
+    private Trajectory toHubInitial;
+    private Trajectory align;
+    private Trajectory toDuckSpinner;
+    private Trajectory forward;
+    private Trajectory align2;
+    private Trajectory toWarehouse;
+    private Trajectory park;
+
     @Override
     protected int multiplier() {
         return -1;
+    }
+
+    @Override
+    protected Pose2d startPose() {
+        return poseM(-37, -63.375, 90);
+    }
+
+    @Override
+    public void initializeTrajectories() {
+        toHubInitial = drive.trajectoryBuilder(startPose())
+                .splineToConstantHeading(posM(-59,-40), radM(90))
+                .lineToConstantHeading(posM(-59, -25))
+                .splineToSplineHeading(poseM(-32, -21, 180), 0)
+                .build();
+        align = drive.trajectoryBuilder(toHubInitial.end()) // FIXME pathcontinuityviolationexception
+                .splineToConstantHeading(posM(-59,-40), radM(90))
+                .lineTo(posM(-59, -25))
+                .splineToLinearHeading(poseM(-32, -21, 180), 0)
+                .build();
+        toDuckSpinner = drive.trajectoryBuilder(pose(align.end().getX(), 65.375, 90))
+                .forward(10)
+                .splineToLinearHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
+                .build();
+        forward = drive.trajectoryBuilder(toDuckSpinner.end())
+                .forward(-10)
+                .build();
+        align2 = drive.trajectoryBuilder(forward.end())
+                .lineToConstantHeading(posM(-65.375 + 9.5 + 20,-75))
+                .build();
+        toWarehouse = drive.trajectoryBuilder(pose(align2.end().getX(), 65.375, 180))
+                .forward(-74)
+                .build();
+        park = drive.trajectoryBuilder(toWarehouse.end())
+                .strafeLeft(10)
+                .build();
+    }
+
+    @Override
+    public void main() {
+        // Go to alliance hub
+        drive.followTrajectory(toHubInitial, false);
+        // Drop and retract
+        currentCycle.finish();
+        currentCycle.await();
+        // Go to duck spinner
+        drive.followTrajectory(align, false);
+        // Reset pose estimate because we bonk
+        drive.setPoseEstimate(pose(-65.375, align.end().getY(), 90));
+        drive.followTrajectory(toDuckSpinner, false);
+        // Run duck spinner for 1.5 seconds
+        duck.reverse();
+        double startTime = getRuntime();
+        while (getRuntime() - startTime < 1.5) {
+            duck.tick();
+            duck.start();
+        }
+        // Stop duck motor
+        duck.stop();
+        duck.tick();
+        arm.onStopAuto();
+        drive.followTrajectory(forward);
+        drive.followTrajectory(align2);
+        // Reset pose estimate
+        drive.setPoseEstimate(pose(align.end().getX(), 65.375, 180));
+        // Wait until there's 8 seconds left
+        while (getRuntime() < 22);
+        drive.followTrajectory(toWarehouse);
+        drive.followTrajectory(park);
     }
 }

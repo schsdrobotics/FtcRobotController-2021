@@ -86,7 +86,6 @@ public class RedDuckStorage extends AutonomousTemplate {
         //Reset pose estimate because we bonk
         drive.setPoseEstimate(poseM(-65.375, -53.375, 270));
         // Run duck spinner for 1.5 seconds
-        if (multiplier() == -1) duck.reverse();
         double startTime = getRuntime();
         while (getRuntime() - startTime < 1.5) {
             duck.tick();

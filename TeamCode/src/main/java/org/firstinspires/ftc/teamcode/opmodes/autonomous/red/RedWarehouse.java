@@ -52,6 +52,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 public class RedWarehouse extends AutonomousTemplate {
     private Trajectory toHubInitial;
     private Trajectory enterWarehouseAlign;
+    private Trajectory enterWarehouseFast;
     private Trajectory[] toHub = new Trajectory[50];
 
 //    private final double XTEMPADDER = 16;
@@ -83,19 +84,27 @@ public class RedWarehouse extends AutonomousTemplate {
 
         toHubInitial = drive.trajectoryBuilder(startPose())
                 .lineToLinearHeading(poseM(-15, -36, 280))
-                .addTemporalMarker(1, -0.7, () -> {
+                .addTemporalMarker(1, -0.6, () -> {
                     //Drop and retract
                     currentCycle.finish();
                 })
-                .addTemporalMarker(1, -0.3, () -> {
+                .addTemporalMarker(1, -0.2, () -> {
                     //Cancel early to make it faster
                     cancelAndStop();
                 })
             .build();
 
         enterWarehouseAlign = drive.trajectoryBuilder(poseM(-7, -37, 280), SampleMecanumDrive.getAccelerationConstraint(45))
-                .lineToSplineHeading(pose(calculatePoint(-7, -37, 12, -71, false, -60), -60, 0))
-                .lineToConstantHeading(pos(12, -71))
+                .lineToSplineHeading(pose(calculatePoint(-7, -37, 12, -69, false, -60), -60, 0))
+                .lineToConstantHeading(pos(12, -69))
+                .addTemporalMarker(1, -0.3, () -> {
+                    //Cancel early to make it faster
+                    cancelAndStop();
+                })
+                .build();
+
+        enterWarehouseFast = drive.trajectoryBuilder(poseM(12, -65.375, 0), SampleMecanumDrive.getVelocityConstraint(45, rad(270), 13.7), SampleMecanumDrive.getAccelerationConstraint(75))
+                .forward(30)
                 .addTemporalMarker(1, -0.3, () -> {
                     //Cancel early to make it faster
                     cancelAndStop();
@@ -137,9 +146,10 @@ public class RedWarehouse extends AutonomousTemplate {
                 currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
                 // Align
                 drive.followTrajectory(enterWarehouseAlign, false);
-                drive.setMotorPowers(-0.8, -0.8, 0.8, 0.8);
-                sleep(500);
-                drive.setMotorPowers(-0.3, -0.3, 0.3, 0.3);
+                drive.setMotorPowers(0.8, 0.8, 0.8, 0.8);
+                sleep(370);
+                drive.setMotorPowers(0.2, 0.2, 0.2, 0.2);
+                sleep(50); //Sleep for 50ms to avoid voltage too low problems
                 currentCycle.start();
                 while (currentCycle.softIsBusy() && !currentCycle.isLowering() && !currentCycle.shouldCancel() && !isStopRequested()); //Await with a !isStopRequested()
 //                if (drive.isBusy()) {
@@ -196,8 +206,8 @@ public class RedWarehouse extends AutonomousTemplate {
 
             arm.onStopAuto();
             drive.followTrajectory(enterWarehouseAlign, false);
-            drive.setMotorPowers(-0.8, -0.8, 0.8, 0.8);
-            sleep(600);
+            drive.setMotorPowers(0.8, 0.8, 0.8, 0.8);
+            sleep(500);
             drive.setDrivePower(new Pose2d());
 
 //            drive.followTrajectory(bonk, false);
