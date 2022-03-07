@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 @Autonomous(name="RedWarehousePreload", group="Red Warehouse")
 public class RedWarehousePreload extends RedWarehouse {
     @Override
-    protected int MAX_CYCLES() {
+    protected int maxCycles() {
         return 0;
     }
 

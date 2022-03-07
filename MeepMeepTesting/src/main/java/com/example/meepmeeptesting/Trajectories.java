@@ -76,11 +76,11 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
 //            .splineToSplineHeading(pose(-5, -42, 280), rad(100))
 
             //align(kinda)
-            .splineToSplineHeading(pose(-5, -54, 0), rad(300))
-            .splineToConstantHeading(pos(12, -71), rad(0))
+            .lineToSplineHeading(pose(calculatePoint(-5, -42, 12, -71, false, -60), -60, 0))
+            .lineToConstantHeading(pos(12, -71))
             //toWarehouse
-            .lineToConstantHeading(pos(30, -71))
-            .splineToConstantHeading(pos(50, -67), rad(0))
+//            .lineToConstantHeading(pos(30, -71))
+//            .splineToConstantHeading(pos(50, -67), rad(0))
 //            .lineToConstantHeading(pos(60, -67))
 //            .setVelConstraint(getVelocityConstraint(1e6, 1e6, 13.7))
 //            .setAccelConstraint(getAccelerationConstraint(1e6))
