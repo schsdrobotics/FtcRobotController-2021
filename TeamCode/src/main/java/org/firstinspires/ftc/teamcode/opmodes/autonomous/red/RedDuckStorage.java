@@ -52,24 +52,24 @@ public class RedDuckStorage extends AutonomousTemplate {
 
     @Override
     protected Pose2d startPose() {
-        return poseM(-35, -61.375, 90);
+        return poseM(-37, -63.375, 90);
     }
 
     @Override
     public void initializeTrajectories() {
         toHubInitial = drive.trajectoryBuilder(startPose())
-                .splineToConstantHeading(posM(-57,-38), radM(90))
-                .lineToConstantHeading(posM(-57, -23))
-                .splineToSplineHeading(poseM(-30, -19, 180), 0)
+                .splineToConstantHeading(posM(-59,-40), radM(90))
+                .lineToConstantHeading(posM(-59, -25))
+                .splineToSplineHeading(poseM(-32, -21, 180), 0)
                 .build();
 
         toDuckSpinner = drive.trajectoryBuilder(toHubInitial.end())
-                .splineToSplineHeading(poseM(-50, -17, 270), radM(180))
-                .splineToConstantHeading(posM(-73, -35), radM(270))
-                .forward(30)
+                .splineToSplineHeading(poseM(-52, -19, 270), radM(180))
+                .splineToConstantHeading(posM(-75, -37), radM(270))
+                .forward(26)
                 .build();
 
-        park = drive.trajectoryBuilder(poseM(-63.375, -51.375, 270))
+        park = drive.trajectoryBuilder(poseM(-65.375, -53.375, 270))
                 .forward(-20)
                 .build();
     }
@@ -84,7 +84,7 @@ public class RedDuckStorage extends AutonomousTemplate {
         // Go to duck spinner
         drive.followTrajectory(toDuckSpinner, false);
         //Reset pose estimate because we bonk
-        drive.setPoseEstimate(poseM(-63.375, -51.375, 270));
+        drive.setPoseEstimate(poseM(-65.375, -53.375, 270));
         // Run duck spinner for 1.5 seconds
         if (multiplier() == -1) duck.reverse();
         double startTime = getRuntime();
