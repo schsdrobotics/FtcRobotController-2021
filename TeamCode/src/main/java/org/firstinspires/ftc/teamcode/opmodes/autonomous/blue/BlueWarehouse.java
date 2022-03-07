@@ -41,10 +41,10 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedWarehouse;
 
 /**
  * Main for warehouse side
- * Warehouse side -> Preload -> intake cycles -> park in warehouse(?)
+ * Warehouse side -> Preload -> 3 intake cycles -> park in warehouse
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueWarehouse", group="Blue")
+@Autonomous(name="BlueWarehouse", group="Blue Warehouse")
 public class BlueWarehouse extends RedWarehouse {
     @Override
     protected int multiplier() {

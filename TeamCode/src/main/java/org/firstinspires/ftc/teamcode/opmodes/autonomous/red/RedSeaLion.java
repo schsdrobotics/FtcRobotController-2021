@@ -7,19 +7,18 @@ import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 /**
- * Primary backup for warehouse side. Same as Warehouse without preload and with delay at the beginning.
+ * A modified Warehouse optimized for the Sea Lion Techs.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedWarehousePreload", group="Red Warehouse")
-public class RedWarehousePreload extends RedWarehouse {
+@Autonomous(name="RedSeaLion", group="Red Warehouse")
+public class RedSeaLion extends RedWarehouse {
     @Override
     protected int MAX_CYCLES() {
-        return 0;
+        return 2;
     }
 
     @Override
-    public void main() {
-        sleep(15000);
-        super.main();
+    protected boolean shouldWaitForSeaLions() {
+        return true;
     }
 }

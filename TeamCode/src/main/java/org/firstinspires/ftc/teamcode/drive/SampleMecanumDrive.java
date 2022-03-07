@@ -116,7 +116,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public boolean isCorrecting = false;
     private Trajectory currentTrajectory;
 
-    private DistanceSensor xCoordinateSensor;
+    public DistanceSensor xCoordinateSensor;
     private static final double X_SENSOR_OFFSET = 8; // How far away the sensor is from the center of the robot. + is toward he intake.
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 

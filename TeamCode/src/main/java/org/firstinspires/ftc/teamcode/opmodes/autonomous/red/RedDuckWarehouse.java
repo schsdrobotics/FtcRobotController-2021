@@ -45,7 +45,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
  * Duck side -> Preload -> duck -> park in warehouse
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedDuckWarehouse", group="Red")
+@Autonomous(name="RedDuckWarehouse", group="Red Duck")
 public class RedDuckWarehouse extends AutonomousTemplate {
     private Trajectory toHubInitial;
     private Trajectory toDuckSpinner;

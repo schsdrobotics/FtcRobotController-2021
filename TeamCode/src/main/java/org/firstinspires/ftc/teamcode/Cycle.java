@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.LiftHandler.Position;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a cycle of:
@@ -49,11 +48,11 @@ public class Cycle {
      * Begin process: intake, lift
      */
     public void start() {
+        stage = Stage.IN_START;
         executor.submit(() -> {
-            stage = Stage.IN_START;
             holdValues(true);
             double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-            boolean preFilled = distanceCm < 6;
+            boolean preFilled = distanceCm < 9;
             if (!preFilled) {
                 sweeper.forwards(1);
 
@@ -91,6 +90,7 @@ public class Cycle {
             if (objectPickedUp) {
                 if (!preFilled) {
                     bucket.halfway();
+                    waitFor(100);
                     sweeper.backwards(1); // spit out extras
                     waitFor(300);
                 }
@@ -123,7 +123,7 @@ public class Cycle {
             // wiggle bucket to encourage item to drop
             MutableDouble distanceCm = new MutableDouble(Double.MIN_VALUE);
             AtomicBoolean dropped = new AtomicBoolean(false);
-            bucket.wiggleUntil(() -> {
+            bucket.waitUntilOr3s(() -> {
                 distanceCm.value = distanceSensor.getDistance(DistanceUnit.CM);
                 boolean shouldStop = distanceCm.value > 12;
                 if (shouldStop) {

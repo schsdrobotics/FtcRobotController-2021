@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.path.PathContinuityViolationException;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
@@ -48,16 +47,21 @@ public abstract class AutonomousTemplate extends LinearOpMode {
     protected IntakeServoHandler intakeServo;
     protected LightHandler light;
     protected DistanceSensor distanceSensor;
+    private DistanceSensor xCoordinateSensor;
     protected Cycle currentCycle;
 
     protected static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     protected abstract Pose2d startPose();
 
+    protected String cameraName() {
+        return "intakeCamera";
+    }
+
     @Override
     public void runOpMode() {
         // Initialize hardware
-        camera = new CameraHandler(hardwareMap);
+        camera = new CameraHandler(hardwareMap, cameraName());
         drive = new SampleMecanumDrive(hardwareMap);
         duck = new DuckHandler(hardwareMap, null);
         arm = new ArmHandler(hardwareMap, null);
@@ -67,6 +71,7 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         intakeServo = new IntakeServoHandler(hardwareMap);
         light = new LightHandler(hardwareMap);
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
+        xCoordinateSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
         light.setColor(LightHandler.Color.YELLOW);
         telemetry.addData("Status", "Initialized");
@@ -149,6 +154,11 @@ public abstract class AutonomousTemplate extends LinearOpMode {
         return LiftHandler.Position.HIGH;
     }
 
+    public void cancelAndStop() {
+        drive.cancelFollowing();
+        drive.setDrivePower(new Pose2d());
+    }
+
     public void backgroundLoop() {
         executor.submit(() -> {
             // Set up to blink robopandas in morse code
@@ -178,10 +188,12 @@ public abstract class AutonomousTemplate extends LinearOpMode {
             light.resetTimer();
             while (opModeIsActive() && !isStopRequested()) {
                 light.tick();
-                telemetry.addData("distance", distanceSensor.getDistance(DistanceUnit.CM)); //KEEP THIS HERE THE DISTANCE SENSOR READS ABOUT 3 WHEN IT FIRST TURNS ON
+                telemetry.addData("bucket distance(cm)", distanceSensor.getDistance(DistanceUnit.CM)); //KEEP THIS HERE THE DISTANCE SENSOR READS ABOUT 3 WHEN IT FIRST TURNS ON
+                telemetry.addData("xCoord distance(in)", xCoordinateSensor.getDistance(DistanceUnit.INCH));
                 telemetry.update();
 //                drive.update();
             }
+            cancelAndStop();
             light.setColor(LightHandler.Color.OFF);
         });
     }

@@ -43,28 +43,40 @@ import org.firstinspires.ftc.teamcode.LiftHandler;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
-
+/**
+ * Main for warehouse side
+ * Warehouse side -> Preload -> 3 intake cycles -> park in warehouse
+ */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedWarehouse", group="Red")
+@Autonomous(name="RedWarehouse", group="Red Warehouse")
 public class RedWarehouse extends AutonomousTemplate {
-//    private Trajectory toHubInitial;
-    private Trajectory enterWarehouse;
+    private Trajectory toHubInitial;
+    private Trajectory[] enterWarehouse = new Trajectory[3];
+    private Trajectory[] toHub = new Trajectory[50];
     private Trajectory bonk; // strafes into the wall to align
-    private Trajectory pickupStrafe;
     private Trajectory pickupStraight;
 //    private Trajectory park;
 
-    private final double XTEMPADDER = 12;
-    private double xTemp = 48 - XTEMPADDER;
-    private double yHubCoord;
+//    private final double XTEMPADDER = 16;
+    private double xTemp = 50 /*- XTEMPADDER*/;
+//    private double yHubCoord = -39;
 
     protected int MAX_CYCLES() {
-        return 2;
+        return 3;
+    }
+
+    protected boolean shouldWaitForSeaLions() {
+        return false;
+    }
+
+    @Override
+    protected String cameraName() {
+        return "liftCamera";
     }
 
     @Override
     protected Pose2d startPose() {
-        return poseM(12, -63.375, 90);
+        return poseM(12, -63.375, 270);
     }
 
     @Override
@@ -72,91 +84,140 @@ public class RedWarehouse extends AutonomousTemplate {
         drive.velConstraint = SampleMecanumDrive.getVelocityConstraint(35, rad(240), 13.7);
 //        drive.accelConstraint = SampleMecanumDrive.getAccelerationConstraint(35); // this is the default value so doesn't need to be written in
 
-        bonk = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(23, rad(180), 13.7))
-            .strafeRight(8 * multiplier())
+        toHubInitial = drive.trajectoryBuilder(startPose())
+                .lineToLinearHeading(poseM(-15, -36, 280))
+                .addTemporalMarker(1, -0.7, () -> {
+                    //Drop and retract
+                    currentCycle.finish();
+                })
+                .addTemporalMarker(1, -0.3, () -> {
+                    //Cancel early to make it faster
+                    cancelAndStop();
+                })
             .build();
 
-        pickupStrafe = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(10, rad(180), 13.7))
-                .splineToConstantHeading(posM(5, 5), 0)
-                .forward(7)
+        bonk = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(23, rad(180), 13.7))
+                .strafeRight(8 * multiplier())
                 .build();
 
         pickupStraight = drive.trajectoryBuilder(pose(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(13, rad(180), 13.7))
                 .lineToConstantHeading(posM(9, -2))
                 .build();
+
+        enterWarehouse[0] = drive.trajectoryBuilder(poseM(-7, -37, 280), false)
+                .splineToSplineHeading(pose(-2, -60, 0), radM(290))
+                .splineToConstantHeading(posM(12, -71), radM(0))
+                .lineToConstantHeading(posM(54, -71))
+                .build();
+
+        enterWarehouse[1] = drive.trajectoryBuilder(poseM(-7, -37, 280), false)
+                .splineToSplineHeading(pose(-2, -60, 0), radM(290))
+                .splineToConstantHeading(posM(12, -71), radM(0))
+//                .lineToConstantHeading(posM(37, -71))
+//                .splineTo(posM(62, -66), radM(15))
+                .lineToConstantHeading(posM(64, -71))
+                .build();
+
+        enterWarehouse[2] = drive.trajectoryBuilder(poseM(-7, -37, 280), false)
+                .splineToSplineHeading(pose(-2, -60, 0), radM(290))
+                .splineToConstantHeading(posM(12, -71), radM(0))
+//                .lineToConstantHeading(posM(37, -71))
+//                .splineTo(posM(62, -66), radM(15))
+                .lineToConstantHeading(posM(66, -71))
+                .build();
+
+        //Fills toHub[] with 10 trajectories, one for every 2 x coordinates
+        for (int i = 0; i < toHub.length; i++) {
+            toHub[i] = drive.trajectoryBuilder(poseM(21 + i, -65.375, 0), true)
+                    .splineToConstantHeading(pos(20, -65.375), rad(180))
+                    .splineToConstantHeading(pos(10, -62), rad(180))
+                    .splineTo(pos(-7, -35), rad(100))
+                    .addTemporalMarker(1, -0.7, () -> {
+                        //Drop and retract
+                        currentCycle.finish();
+                    })
+                    .addTemporalMarker(1, -0.3, () -> {
+                        //Cancel early to make it faster
+                        cancelAndStop();
+                    })
+                    .build();
+        }
     }
 
     @Override
     public void main() {
-        if (target == LiftHandler.Position.LOW) yHubCoord = -39;
-        else if (target == LiftHandler.Position.MIDDLE) yHubCoord = -38;
-        else if (target == LiftHandler.Position.HIGH) yHubCoord = -37;
+//        if (target == LiftHandler.Position.LOW) yHubCoord = -39;
+//        else if (target == LiftHandler.Position.MIDDLE) yHubCoord = -38;
+//        else if (target == LiftHandler.Position.HIGH) yHubCoord = -37;
         // Drop intake
         intakeServo.release();
-        // Go to alliance hub
-        drive.followTrajectoryAsync(drive.trajectoryBuilder(startPose())
-            .lineToLinearHeading(poseM(-7, yHubCoord, 280))
-            .build(), false);
-        double startTime = getRuntime();
-        while (getRuntime() < startTime + 2.25); // Wait for 2s
-        // Drop and retract
-        currentCycle.finish();
-        enterWarehouse = buildEnterWarehouseTrajectory();
-        currentCycle.await();
+        // Go to alliance hub (this also handles currentcycle.finish();
+        drive.followTrajectory(toHubInitial);
+//        enterWarehouse = buildEnterWarehouseTrajectory();
+//        currentCycle.await();
 
         park: {
             for (int cycles = 0; cycles < MAX_CYCLES(); cycles++) {
                 currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
                 // To warehouse
-                drive.followTrajectoryAsync(enterWarehouse, false);
-                startTime = getRuntime();
-                while (getRuntime() < startTime + 3); //Wait for 3s
+                drive.followTrajectoryAsync(enterWarehouse[cycles], false);
+                sleep(3000);
                 currentCycle.start();
-                while (drive.isBusy() && currentCycle.softIsBusy() && !currentCycle.isLowering() && !currentCycle.shouldCancel()); //Await but with a drive.isBusy()
-                if (drive.isBusy()) {
-                    drive.cancelFollowing();
-                    drive.setDrivePower(new Pose2d());
-                }
-                else {
-//                drive.followTrajectory(bonk, false);
-//                drive.setPoseEstimate(poseM(bonk.end().getX(), -65.375, 0));
-//                drive.followTrajectory(toWarehouse2, false); // THIS IS AN OLD TOWAREHOUSE2 AND IS NOT THE SAME AS IN THE NEW CODE. THIS WAS MERGED WITH TOWAREHOUSE1.
-                    if (cycles % 2 == 1) drive.followTrajectoryAsync(pickupStrafe, false);
-                    else drive.followTrajectoryAsync(pickupStraight, false);
-                    // wait for the cycle to finish before running the check for failure once
-                    if (currentCycle.await()) { // If this is true, we did NOT pick anything up
-                        // Assume that Cycle is working properly (i.e. the state will not be WAITING), and that there is only one possible error message
-                        if (!currentCycle.errorMessage.isEmpty())
-                            System.out.println("Failed to pick up an item; parking now");
-                        else System.out.println("Cycle is not working properly.");
-                        drive.cancelFollowing();
-                        drive.setDrivePower(new Pose2d());
-                        break park;
-                    } else {
-                        drive.cancelFollowing();
-                        drive.setDrivePower(new Pose2d());
-                        if (cycles % 2 == 1) {
-                            drive.followTrajectory(bonk);
-                        }
-                    }
-                }
+                while (drive.isBusy() && currentCycle.softIsBusy() && !currentCycle.isLowering() && !currentCycle.shouldCancel() && !isStopRequested()); //Await but with a drive.isBusy()
+//                if (drive.isBusy()) {
+//                    cancelAndStop();
+//                    drive.followTrajectoryAsync(toHub[cycles]);
+//                }
+//                else {
+////                drive.followTrajectory(bonk, false);
+////                drive.setPoseEstimate(poseM(bonk.end().getX(), -65.375, 0));
+////                drive.followTrajectory(toWarehouse2, false); // THIS IS AN OLD TOWAREHOUSE2 AND IS NOT THE SAME AS IN THE NEW CODE. THIS WAS MERGED WITH TOWAREHOUSE1.
+//                    drive.followTrajectoryAsync(pickupStraight, false);
+//                    // wait for the cycle to finish before running the check for failure once
+//                    if (currentCycle.await()) { // If this is true, we did NOT pick anything up
+//                        // Assume that Cycle is working properly (i.e. the state will not be WAITING), and that there is only one possible error message
+//                        if (!currentCycle.errorMessage.isEmpty())
+//                            System.out.println("Failed to pick up an item; parking now");
+//                        else System.out.println("Cycle is not working properly.");
+//                        cancelAndStop();
+//                        break park;
+//                    } else {
+//                        cancelAndStop();
+//                        // To hub
+//                        // Since we cancel our following, we need to get our start position for this trajectory on the fly
+//                        xTemp = drive.findActualX(false);
+//                        drive.setPoseEstimate(poseM(xTemp, -65.375, 0));
+//                        drive.update();
+//                        drive.followTrajectoryAsync(buildToHubTrajectory(), false);
+//                    }
+//                }
 
+                cancelAndStop();
                 // To hub
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
                 xTemp = drive.findActualX(false);
                 drive.setPoseEstimate(poseM(xTemp, -65.375, 0));
                 drive.update();
-                drive.followTrajectoryAsync(buildToHubTrajectory(), false);
-                startTime = getRuntime();
-                while (getRuntime() < startTime + 3.3); // Wait for 3.75s
-                currentCycle.finish();
-                enterWarehouse = buildEnterWarehouseTrajectory();
-                currentCycle.await();
+                //Follow closest toHub trajectory
+                int index = (int) (Math.round(xTemp) - 21);
+                System.out.println("index: " + index);
+                // This also handles currentCycle.finish();
+                drive.followTrajectory((index >= 0 && index < toHub.length) ? toHub[index] : toHub[1], false);
+                if (cycles == 0 && shouldWaitForSeaLions()) sleep(7000); // This only runs when running a SeaLion auto
+//                drive.followTrajectoryAsync(toHub[cycles]);
+
+//                if (getRuntime() < 7) { //If we run out of time
+//                    cancelAndStop();
+//                    break park;
+//                }
+
+//                enterWarehouse = buildEnterWarehouseTrajectory();
+//                currentCycle.await();
                 currentCycle = null;
             }
 
             arm.onStopAuto();
-            drive.followTrajectory(enterWarehouse, false);
+            drive.followTrajectory(enterWarehouse[1], false);
 //            drive.followTrajectory(bonk, false);
 //            drive.followTrajectory(toWarehouse2, false);
 //            drive.followTrajectory(toWarehouse3, false);
@@ -169,9 +230,9 @@ public class RedWarehouse extends AutonomousTemplate {
     protected Trajectory buildToHubTrajectory() {
         drive.update();
         return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
-            .lineToSplineHeading(poseM(7, -65.375, 0))
+            .lineToSplineHeading(poseM(12, -65.375, 0))
             .splineToConstantHeading(posM(-2, -60), radM(110))
-            .splineToSplineHeading(poseM(-13, -36, 280), radM(100))
+            .splineToSplineHeading(poseM(-10, -34, 280), radM(100))
             .build();
     }
 
@@ -184,12 +245,12 @@ public class RedWarehouse extends AutonomousTemplate {
             .build();
     }
 
-    private Trajectory buildEnterWarehouseTrajectory() {
-        drive.update();
-        return drive.trajectoryBuilder(poseM(-7, -37, 280), false)
-            .splineToSplineHeading(poseM(-2, -54, 0), radM(290))
-            .splineToConstantHeading(posM(12, -71), radM(0))
-            .lineToConstantHeading(posM(xTemp + XTEMPADDER, -71)) //(72d-xTemp)*0.5d is a stupid way to correct for bad odometry
-            .build();
-    }
+//    private Trajectory buildEnterWarehouseTrajectory() {
+//        drive.update();
+//        return drive.trajectoryBuilder(poseM(-7, -37, 280), false)
+//                .splineToSplineHeading(pose(-2, -60, 0), rad(290))
+//            .splineToConstantHeading(posM(12, -70), radM(0))
+//            .lineToConstantHeading(posM(xTemp + XTEMPADDER, -70))
+//            .build();
+//    }
 }

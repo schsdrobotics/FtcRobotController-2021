@@ -43,7 +43,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckWarehouse;
  * Duck side -> Preload -> duck -> park in warehouse
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="BlueDuckWarehouse", group="Blue")
+@Autonomous(name="BlueDuckWarehouse", group="Blue Duck")
 public class BlueDuckWarehouse extends RedDuckWarehouse {
     @Override
     protected int multiplier() {

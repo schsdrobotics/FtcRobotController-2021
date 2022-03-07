@@ -13,10 +13,10 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
 /**
- * Backup #2 for duck side, in case of emergency.
+ * Emergency backup for duck side; only parks in storage area.
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-@Autonomous(name="RedDuckPark", group="Red")
+@Autonomous(name="RedDuckPark", group="Red Duck")
 public class RedDuckPark extends AutonomousTemplate {
     Trajectory forward1;
     Trajectory align;
