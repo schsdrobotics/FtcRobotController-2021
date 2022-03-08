@@ -60,7 +60,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
     RED_WAREHOUSE2(drive -> drive.trajectorySequenceBuilder(pose(12, -63.375, 270))
 //            .setReversed(true)
             //toHubInitial
-            .lineToLinearHeading(pose(-5, -42, 290))
+            .lineToLinearHeading(pose(-5, -42, 300))
 //            //align(kinda)
 //            .splineToSplineHeading(pose(-2, -60, 0), rad(290))
 //            .splineToConstantHeading(pos(12, -71), rad(0))
@@ -79,12 +79,12 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .lineToSplineHeading(pose(calculatePoint(-5, -42, 12, -71, false, -60), -60, 0))
             .lineToConstantHeading(pos(12, -71))
             //toWarehouse
-            .setAccelConstraint(getAccelerationConstraint(75))
-            .setVelConstraint(getVelocityConstraint(45, rad(270), 13.7))
-            .forward(30)
-            .addTemporalMarker(1, -0.3, () -> {
-                //Cancel following
+            .lineToConstantHeading(pos(24, -71))
+            .splineTo(pos(50, -68), rad(15))
+            .addTemporalMarker(1, -1, () -> {
+                System.out.println("EEEE");
             })
+
 //            .lineToConstantHeading(pos(30, -71))
 //            .splineToConstantHeading(pos(50, -67), rad(0))
 //            .lineToConstantHeading(pos(60, -67))
@@ -279,8 +279,8 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 // Background opacity from 0-1
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
-                .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(RED_WAREHOUSE2::apply)
+                .setConstraints(45 * multiplier, 45 * multiplier, rad(240) * multiplier, rad(240) * multiplier, 13.7)
+                .followTrajectorySequence(BLUE_DUCK_STORAGE::apply)
                 .start();
     }
 }

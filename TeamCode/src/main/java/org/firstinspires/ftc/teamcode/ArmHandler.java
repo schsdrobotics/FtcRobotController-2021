@@ -67,7 +67,7 @@ public class ArmHandler {
                 this.lastMillis = millis;
             }
             // mini arm
-            mini.setAndUpdate(controller.a ? 0 : 0.7);
+            mini.setAndUpdate(controller.a ? 0.1 : 1);
         }
     }
 }

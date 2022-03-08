@@ -82,7 +82,7 @@ public class BlueDuckWarehouse extends AutonomousTemplate {
                 .build();
         toDuckSpinner = drive.trajectoryBuilder(pose(align[1].end().getX(), 65.375, 90))
                 .forward(10)
-                .splineToLinearHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
+                .splineToSplineHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
                 .build();
         forward = drive.trajectoryBuilder(toDuckSpinner.end())
                 .forward(-10)
