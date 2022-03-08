@@ -83,7 +83,7 @@ public class RedWarehouse extends AutonomousTemplate {
 //        drive.accelConstraint = SampleMecanumDrive.getAccelerationConstraint(35); // this is the default value so doesn't need to be written in
 
         toHubInitial = drive.trajectoryBuilder(startPose())
-                .lineToLinearHeading(poseM(-15, -36, 280))
+                .lineToLinearHeading(poseM(-15, -36, 290))
                 .addTemporalMarker(1, -0.6, () -> {
                     //Drop and retract
                     currentCycle.finish();
@@ -97,7 +97,7 @@ public class RedWarehouse extends AutonomousTemplate {
         enterWarehouseAlign = drive.trajectoryBuilder(poseM(-7, -37, 280), SampleMecanumDrive.getAccelerationConstraint(45))
                 .lineToSplineHeading(pose(calculatePoint(-7, -37, 12, -69, false, -60), -60, 0))
                 .lineToConstantHeading(pos(12, -69))
-                .addTemporalMarker(1, -0.3, () -> {
+                .addTemporalMarker(1, -0.5, () -> {
                     //Cancel early to make it faster
                     cancelAndStop();
                 })
@@ -148,7 +148,7 @@ public class RedWarehouse extends AutonomousTemplate {
                 drive.followTrajectory(enterWarehouseAlign, false);
                 drive.setMotorPowers(0.8, 0.8, 0.8, 0.8);
                 sleep(370);
-                drive.setMotorPowers(0.2, 0.2, 0.2, 0.2);
+                drive.setMotorPowers(0.1, 0.1, 0.1, 0.1);
                 sleep(50); //Sleep for 50ms to avoid voltage too low problems
                 currentCycle.start();
                 while (currentCycle.softIsBusy() && !currentCycle.isLowering() && !currentCycle.shouldCancel() && !isStopRequested()); //Await with a !isStopRequested()
