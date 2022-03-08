@@ -49,7 +49,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckWarehouse;
 @Autonomous(name="BlueDuckWarehouse", group="Blue Duck")
 public class BlueDuckWarehouse extends AutonomousTemplate {
     private Trajectory toHubInitial;
-    private Trajectory[] align = new Trajectory[2];
+    private Trajectory align;
     private Trajectory toDuckSpinner;
     private Trajectory forward;
     private Trajectory align2;
@@ -73,14 +73,11 @@ public class BlueDuckWarehouse extends AutonomousTemplate {
                 .lineToConstantHeading(posM(-59, -25))
                 .splineToSplineHeading(poseM(-32, -21, 180), 0)
                 .build();
-        align[0] = drive.trajectoryBuilder(toHubInitial.end())
-                .splineToConstantHeading(posM(-59,-40), radM(90))
-                .lineTo(posM(-59, -25))
+        align = drive.trajectoryBuilder(toHubInitial.end())
+                .splineToSplineHeading(poseM(-52, -19, 270), radM(180))
+                .splineToConstantHeading(posM(-75, -27), radM(270))
                 .build();
-        align[1] = drive.trajectoryBuilder(align[0].end())
-                .splineToLinearHeading(poseM(-32, -21, 180), 0)
-                .build();
-        toDuckSpinner = drive.trajectoryBuilder(pose(align[1].end().getX(), 65.375, 90))
+        toDuckSpinner = drive.trajectoryBuilder(pose(align.end().getX(), 65.375, 90))
                 .forward(10)
                 .splineToLinearHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
                 .build();
@@ -106,9 +103,9 @@ public class BlueDuckWarehouse extends AutonomousTemplate {
         currentCycle.finish();
         currentCycle.await();
         // Go to duck spinner
-        for (Trajectory traj : align) drive.followTrajectory(traj, false);
+        drive.followTrajectory(align, false);
         // Reset pose estimate because we bonk
-        drive.setPoseEstimate(pose(-65.375, align[1].end().getY(), 90));
+        drive.setPoseEstimate(pose(-65.375, align.end().getY(), 90));
         drive.followTrajectory(toDuckSpinner, false);
         // Run duck spinner for 1.5 seconds
         duck.reverse();
