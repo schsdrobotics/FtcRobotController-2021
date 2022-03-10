@@ -50,4 +50,23 @@ public class BlueWarehouse extends RedWarehouse {
     protected int multiplier() {
         return -1;
     }
+
+    @Override
+    protected void buildHubTrajectories() {
+        for (int i = 0; i < toHub.length; i++) {
+            toHub[i] = drive.trajectoryBuilder(poseM(21 + i, -65.375, 0), true)
+                    .splineToConstantHeading(posM(20, -65.375), radM(180))
+                    .splineToConstantHeading(posM(10, -62), radM(180))
+                    .splineTo(posM(-11, -35), radM(110))
+                    .addTemporalMarker(1, -0.7, () -> {
+                        //Drop and retract
+                        currentCycle.finish();
+                    })
+                    .addTemporalMarker(1, -0.3, () -> {
+                        //Cancel early to make it faster
+                        cancelAndStop();
+                    })
+                    .build();
+        }
+    }
 }

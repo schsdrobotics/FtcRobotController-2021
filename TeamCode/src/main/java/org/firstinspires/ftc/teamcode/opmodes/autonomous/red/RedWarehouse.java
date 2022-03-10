@@ -54,7 +54,7 @@ public class RedWarehouse extends AutonomousTemplate {
     private Trajectory[] enterWarehouse = new Trajectory[4];
 //    private Trajectory enterWarehouseAlign;
 //    private Trajectory enterWarehouseFast;
-    private Trajectory[] toHub = new Trajectory[50];
+    protected Trajectory[] toHub = new Trajectory[50];
 
 //    private final double XTEMPADDER = 16;
     private double xTemp = 50 /*- XTEMPADDER*/;
@@ -95,11 +95,11 @@ public class RedWarehouse extends AutonomousTemplate {
                 })
             .build();
 
-        enterWarehouse[0] = drive.trajectoryBuilder(poseM(-7, -37, 280), SampleMecanumDrive.getAccelerationConstraint(45))
+        enterWarehouse[0] = drive.trajectoryBuilder(poseM(-11, -37, 290), SampleMecanumDrive.getAccelerationConstraint(45))
                 .splineToSplineHeading(poseM(-2, -60, 0), radM(290))
                 .splineToConstantHeading(posM(12, -71), radM(0))
-                .lineToConstantHeading(posM(54, -71))
-                .addTemporalMarker(1, -1.1, () -> {
+                .lineToConstantHeading(posM(56, -71))
+                .addTemporalMarker(0, 2.6, () -> {
                     currentCycle.start();
                 })
                 .addTemporalMarker(1, -0.7, () -> {
@@ -107,27 +107,13 @@ public class RedWarehouse extends AutonomousTemplate {
                 })
                 .build();
 
-        enterWarehouse[1] = drive.trajectoryBuilder(poseM(-7, -37, 280), SampleMecanumDrive.getAccelerationConstraint(45))
-                .splineToSplineHeading(poseM(-2, -60, 0), radM(290))
-                .splineToConstantHeading(posM(12, -71), radM(0))
-//                .lineToConstantHeading(posM(37, -71))
-//                .splineTo(posM(62, -66), radM(15))
-                .lineToConstantHeading(posM(64, -71))
-                .addTemporalMarker(1, -1.1, () -> {
-                    currentCycle.start();
-                })
-                .addTemporalMarker(1, -0.7, () -> {
-                    drive.cancelFollowing();
-                })
-                .build();
-
-        enterWarehouse[2] = drive.trajectoryBuilder(poseM(-7, -37, 280), SampleMecanumDrive.getAccelerationConstraint(45))
+        enterWarehouse[1] = drive.trajectoryBuilder(poseM(-11, -37, 290), SampleMecanumDrive.getAccelerationConstraint(45))
                 .splineToSplineHeading(poseM(-2, -60, 0), radM(290))
                 .splineToConstantHeading(posM(12, -71), radM(0))
 //                .lineToConstantHeading(posM(37, -71))
 //                .splineTo(posM(62, -66), radM(15))
                 .lineToConstantHeading(posM(66, -71))
-                .addTemporalMarker(1, -1.1, () -> {
+                .addTemporalMarker(0, 2.6, () -> {
                     currentCycle.start();
                 })
                 .addTemporalMarker(1, -0.7, () -> {
@@ -135,10 +121,24 @@ public class RedWarehouse extends AutonomousTemplate {
                 })
                 .build();
 
-        enterWarehouse[3] = drive.trajectoryBuilder(poseM(-7, -37, 280), SampleMecanumDrive.getAccelerationConstraint(45))
+        enterWarehouse[2] = drive.trajectoryBuilder(poseM(-11, -37, 290), SampleMecanumDrive.getAccelerationConstraint(45))
                 .splineToSplineHeading(poseM(-2, -60, 0), radM(290))
                 .splineToConstantHeading(posM(12, -71), radM(0))
-                .lineToConstantHeading(posM(54, -71))
+//                .lineToConstantHeading(posM(37, -71))
+//                .splineTo(posM(62, -66), radM(15))
+                .lineToConstantHeading(posM(68, -71))
+                .addTemporalMarker(0, 2.6, () -> {
+                    currentCycle.start();
+                })
+                .addTemporalMarker(1, -0.7, () -> {
+                    drive.cancelFollowing();
+                })
+                .build();
+
+        enterWarehouse[3] = drive.trajectoryBuilder(poseM(-11, -37, 290), SampleMecanumDrive.getAccelerationConstraint(45))
+                .splineToSplineHeading(poseM(-2, -60, 0), radM(290))
+                .splineToConstantHeading(posM(12, -71), radM(0))
+                .lineToConstantHeading(posM(56, -71))
                 .addTemporalMarker(1, -0.7, () -> {
                     cancelAndStop();
                 })
@@ -162,21 +162,7 @@ public class RedWarehouse extends AutonomousTemplate {
 //                .build();
 
         //Fills toHub[] with 10 trajectories, one for every 2 x coordinates
-        for (int i = 0; i < toHub.length; i++) {
-            toHub[i] = drive.trajectoryBuilder(poseM(21 + i, -65.375, 0), true)
-                    .splineToConstantHeading(posM(20, -65.375), radM(180))
-                    .splineToConstantHeading(posM(10, -62), radM(180))
-                    .splineTo(posM(-7, -35), radM(100))
-                    .addTemporalMarker(1, -0.7, () -> {
-                        //Drop and retract
-                        currentCycle.finish();
-                    })
-                    .addTemporalMarker(1, -0.3, () -> {
-                        //Cancel early to make it faster
-                        cancelAndStop();
-                    })
-                    .build();
-        }
+        buildHubTrajectories();
     }
 
     @Override
@@ -195,14 +181,15 @@ public class RedWarehouse extends AutonomousTemplate {
             for (int cycles = 0; cycles < maxCycles(); cycles++) {
                 currentCycle = new Cycle(sweeper, bucket, lift, LiftHandler.Position.HIGH, hardwareMap.get(DistanceSensor.class, "distanceSensor"));
                 // Align
-                drive.followTrajectory(enterWarehouse[cycles], false);
-//                drive.setMotorPowers(0.8, 0.8, 0.8, 0.8);
-//                sleep(370);
-                drive.setMotorPowers(0.1, 0.1, 0.1, 0.1);
-//                sleep(20); //Sleep for 20ms to avoid voltage too low problems
-//                currentCycle.start();
+                drive.followTrajectoryAsync(enterWarehouse[cycles], false);
+                sleep(1000);
+                while(!currentCycle.shouldCancel() && drive.isBusy() && !isStopRequested());
                 double startTime = getRuntime();
-                while (currentCycle.softIsBusy() && !currentCycle.isLowering() && !currentCycle.shouldCancel() && !isStopRequested() && getRuntime() - startTime < 2.5); //Await with a !isStopRequested()
+                if (drive.isBusy()) cancelAndStop();
+                else {
+                    drive.setMotorPowers(0.1, 0.1, 0.1, 0.1);
+                    while (currentCycle.softIsBusy() && !currentCycle.isLowering() && !currentCycle.shouldCancel() && !isStopRequested() && getRuntime() - startTime < 2.5); //Await with a !isStopRequested()
+                }
 //                if (drive.isBusy()) {
 //                    cancelAndStop();
 //                    drive.followTrajectoryAsync(toHub[cycles]);
@@ -233,6 +220,7 @@ public class RedWarehouse extends AutonomousTemplate {
 
                 drive.setDrivePower(new Pose2d());
                 if (getRuntime() - startTime > 2.5) break park;
+                if (cycles == 0 && shouldWaitForSeaLions()) sleep(7000); // This only runs when running a SeaLion auto
                 // To hub
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
                 xTemp = drive.findActualX(false);
@@ -243,7 +231,6 @@ public class RedWarehouse extends AutonomousTemplate {
                 System.out.println("index: " + index);
                 // This also handles currentCycle.finish();
                 drive.followTrajectory((index >= 0 && index < toHub.length) ? toHub[index] : toHub[1], false);
-                if (cycles == 0 && shouldWaitForSeaLions()) sleep(7000); // This only runs when running a SeaLion auto
 //                drive.followTrajectoryAsync(toHub[cycles]);
 
 //                if (getRuntime() < 7) { //If we run out of time
@@ -266,19 +253,38 @@ public class RedWarehouse extends AutonomousTemplate {
 //            drive.followTrajectory(toWarehouse2, false);
 //            drive.followTrajectory(toWarehouse3, false);
         }
-//
+
+        arm.onStopAuto();
 //        // Park
 //        drive.followTrajectory(buildParkTrajectory(), false);
     }
 
-    private Trajectory buildParkTrajectory() {
-        drive.update();
-        return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
-            .lineToSplineHeading(poseM(54, -65.375, 0))
-            .splineToConstantHeading(posM(46, -38), radM(0))
-            .lineToSplineHeading(poseM(60, -38, 270))
-            .build();
+    protected void buildHubTrajectories() {
+        for (int i = 0; i < toHub.length; i++) {
+            toHub[i] = drive.trajectoryBuilder(poseM(21 + i, -65.375, 0), true)
+                    .splineToConstantHeading(posM(20, -65.375), radM(180))
+                    .splineToConstantHeading(posM(10, -62), radM(180))
+                    .splineTo(posM(-7, -35), radM(110))
+                    .addTemporalMarker(1, -0.7, () -> {
+                        //Drop and retract
+                        currentCycle.finish();
+                    })
+                    .addTemporalMarker(1, -0.3, () -> {
+                        //Cancel early to make it faster
+                        cancelAndStop();
+                    })
+                    .build();
+        }
     }
+
+//    private Trajectory buildParkTrajectory() {
+//        drive.update();
+//        return drive.trajectoryBuilder(drive.getPoseEstimate(), false)
+//            .lineToSplineHeading(poseM(54, -65.375, 0))
+//            .splineToConstantHeading(posM(46, -38), radM(0))
+//            .lineToSplineHeading(poseM(60, -38, 270))
+//            .build();
+//    }
 
 //    private Trajectory buildEnterWarehouseTrajectory() {
 //        drive.update();

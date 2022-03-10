@@ -50,6 +50,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckStorage;
 public class BlueDuckStorage extends AutonomousTemplate {
     private Trajectory toHubInitial;
     private Trajectory align;
+    private Trajectory forward;
     private Trajectory toDuckSpinner;
     private Trajectory park;
 
@@ -74,9 +75,11 @@ public class BlueDuckStorage extends AutonomousTemplate {
                 .splineToSplineHeading(poseM(-52, -19, 270), radM(180))
                 .splineToConstantHeading(posM(-75, -27), radM(270))
                 .build();
-        toDuckSpinner = drive.trajectoryBuilder(pose(align.end().getX(), -65.375, 90))
+        forward = drive.trajectoryBuilder(pose(align.end().getX(), -65.375, 90))
                 .forward(10)
-                .splineToSplineHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
+                .build();
+        toDuckSpinner = drive.trajectoryBuilder(forward.end())
+                .splineToLinearHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
                 .build();
         park = drive.trajectoryBuilder(toDuckSpinner.end())
                 .lineToLinearHeading(poseM(-59,-35, 90))
@@ -94,6 +97,7 @@ public class BlueDuckStorage extends AutonomousTemplate {
         drive.followTrajectory(align, false);
         // Reset pose estimate because we bonk
         drive.setPoseEstimate(pose(-65.375, align.end().getY(), 90));
+        drive.followTrajectory(forward, false);
         drive.followTrajectory(toDuckSpinner, false);
         // Run duck spinner for 1.5 seconds
         duck.reverse();

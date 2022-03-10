@@ -33,12 +33,12 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.ArmHandler;
 import org.firstinspires.ftc.teamcode.BucketHandler;
 import org.firstinspires.ftc.teamcode.CycleHandler;
@@ -89,6 +89,7 @@ public class ControlledOpMode extends OpMode {
     private CycleHandler cycles;
     private IntakeServoHandler intakeServo;
     private LightHandler light;
+    private DistanceSensor xSensor;
 
     /**
      * Code to run ONCE when the driver hits INIT
@@ -100,8 +101,9 @@ public class ControlledOpMode extends OpMode {
         lift = new LiftHandler(hardwareMap, gamepad2, telemetry);
         bucket = new BucketHandler(hardwareMap, gamepad2);
         duck = new DuckHandler(hardwareMap, gamepad2);
-        arm = new ArmHandler(hardwareMap, gamepad2);
+        arm = new ArmHandler(hardwareMap, gamepad2, telemetry);
         light = new LightHandler(hardwareMap);
+        xSensor = hardwareMap.get(DistanceSensor.class, "xCoordinateSensor");
         cycles = new CycleHandler(
                 sweeper,
                 bucket,
@@ -150,6 +152,7 @@ public class ControlledOpMode extends OpMode {
         arm.tick();
         cycles.tick();
         telemetry.addData("Status", "Run Time: " + runtime);
+        telemetry.addData("xSensor", xSensor.getDistance(DistanceUnit.CM));
     }
 
     /**

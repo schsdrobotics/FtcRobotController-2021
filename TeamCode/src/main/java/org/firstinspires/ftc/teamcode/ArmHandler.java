@@ -3,8 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class ArmHandler {
     // public for debug
+    private final Telemetry telemetry;
     public final ServoWrapper vertical;
     public final ServoWrapper horizontal;
     public final ServoWrapper mini;
@@ -13,7 +16,8 @@ public class ArmHandler {
     private long startMillis;
     private long lastMillis = System.currentTimeMillis();
 
-    public ArmHandler(HardwareMap map, Gamepad controller) {
+    public ArmHandler(HardwareMap map, Gamepad controller, Telemetry telemetry) {
+        this.telemetry = telemetry;
         this.controller = controller;
         vertical = ServoWrapper.get(map, "verticalServo");
         horizontal = ServoWrapper.get(map, "horizontalServo");
@@ -35,7 +39,13 @@ public class ArmHandler {
     }
 
     public void tick() {
+        telemetry.addData("ArmHozPos", horizontal.servo.getPosition());
+        telemetry.addData("ArmVertPos", vertical.servo.getPosition());
         if (controller != null) {
+            // move arm to perfect pickup pos
+            if (controller.b) {
+                vertical.setAndUpdate(0.09);
+            }
             // horizontal
             // Horizontal servo is continuous
             if (controller.dpad_right) {  // if we want this on a joystick, change the condition to controller.left_stick_x != 0 etc.

@@ -57,10 +57,19 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineToConstantHeading(pos(42, -38), rad(0))
             .lineToSplineHeading(pose(60, -38, 270))
             .build()),
-    RED_WAREHOUSE2(drive -> drive.trajectorySequenceBuilder(pose(12, -63.375, 270))
+    RED_WAREHOUSE2(drive -> drive.trajectorySequenceBuilder(poseM(12, -63.375, 270))
 //            .setReversed(true)
             //toHubInitial
-            .lineToLinearHeading(pose(-5, -42, 290))
+            .lineToSplineHeading(poseM(-15, -37, 290))
+            .addTemporalMarker(1, -0.6, () -> {
+                //Drop and retract
+//                currentCycle.finish();
+            })
+            .addTemporalMarker(1, -0.2, () -> {
+                //Cancel early to make it faster
+//                cancelAndStop();
+            })
+            .waitSeconds(0)
 //            //align(kinda)
 //            .splineToSplineHeading(pose(-2, -60, 0), rad(290))
 //            .splineToConstantHeading(pos(12, -71), rad(0))
@@ -76,14 +85,31 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
 //            .splineToSplineHeading(pose(-5, -42, 280), rad(100))
 
             //align(kinda)
-            .lineToSplineHeading(pose(calculatePoint(-5, -42, 12, -71, false, -60), -60, 0))
-            .lineToConstantHeading(pos(12, -71))
-            //toWarehouse
-            .setAccelConstraint(getAccelerationConstraint(75))
-            .setVelConstraint(getVelocityConstraint(45, rad(270), 13.7))
-            .forward(30)
+            .splineToSplineHeading(poseM(-2, -60, 0), radM(290))
+            .splineToConstantHeading(posM(12, -71), radM(0))
+            .lineToConstantHeading(posM(54, -71))
+            .addTemporalMarker(1, -1.1, () -> {
+//                currentCycle.start();
+            })
+            .addTemporalMarker(1, -0.7, () -> {
+//                drive.cancelFollowing();
+            })
             .addTemporalMarker(1, -0.3, () -> {
                 //Cancel following
+            })
+
+            .waitSeconds(0)
+            .splineToConstantHeading(posM(54, -65.375), radM(180))
+            .splineToConstantHeading(posM(20, -65.375), radM(180))
+            .splineToConstantHeading(posM(10, -62), radM(180))
+            .splineTo(posM(-11, -35), radM(110))
+            .addTemporalMarker(1, -0.7, () -> {
+                //Drop and retract
+//                currentCycle.finish();
+            })
+            .addTemporalMarker(1, -0.3, () -> {
+                //Cancel early to make it faster
+//                cancelAndStop();
             })
 //            .lineToConstantHeading(pos(30, -71))
 //            .splineToConstantHeading(pos(50, -67), rad(0))
@@ -132,6 +158,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .splineToConstantHeading(posM(-75, -27), radM(270))
             // RESET POSE ESTIMATE HERE
             .forward(10)
+            //here
             .splineToLinearHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
             .waitSeconds(1.5)
 
@@ -175,9 +202,9 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .strafeLeft(24)
             .lineToLinearHeading(pose(60, 38, 270))
             .build()),
-    TEST(drive -> drive.trajectorySequenceBuilder(pose(43.606, -65.375, 0.000))
-            .forward(0.01)
-            .waitSeconds(10)
+    TEST(drive -> drive.trajectorySequenceBuilder(poseM(12, -63.375, 270))
+            .lineToSplineHeading(poseM(-15, -37, 290))
+            .addTemporalMarker(1, -0.2, () -> {})
             .build()),
     TEST2(drive -> drive.trajectorySequenceBuilder(pose(0, -60, 270))
             .splineToSplineHeading(pose(-60, 0, 180), rad(0))
@@ -280,7 +307,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(BLUE_DUCK_STORAGE::apply)
+                .followTrajectorySequence(BLUE_DUCK_WAREHOUSE::apply)
                 .start();
     }
 }

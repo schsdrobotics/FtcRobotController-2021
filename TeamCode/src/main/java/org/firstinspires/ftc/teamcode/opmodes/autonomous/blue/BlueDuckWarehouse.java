@@ -36,10 +36,8 @@ import androidx.annotation.RequiresApi;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
-import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckWarehouse;
 
 /**
  * Main for duck side
@@ -50,8 +48,9 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckWarehouse;
 public class BlueDuckWarehouse extends AutonomousTemplate {
     private Trajectory toHubInitial;
     private Trajectory align;
-    private Trajectory toDuckSpinner;
     private Trajectory forward;
+    private Trajectory toDuckSpinner;
+    private Trajectory backward;
     private Trajectory align2;
     private Trajectory toWarehouse;
     private Trajectory park;
@@ -77,11 +76,13 @@ public class BlueDuckWarehouse extends AutonomousTemplate {
                 .splineToSplineHeading(poseM(-52, -19, 270), radM(180))
                 .splineToConstantHeading(posM(-75, -27), radM(270))
                 .build();
-        toDuckSpinner = drive.trajectoryBuilder(pose(align.end().getX(), 65.375, 90))
+        forward = drive.trajectoryBuilder(pose(align.end().getX(), 65.375, 90))
                 .forward(10)
-                .splineToSplineHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
                 .build();
-        forward = drive.trajectoryBuilder(toDuckSpinner.end())
+        toDuckSpinner = drive.trajectoryBuilder(forward.end())
+                .splineToLinearHeading(poseM(-65.375 + 9.5, -63.375 + 6, 180), radM(180))
+                .build();
+        backward = drive.trajectoryBuilder(toDuckSpinner.end())
                 .forward(-10)
                 .build();
         align2 = drive.trajectoryBuilder(forward.end())
@@ -106,6 +107,7 @@ public class BlueDuckWarehouse extends AutonomousTemplate {
         drive.followTrajectory(align, false);
         // Reset pose estimate because we bonk
         drive.setPoseEstimate(pose(-65.375, align.end().getY(), 90));
+        drive.followTrajectory(forward, false);
         drive.followTrajectory(toDuckSpinner, false);
         // Run duck spinner for 1.5 seconds
         duck.reverse();
@@ -118,7 +120,7 @@ public class BlueDuckWarehouse extends AutonomousTemplate {
         duck.stop();
         duck.tick();
         arm.onStopAuto();
-        drive.followTrajectory(forward);
+        drive.followTrajectory(backward);
         drive.followTrajectory(align2);
         // Reset pose estimate
         drive.setPoseEstimate(pose(align2.end().getX(), 65.375, 180));

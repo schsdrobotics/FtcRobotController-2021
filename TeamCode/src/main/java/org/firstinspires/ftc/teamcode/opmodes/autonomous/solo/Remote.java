@@ -97,7 +97,7 @@ public class Remote extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         drive = new SampleMecanumDrive(hardwareMap);
         duck = new DuckHandler(hardwareMap, null);
-        arm = new ArmHandler(hardwareMap, null);
+        arm = new ArmHandler(hardwareMap, null, telemetry);
         lift = new LiftHandler(hardwareMap, null, telemetry);
         bucket = new BucketHandler(hardwareMap, null);
         sweeper = new SweeperHandler(hardwareMap, null);
