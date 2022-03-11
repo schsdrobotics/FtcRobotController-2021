@@ -36,6 +36,7 @@ import androidx.annotation.RequiresApi;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
 
@@ -45,6 +46,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="BlueDuckWarehouse", group="Blue Duck")
+@Disabled // this currently sucks
 public class BlueDuckWarehouse extends AutonomousTemplate {
     private Trajectory toHubInitial;
     private Trajectory align;

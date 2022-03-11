@@ -55,7 +55,7 @@ public class BlueWarehouse extends RedWarehouse {
     protected void buildToHubInitial() {
         toHubInitial = drive.trajectoryBuilder(startPose())
                 .lineToSplineHeading(poseM(-15, -39, 290))
-                .addTemporalMarker(1, -0.6, () -> {
+                .addTemporalMarker(1, -0.7, () -> {
                     //Drop and retract
                     currentCycle.finish();
                 })
@@ -73,7 +73,7 @@ public class BlueWarehouse extends RedWarehouse {
                     .splineToConstantHeading(posM(20, -65.375), radM(180))
                     .splineToConstantHeading(posM(10, -62), radM(180))
                     .splineTo(posM(-9, -36), radM(110))
-                    .addTemporalMarker(1, -0.7, () -> {
+                    .addTemporalMarker(1, -0.8, () -> {
                         //Drop and retract
                         currentCycle.finish();
                     })

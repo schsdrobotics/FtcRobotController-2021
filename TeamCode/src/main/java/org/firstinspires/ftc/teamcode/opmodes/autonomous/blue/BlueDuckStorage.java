@@ -47,6 +47,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedDuckStorage;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="BlueDuckStorage", group="Blue Duck")
+@Disabled // this currently sucks, but maybe we can fix it?
 public class BlueDuckStorage extends AutonomousTemplate {
     private Trajectory toHubInitial;
     private Trajectory align;

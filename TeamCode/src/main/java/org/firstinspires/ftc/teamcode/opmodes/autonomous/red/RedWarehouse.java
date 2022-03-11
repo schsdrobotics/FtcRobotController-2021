@@ -232,7 +232,7 @@ public class RedWarehouse extends AutonomousTemplate {
     protected void buildToHubInitial() {
         toHubInitial = drive.trajectoryBuilder(startPose())
                 .lineToSplineHeading(poseM(-15, -37, 290))
-                .addTemporalMarker(1, -0.6, () -> {
+                .addTemporalMarker(1, -0.7, () -> {
                     //Drop and retract
                     currentCycle.finish();
                 })
@@ -249,7 +249,7 @@ public class RedWarehouse extends AutonomousTemplate {
                     .splineToConstantHeading(posM(20, -65.375), radM(180))
                     .splineToConstantHeading(posM(10, -62), radM(180))
                     .splineTo(posM(-7, -35), radM(110))
-                    .addTemporalMarker(1, -0.7, () -> {
+                    .addTemporalMarker(1, -0.8, () -> {
                         //Drop and retract
                         currentCycle.finish();
                     })

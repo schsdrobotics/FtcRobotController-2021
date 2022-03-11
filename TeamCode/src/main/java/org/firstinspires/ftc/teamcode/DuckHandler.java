@@ -18,7 +18,7 @@ public class DuckHandler {
     private static final double MOTOR_TICKS_PER_REV = 28;
     private static final double MOTOR_GEAR_RATIO = 16;
     public static double MILLIS_FOR_PLATE_REV = 825;
-    public static double RPMSPEED = 250;
+    public static double RPMSPEED = 225;
     private double speed = rpmToTicksPerSecond(RPMSPEED) * (reversed ? -1 : 1);
     public static boolean rampUp = false;
 

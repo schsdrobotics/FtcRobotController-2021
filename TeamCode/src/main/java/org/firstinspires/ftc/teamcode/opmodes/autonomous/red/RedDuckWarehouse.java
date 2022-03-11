@@ -46,6 +46,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="RedDuckWarehouse", group="Red Duck")
+// currently eh
 public class RedDuckWarehouse extends AutonomousTemplate {
     private Trajectory toHubInitial;
     private Trajectory toDuckSpinner;

@@ -45,6 +45,7 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.AutonomousTemplate;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name = "RedDuckStorage", group = "Red Duck")
+// currently eh
 public class RedDuckStorage extends AutonomousTemplate {
     protected Trajectory toHubInitial;
     protected Trajectory toDuckSpinner;

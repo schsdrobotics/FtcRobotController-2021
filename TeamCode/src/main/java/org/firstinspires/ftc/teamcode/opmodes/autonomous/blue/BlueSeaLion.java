@@ -13,9 +13,13 @@ import org.firstinspires.ftc.teamcode.opmodes.autonomous.red.RedSeaLion;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Autonomous(name="BlueSeaLion", group="Blue Warehouse")
-public class BlueSeaLion extends RedSeaLion {
+public class BlueSeaLion extends BlueWarehouse {
+    protected int maxCycles() {
+        return 2;
+    }
+
     @Override
-    protected int multiplier() {
-        return -1;
+    protected boolean shouldWaitForSeaLions() {
+        return true;
     }
 }
