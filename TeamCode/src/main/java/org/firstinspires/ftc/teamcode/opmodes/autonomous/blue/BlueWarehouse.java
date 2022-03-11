@@ -52,12 +52,27 @@ public class BlueWarehouse extends RedWarehouse {
     }
 
     @Override
+    protected void buildToHubInitial() {
+        toHubInitial = drive.trajectoryBuilder(startPose())
+                .lineToSplineHeading(poseM(-15, -39, 290))
+                .addTemporalMarker(1, -0.6, () -> {
+                    //Drop and retract
+                    currentCycle.finish();
+                })
+                .addTemporalMarker(1, -0.2, () -> {
+                    //Cancel early to make it faster
+                    cancelAndStop();
+                })
+                .build();
+    }
+
+    @Override
     protected void buildHubTrajectories() {
         for (int i = 0; i < toHub.length; i++) {
             toHub[i] = drive.trajectoryBuilder(poseM(21 + i, -65.375, 0), true)
                     .splineToConstantHeading(posM(20, -65.375), radM(180))
                     .splineToConstantHeading(posM(10, -62), radM(180))
-                    .splineTo(posM(-11, -35), radM(110))
+                    .splineTo(posM(-9, -36), radM(110))
                     .addTemporalMarker(1, -0.7, () -> {
                         //Drop and retract
                         currentCycle.finish();

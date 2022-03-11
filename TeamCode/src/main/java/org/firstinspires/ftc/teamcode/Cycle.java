@@ -76,7 +76,7 @@ public class Cycle {
                     } else bucketFilledFor = 0; // reset timer if item has exited
 
                     // if bucket has consistently held an item for 400 millis, consider it secure
-                    if (bucketFilledFor > 400) {
+                    if (bucketFilledFor > 700) {
                         sweeper.stop();
                         break;
                     }

@@ -87,7 +87,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             //align(kinda)
             .splineToSplineHeading(poseM(-2, -60, 0), radM(290))
             .splineToConstantHeading(posM(12, -71), radM(0))
-            .lineToConstantHeading(posM(54, -71))
+            .splineToConstantHeading(posM(54, -73), radM(0))
             .addTemporalMarker(1, -1.1, () -> {
 //                currentCycle.start();
             })
@@ -307,7 +307,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(BLUE_DUCK_WAREHOUSE::apply)
+                .followTrajectorySequence(RED_WAREHOUSE2::apply)
                 .start();
     }
 }
