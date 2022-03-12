@@ -1,13 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class LightHandler {
     private final DigitalChannel red;
@@ -15,7 +12,7 @@ public class LightHandler {
     private long startTime = System.currentTimeMillis();
     private final List<State> instructions = new ArrayList<>();
     private int currentIndex = 0;
-    public static final long unit = 200;
+    public static final long UNIT = 600;
 
     public LightHandler(HardwareMap map) {
         red = map.get(DigitalChannel.class, "red");
@@ -65,9 +62,9 @@ public class LightHandler {
     }
 
     public enum State {
-        DOT(LightHandler.unit, LightHandler.unit*2),
-        DASH(LightHandler.unit*3, LightHandler.unit*4),
-        PAUSE(0, LightHandler.unit*2);
+        DOT(LightHandler.UNIT, LightHandler.UNIT *2),
+        DASH(LightHandler.UNIT *3, LightHandler.UNIT *4),
+        PAUSE(0, LightHandler.UNIT *2);
 
         // Time on / off in milliseconds
         public final long on;

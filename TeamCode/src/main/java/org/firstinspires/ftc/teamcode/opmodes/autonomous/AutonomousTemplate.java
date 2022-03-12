@@ -164,14 +164,14 @@ public abstract class AutonomousTemplate extends LinearOpMode {
             // Set up to blink robopandas in morse code
             light
                     .pause()
-                    //R
-                    .dot().dash().dot().pause()
-                    //O
-                    .dash().dash().dash().pause()
-                    //B
-                    .dash().dot().dot().dot().pause()
-                    //O
-                    .dash().dash().dash().pause()
+//                    //R
+//                    .dot().dash().dot().pause()
+//                    //O
+//                    .dash().dash().dash().pause()
+//                    //B
+//                    .dash().dot().dot().dot().pause()
+//                    //O
+//                    .dash().dash().dash().pause()
                     //P
                     .dot().dash().dash().dot().pause()
                     //A
