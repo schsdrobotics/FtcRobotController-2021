@@ -90,7 +90,8 @@ public class Cycle {
             if (objectPickedUp) {
                 if (!preFilled) {
                     bucket.halfway();
-//                    waitFor(100);
+                    sweeper.stop();
+                    waitFor(200);
                     sweeper.backwards(1); // spit out extras
                     waitFor(300);
                 }

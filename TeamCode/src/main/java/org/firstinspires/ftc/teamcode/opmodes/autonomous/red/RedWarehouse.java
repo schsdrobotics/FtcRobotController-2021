@@ -102,7 +102,7 @@ public class RedWarehouse extends AutonomousTemplate {
         }
 
         pickup = drive.trajectoryBuilder(poseM(0, 0, 0), SampleMecanumDrive.getVelocityConstraint(10, rad(240), 13.7), SampleMecanumDrive.getAccelerationConstraint(75))
-                .forward(20)
+                .lineToConstantHeading(posM(20, -2))
                 .build();
 
         enterWarehouseFinal = drive.trajectoryBuilder(poseM(-11, -37, 290), SampleMecanumDrive.getAccelerationConstraint(45))

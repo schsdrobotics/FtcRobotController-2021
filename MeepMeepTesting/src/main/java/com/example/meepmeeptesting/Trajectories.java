@@ -202,9 +202,19 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
             .strafeLeft(24)
             .lineToLinearHeading(pose(60, 38, 270))
             .build()),
-    TEST(drive -> drive.trajectorySequenceBuilder(poseM(12, -63.375, 270))
-            .lineToSplineHeading(poseM(-15, -37, 290))
-            .addTemporalMarker(1, -0.2, () -> {})
+    TEST(drive -> drive.trajectorySequenceBuilder(poseM(51, -65.375, 0))
+            .setReversed(true)
+            .splineToConstantHeading(posM(20, -65.375), radM(180))
+            .splineToConstantHeading(posM(10, -62), radM(180))
+            .splineTo(posM(-7, -35), radM(110))
+            .addTemporalMarker(1, -0.8, () -> {
+                //Drop and retract
+//                currentCycle.finish();
+            })
+            .addTemporalMarker(1, -0.3, () -> {
+                //Cancel early to make it faster
+//                cancelAndStop();
+            })
             .build()),
     TEST2(drive -> drive.trajectorySequenceBuilder(pose(0, -60, 270))
             .splineToSplineHeading(pose(-60, 0, 180), rad(0))
@@ -307,7 +317,7 @@ public enum Trajectories implements Function<DriveShim, TrajectorySequence> {
                 .setBackgroundAlpha(1f)
                 .setBotDimensions(13.25, 17.25)
                 .setConstraints(45 * multiplier, 45 * multiplier, rad(180) * multiplier, rad(180) * multiplier, 13.7)
-                .followTrajectorySequence(RED_WAREHOUSE2::apply)
+                .followTrajectorySequence(TEST::apply)
                 .start();
     }
 }
