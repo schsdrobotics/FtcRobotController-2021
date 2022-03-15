@@ -190,7 +190,7 @@ public class RedWarehouse extends AutonomousTemplate {
 //                }
 
                 if (getRuntime() - startTime > 3) break park;
-                if (cycles == 0 && shouldWaitForSeaLions()) sleep(7000); // This only runs when running a SeaLion auto
+                if (shouldWaitForSeaLions()) sleep(3000); // This only runs when running a SeaLion auto
                 // To hub
                 // Since we cancel our following, we need to get our start position for this trajectory on the fly
                 xTemp = drive.findActualX(false);
