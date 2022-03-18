@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode
 import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.HardwareMap
 
-class LightHandler private constructor(private val red: DigitalChannel, private val green: DigitalChannel) {
+class LightHandler(map: HardwareMap) {
     companion object {
         const val UNIT = 600L
     }
 
+    private val red = map[DigitalChannel::class.java, "red"]
+    private val green = map[DigitalChannel::class.java, "green"]
     init {
         red.mode = DigitalChannel.Mode.OUTPUT
         green.mode = DigitalChannel.Mode.OUTPUT
@@ -16,8 +18,6 @@ class LightHandler private constructor(private val red: DigitalChannel, private 
     private var startTime = System.currentTimeMillis()
     private val instructions: MutableList<State> = ArrayList()
     private var currentIndex = 0
-
-    constructor(map: HardwareMap): this(map[DigitalChannel::class.java, "red"], map[DigitalChannel::class.java, "green"])
 
     fun dot(): LightHandler {
         instructions.add(State.DOT)
