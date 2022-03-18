@@ -10,12 +10,13 @@ class SweeperHandler(map: HardwareMap, private val controller: Gamepad?) {
 
     fun tick() {
         if (controller === null || shouldHoldSpeed) return
-        motor.power = 0.0
         val rt = controller.right_trigger
         val lt = controller.left_trigger
-        if (rt > 0) forwards(rt.toDouble()) // forwards
-        else if (lt > 0) backwards(lt.toDouble()) // reverse
-        motor.update()
+        when {
+            rt > 0 -> forwards(rt.toDouble())
+            lt > 0 -> backwards(lt.toDouble())
+            else -> stop()
+        }
     }
 
     fun forwards(power: Double) {
