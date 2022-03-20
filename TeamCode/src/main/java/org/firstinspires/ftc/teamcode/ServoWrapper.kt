@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.Servo
 class ServoWrapper(@JvmField val servo: Servo) {
     companion object {
         const val LIMIT = 95
-        @JvmStatic
         operator fun get(map: HardwareMap, name: String): ServoWrapper {
             return ServoWrapper(map[Servo::class.java, name])
         }

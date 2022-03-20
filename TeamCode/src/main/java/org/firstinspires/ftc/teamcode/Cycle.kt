@@ -35,23 +35,21 @@ class Cycle(private val sweeper: SweeperHandler, private val bucket: BucketHandl
     val isBusy: Boolean
         get() = stage.isBusy
 
-    fun softIsBusy(): Boolean {
-        return stage.softIsBusy()
-    }
+    val softIsBusy: Boolean
+        get() = stage.softIsBusy
 
     val isLowering: Boolean
         get() = stage.isLowering
 
-    fun shouldCancel(): Boolean {
-        return stage.shouldCancel()
-    }
+    val shouldCancel: Boolean
+        get() = stage.shouldCancel
 
     /**
      * @return true if COMPLETE, false if BETWEEN or WAITING
      */
     fun await(): Boolean {
         waitFor(100) // Make sure that the other thread has a chance to set the state
-        while (softIsBusy() && !isLowering && !shouldCancel()) {
+        while (softIsBusy && !isLowering && !shouldCancel) {
             waitFor(20)
         }
         return stage == Stage.COMPLETE
@@ -168,15 +166,13 @@ class Cycle(private val sweeper: SweeperHandler, private val bucket: BucketHandl
         val isBusy: Boolean
             get() = this == IN_START || this == IN_FINISH || this == SHOULD_CANCEL || this == LOWERING_LIFT
 
-        fun softIsBusy(): Boolean {
-            return this == IN_START || this == IN_FINISH
-        }
+        val softIsBusy: Boolean
+            get() = this == IN_START || this == IN_FINISH
 
         val isLowering: Boolean
             get() = this == LOWERING_LIFT
 
-        fun shouldCancel(): Boolean {
-            return this == SHOULD_CANCEL
-        }
+        val shouldCancel: Boolean
+            get() = this == SHOULD_CANCEL
     }
 }

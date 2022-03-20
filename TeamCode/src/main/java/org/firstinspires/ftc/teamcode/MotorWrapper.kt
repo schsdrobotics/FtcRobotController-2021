@@ -9,12 +9,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 class MotorWrapper(@JvmField val motor: DcMotor) {
     companion object {
         const val PERCENT_OF_MAX = 80
-        @JvmStatic
         fun clampPower(original: Double): Double {
             val maxMin = PERCENT_OF_MAX / 100.0
             return if (original > maxMin) maxMin else if (original < -maxMin) -maxMin else original
         }
-        @JvmStatic
         operator fun get(name: String, map: HardwareMap): MotorWrapper {
             return MotorWrapper(map[DcMotor::class.java, name])
         }
